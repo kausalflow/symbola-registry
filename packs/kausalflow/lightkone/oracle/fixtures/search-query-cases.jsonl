@@ -37,7 +37,9 @@
 {"query": "year:2017", "note": "exact year"}
 {"query": "year:1900-1975", "note": "inclusive range"}
 {"query": "year:2020-2010", "note": "a reversed range matches nothing"}
-{"query": "year:1974 year:2017", "note": "the last year filter wins"}
+{"query": "year:1974 year:2017", "note": "only the last year filter counts"}
+{"query": "year:2017 year:1900-2020", "note": "only the last year filter counts, whichever form it has"}
+{"query": "year:1900-1950 year:1974", "note": "a later exact year replaces an earlier range"}
 {"query": "in:Physics", "note": "a folder includes its subfolders"}
 {"query": "in:physics/qft/", "note": "folder names fold and trailing slashes are ignored"}
 {"query": "in:Phys", "note": "a folder is not matched by prefix of its name"}

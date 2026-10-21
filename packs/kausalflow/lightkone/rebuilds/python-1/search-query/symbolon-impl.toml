@@ -1,0 +1,6 @@
+[implementation]
+contract = "sha256:ed12c430ac311418ceec357a5b3befae393c7ba851aa9d435ed0ccc3ba50da5a"
+entrypoint = "impl.py"
+language = "python"
+license = "MIT"
+authors = ["AI builder"]

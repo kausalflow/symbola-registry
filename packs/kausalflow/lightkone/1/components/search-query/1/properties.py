@@ -151,6 +151,8 @@ def test_trash_shows_only_with_is_trash(impl, papers, query, trash):
 
 @given(papers=papers_st(), a=terms, b=terms, trash=st.booleans())
 def test_terms_are_conjunctive(impl, papers, a, b, trash):
+    if a.startswith("year:") and b.startswith("year:"):
+        return  # only the last year: term counts, see test_only_the_last_year_filter_counts
     prefix = "is:trash " if trash else ""
     both = set(run(impl, papers, f"{prefix}{a} {b}"))
     assert both == set(run(impl, papers, prefix + a)) & set(run(impl, papers, prefix + b))
@@ -213,3 +215,11 @@ def test_opened_order_and_is_recent(impl, papers, how):
     keep = set(ids)
     by_added = newest_first([p for p in papers if p.id in keep])
     assert ids == [p.id for p in newest_first(by_added, key=lambda p: p.opened or "")]
+
+
+YEARS = [f for f in FILTERS if f.startswith("year:")]
+
+
+@given(papers=papers_st(min_size=1), first=st.sampled_from(YEARS), last=st.sampled_from(YEARS), word=st.sampled_from(["", "alpha"]))
+def test_only_the_last_year_filter_counts(impl, papers, first, last, word):
+    assert run(impl, papers, f"{first} {word} {last}") == run(impl, papers, f"{word} {last}")

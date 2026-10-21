@@ -13,10 +13,11 @@ Query terms are separated by whitespace. A term is one of:
   "quoted phrase"                        one word that may contain spaces
   anything else                          one word
 
-Filters (all must hold):
+Filters (all must hold, except year: where only the last year: term counts):
   tag:T       some tag of the paper equals T after folding
   author:A    A is a substring of the folded authors joined with " ; "
-  year:Y      year equals Y; year:A-B: A <= year <= B (missing year never matches)
+  year:Y      year equals Y; year:A-B: A <= year <= B (missing year never matches).
+              Only the last year: term in the query applies, whichever form it has.
   in:F        the paper is in folder F or a folder inside it ("F/..."),
               compared after folding; trailing slashes on F are ignored
   has:X / no:X  for X in pdf, abstract, arxiv, notes. has:pdf accepts either

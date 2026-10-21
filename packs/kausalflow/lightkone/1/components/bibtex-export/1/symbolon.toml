@@ -1,0 +1,58 @@
+[contract]
+id = "lightkone/bibtex-export"
+version = 1
+title = "Write a lightkone paper as a BibTeX entry"
+description = """
+Writes one paper as the BibTeX entry lightkone puts in library.bib and in
+the .bib files it syncs for Overleaf. The output must match byte for byte,
+because those files are diffed and committed.
+
+Shape:
+  @<type>{<key>,
+    <name> = {<value>},
+    ...
+    <name> = {<value>}
+  }
+followed by a newline. Each field line is two spaces, the field name padded
+with spaces to the length of the longest name in the entry, " = {", the
+value, and "}"; lines are joined by ",\\n". type is "misc" when empty.
+
+Fields, in this order, each written only when its value is present and not
+empty:
+  title     always written, wrapped in an extra pair of braces: {{Title}}
+  author    authors joined by " and "; an author containing a comma, or
+            exactly "others", is written as is, any other is wrapped in
+            braces so BibTeX keeps it whole: {LIGO Collaboration}
+  year      the number
+  journal   the venue, or booktitle instead when type is "inproceedings" or
+            "incollection"; left out when fields already has a non-empty
+            value under that name
+  doi
+  eprint, archiveprefix   the arxiv id and "arXiv", when arxiv is present
+  url
+  abstract
+  keywords  tags joined by ";"
+  file
+  then every entry of fields in its given order, except names that start
+  with "lightkone-" (private to lightkone). Names are not deduplicated.
+
+Escaping: in title, venue and abstract, every & % or # not already preceded
+by a backslash gets one. Nothing else is escaped or changed.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

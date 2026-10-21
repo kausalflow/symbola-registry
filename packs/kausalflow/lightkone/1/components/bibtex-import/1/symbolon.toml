@@ -1,0 +1,92 @@
+[contract]
+id = "lightkone/bibtex-import"
+version = 1
+title = "Read BibTeX into lightkone paper drafts"
+description = """
+Reads BibTeX text, as exported by Paperpile, Zotero, JabRef or Google
+Scholar, into paper drafts the way lightkone's importer does. It never fails:
+malformed parts are skipped. Whitespace below means ASCII space, tab, CR and
+LF; other whitespace characters are unspecified in v1.
+
+READING ENTRIES. Scan for "@". Read the entry type (characters up to
+whitespace or one of , = { } ( ) " #), lower-cased, then skip whitespace. If
+the next character is not "{" or "(", skip that "@". The entry closes with
+"}" or ")" to match.
+  @comment: skip only the "@"; scanning continues inside the comment.
+  @preamble: read one value and ignore it.
+  @string{name = value}: define a macro (name lower-cased).
+  Any other type: the key is everything up to the first "," or the closing
+  character, trimmed. Then fields "name = value" separated by commas. A
+  field name is read like a type and lower-cased; a field without a name or
+  "=" is skipped up to the next comma or the end of the entry. A later field
+  with the same name replaces the earlier one. An entry with no key and no
+  fields is dropped, and so is any entry whose title is missing or empty.
+VALUES are parts joined by "#": {braced} text (nested braces, a backslash
+escapes the next character, braces are kept inside), "quoted" text (a quote
+inside braces does not end it), digits, or a bare word, which is replaced by
+a macro of that name (case-insensitive) or kept as written. Month macros
+jan..dec mean January..December. Unterminated values run to the end of the
+text. Whitespace runs in a value collapse to one space, and the value is
+trimmed.
+
+PLAIN TEXT. plain(v) applies these steps in order, each replacing every
+non-overlapping match from left to right:
+  1. optional "{", then backslash and one of " ' ` ^ ~ = .  (or one of
+     c v u H when followed by whitespace or "{"), optional whitespace,
+     optional "{", one ASCII letter, optional "}", optional "}"  ->  the
+     letter plus the combining mark (U+0308, U+0301, U+0300, U+0302, U+0303,
+     U+0304, U+0307, U+0327, U+030C, U+0306, U+030B in that order), NFC.
+  2. {\\ss} {\\o} {\\O} {\\ae} {\\AE} {\\l} {\\L} {\\i}, or the same without braces
+     when the next character is not an ASCII letter, digit or "_" (one
+     following space is consumed)  ->  ß ø Ø æ Æ ł Ł ı.
+  3. \\emph{x} \\textit{x} \\textbf{x} \\mathrm{x} \\textrm{x}, x without braces  ->  x.
+  4. backslash before one of & % $ # _ { }  ->  that character.
+  5. remove every { and } not directly after a backslash.
+  6. ~ -> space; collapse whitespace runs to one space; trim.
+
+DRAFT FIELDS from an entry's fields (each one used is removed from
+"fields" unless stated):
+  key, type   from the entry.
+  title       plain(title).
+  authors     author, or editor if there is no author field. Split on
+              whitespace-"and"-whitespace (any case). For each part: plain
+              it and drop it if empty; keep it as is if it contains a comma,
+              is "others" (any case) or starts with "{" and ends with "}";
+              otherwise move the last space-separated word to the front:
+              "Ada King Lovelace" -> "Lovelace, Ada King".
+  year        the first run of 4 ASCII digits in year, as a number.
+  venue       plain(journal, else booktitle, else publisher); publisher is
+              not removed. Empty means absent.
+  abstract    plain(abstract); empty means absent.
+  doi         with a leading http(s)://doi.org/ or dx.doi.org/ removed
+              (case-insensitive); empty means absent.
+  url, file   as written.
+  notes       annote, else note, as written.
+  arxiv       arxivid; else eprint when archiveprefix or eprinttype is
+              "arxiv" (any case); else the id in an arxiv.org/abs|pdf|html/
+              url, without version and .pdf suffix; else eprint when it
+              starts with NNNN.NNNN. A leading "arXiv:" and a trailing vN are
+              removed. When an arxiv id is found, archiveprefix, eprinttype
+              and primaryclass are removed; otherwise eprint stays in fields.
+  tags        keywords split on ";" or ",", each plained; empty ones and
+              ones starting with doi: url: arxiv: isbn: issn: pmid: pmc:
+              (any case) or containing http:// or https:// are dropped.
+  fields      every remaining field, raw (collapsed) values.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 150
+timeout_seconds = 300

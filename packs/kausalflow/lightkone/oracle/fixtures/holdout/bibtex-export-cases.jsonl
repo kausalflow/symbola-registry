@@ -1,0 +1,3 @@
+{"paper": {"key": "K", "type": "phdthesis", "title": "T", "authors": ["Shannon, Claude"], "tags": [], "fields": {}, "venue": "MIT", "year": 1940}, "note": "other types use journal"}
+{"paper": {"key": "K", "type": "article", "title": "Already \\% escaped and 5 % not", "authors": [], "tags": ["a"], "fields": {}, "arxiv": "hep-th/9711200"}, "note": "mixed escapes, old arxiv id"}
+{"paper": {"key": "K", "type": "article", "title": "T", "authors": [], "tags": [], "fields": {"lightkone-x": "1"}, "url": "u"}, "note": "only a private field"}

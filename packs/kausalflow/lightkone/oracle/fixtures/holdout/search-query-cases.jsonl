@@ -1,0 +1,9 @@
+{"query": "in:math/logic", "note": "nested folder, folded"}
+{"query": "author:bottou is:trash", "note": "author filter inside the trash"}
+{"query": "\"attention is\"", "note": "phrase"}
+{"query": "year:2012-2012 tag:dropout", "note": "range of one year and tag"}
+{"query": "has:arxiv", "sort": "year", "note": "has:arxiv by year"}
+{"query": "neural", "sort": "opened", "note": "words under the opened sort"}
+{"query": "SATZE", "note": "folded title word"}
+{"query": "is:STARRED", "note": "is: value is lower-cased"}
+{"query": "no:pdf has:notes", "note": "combined has/no"}

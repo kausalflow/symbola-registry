@@ -1,0 +1,69 @@
+{"query": "", "note": "empty query: every paper outside the trash, newest added first; equal times keep input order"}
+{"query": "   ", "note": "whitespace only is the empty query"}
+{"query": "attention", "note": "words rank by relevance under the default sort: title 5, author 4, rest 1"}
+{"query": "attention", "sort": "added", "note": "sort=added with words means relevance"}
+{"query": "attention", "sort": "year", "note": "an explicit sort keeps its order; missing year sorts as 0"}
+{"query": "networks", "note": "title hits outrank hits in abstract or notes"}
+{"query": "neural networks", "note": "every word must match; scores add up"}
+{"query": "\"neural networks\"", "note": "a quoted phrase is one word"}
+{"query": "\"networks by\"", "note": "a phrase matches across words within a field"}
+{"query": "\"hinton, geoffrey ; srivastava\"", "note": "authors are joined with ' ; '"}
+{"query": "\"dropout hinton2012\"", "note": "the rest text joins non-empty fields with single spaces: tags, then key"}
+{"query": "cafe", "note": "accents fold away"}
+{"query": "CAFÉ", "note": "case and accents fold away in the query too"}
+{"query": "naive", "note": "naïveté in the title and naive in notes"}
+{"query": "godel", "note": "author text is folded: Gödel"}
+{"query": "uber", "note": "Über in a title"}
+{"query": "hinton", "note": "author hit"}
+{"query": "hinton2012", "note": "the citation key is in the rest text"}
+{"query": "10.1103", "note": "doi is in the rest text"}
+{"query": "1706.03762", "note": "arxiv id is in the rest text"}
+{"query": "re:search", "note": "an unknown field is an ordinary word, colon included"}
+{"query": "foo:bar", "note": "unknown field that matches nothing"}
+{"query": "\"attention", "note": "an unmatched quote is part of the word"}
+{"query": "zzz", "note": "no match"}
+{"query": "tag:ml", "note": "tag filter; the trashed paper with the tag is hidden"}
+{"query": "tag:ML", "note": "tag values fold"}
+{"query": "TAG:ml", "note": "field names are case-insensitive"}
+{"query": "tag:\"to read\"", "note": "quoted tag with a space, folded"}
+{"query": "tag:to", "note": "a tag must match whole, not as a substring"}
+{"query": "tag:cafe", "note": "tag value with accent folding"}
+{"query": "tag:ml tag:cnn", "note": "all tags must match"}
+{"query": "tag:\"\"", "note": "an empty tag value matches no paper here"}
+{"query": "author:hinton", "note": "author substring"}
+{"query": "author:\"n, g\"", "note": "author value is a substring of the joined, folded author text"}
+{"query": "author:zoe", "note": "folded author"}
+{"query": "author:noam author:niki", "note": "every author filter must match"}
+{"query": "year:2017", "note": "exact year"}
+{"query": "year:1900-1975", "note": "inclusive range"}
+{"query": "year:2020-2010", "note": "a reversed range matches nothing"}
+{"query": "year:1974 year:2017", "note": "the last year filter wins"}
+{"query": "in:Physics", "note": "a folder includes its subfolders"}
+{"query": "in:physics/qft/", "note": "folder names fold and trailing slashes are ignored"}
+{"query": "in:Phys", "note": "a folder is not matched by prefix of its name"}
+{"query": "in:\"cafe/ebauches\"", "note": "folders fold accents"}
+{"query": "in:ML in:ML/Regularization", "note": "all folder filters must hold"}
+{"query": "has:pdf", "note": "a PDF in storage or a file from another manager"}
+{"query": "no:pdf", "note": "no:pdf ignores the other manager's file"}
+{"query": "has:abstract", "note": "an empty abstract is absent"}
+{"query": "no:abstract", "note": "opposite of has:abstract"}
+{"query": "has:arxiv no:pdf", "note": "filters combine"}
+{"query": "has:notes", "note": "notes present"}
+{"query": "no:notes", "note": "empty notes count as absent"}
+{"query": "has:PDF", "note": "has: values are lower-cased"}
+{"query": "has:wings", "note": "unknown has: value is ignored"}
+{"query": "is:starred", "note": "starred papers outside the trash"}
+{"query": "is:recent", "note": "opened papers, latest opened first, then newest added"}
+{"query": "is:recent attention", "note": "is:recent orders by opened even with words"}
+{"query": "is:recent", "sort": "year", "note": "an explicit sort overrides"}
+{"query": "is:trash", "note": "only trashed papers; an empty trashed field is not trashed"}
+{"query": "is:trash attention", "note": "words within the trash"}
+{"query": "is:trash is:starred", "note": "is: filters combine"}
+{"query": "is:sleepy", "note": "unknown is: value is ignored"}
+{"query": "", "sort": "year", "note": "year sort, missing years last"}
+{"query": "", "sort": "opened", "note": "opened sort; never-opened papers last by newest added"}
+{"query": "", "sort": "relevance", "note": "relevance with no words: newest added first"}
+{"query": "physics classics", "note": "words can match tags"}
+{"query": "ml attention", "sort": "relevance", "note": "words can match in different fields"}
+{"query": "physics", "note": "equal scores fall back to newest added, not input order"}
+{"query": "tag:physics confinement", "note": "filter plus word"}

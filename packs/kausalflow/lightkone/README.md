@@ -4,7 +4,7 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |
-| `1/` | The pack: BRIEF, BUILD, AGENTS, and three component contracts | yes |
+| `1/` | The pack: BRIEF, AGENTS, assumptions, obligations, and three component contracts | yes |
 | `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout | no |
 | `rebuilds/python-1/` | An AI build in Python made from `1/` alone, with the builder's NOTES.md | no |
 | `attestations/` | Signed evidence for both builds, plus the runner keys | yes, as evidence |

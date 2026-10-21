@@ -1,0 +1,4 @@
+id = "K-single-writer"
+statement = "At most one client writes a given library at a time."
+basis = "Sync is manual and libraries are personal, so concurrent edits are rare and resolved by library merge (a later component)."
+monitor = "none"

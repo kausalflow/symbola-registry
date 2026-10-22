@@ -164,10 +164,10 @@ checks = ["bibtex-import#test_entries_without_a_title_are_left_out", "bibtex-imp
 
 [[obligation]]
 id = "import.malformed-field-skip"
-statement = "A field without a name or '=' is skipped to the next comma or closing character, ignoring braces; reaching the closing character ends the entry and its later fields are lost."
-status = "default"
+statement = "A field without a name or '=' is skipped to the next comma or the end of the entry, skipping its braced and quoted values whole; the fields after it are read."
+status = "decided"
 source = "replication"
-reason = "Earlier wording said the rest of the entry is always lost; the go-1 differential test showed later fields survive when the skip stops at a comma. Losing fields after a braced value is likely a lightkone bug."
+reason = "Lost fields after a malformed one were a lightkone bug, fixed in kausalflow/lightkone#50."
 checks = ["bibtex-import#example:18", "bibtex-import#example:29", "bibtex-import#example:30"]
 
 [[obligation]]
@@ -211,7 +211,7 @@ id = "import.draft-fields"
 statement = "year is the first four digits; venue is journal, else booktitle, else publisher; notes is annote, else note; empty abstract, doi and venue are absent."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#example:23", "bibtex-import#example:35"]
+checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#example:23", "bibtex-import#example:35", "bibtex-import#example:37"]
 
 [[obligation]]
 id = "import.venue-empty-journal"

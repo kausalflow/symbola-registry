@@ -177,7 +177,13 @@ func (p *parser) fields(i int, closeCh byte, f map[string]string, isString bool)
 		if name == "" || ni2 >= n || p.s[ni2] != '=' {
 			k := ni
 			for k < n && p.s[k] != ',' && p.s[k] != closeCh {
-				k++
+				if p.s[k] == '{' {
+					_, k = p.braced(k)
+				} else if p.s[k] == '"' {
+					_, k = p.quoted(k)
+				} else {
+					k++
+				}
 			}
 			if k >= n {
 				return n
@@ -239,7 +245,16 @@ func (p *parser) run() {
 			i = p.fields(j, closeCh, map[string]string{}, true)
 		default:
 			k := j
-			for k < n && p.s[k] != ',' && p.s[k] != closeCh {
+			depth := 0
+			for k < n {
+				c := p.s[k]
+				if c == '{' {
+					depth++
+				} else if c == '}' && depth > 0 {
+					depth--
+				} else if depth == 0 && (c == ',' || c == closeCh) {
+					break
+				}
 				k++
 			}
 			key := lk.Trim(p.s[j:k])

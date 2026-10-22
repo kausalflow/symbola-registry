@@ -5,8 +5,10 @@ title = "Read BibTeX into lightkone paper drafts"
 description = """
 Reads BibTeX text, as exported by Paperpile, Zotero, JabRef or Google
 Scholar, into paper drafts the way lightkone's importer does. It never fails:
-malformed parts are skipped. Whitespace below means ASCII space, tab, CR and
-LF; other whitespace characters are unspecified in v1.
+malformed parts are skipped. Whitespace below means JavaScript's \\s: tab,
+LF, VT, FF, CR, space, U+00A0, U+1680, U+2000-U+200A, U+2028, U+2029,
+U+202F, U+205F, U+3000 and U+FEFF (and nothing else: not U+0085 or
+U+001C-U+001F). Trimming, collapsing and splitting all use this set.
 
 READING ENTRIES. Scan for "@". Read the entry type (characters up to
 whitespace or one of , = { } ( ) " #), lower-cased, then skip whitespace. If
@@ -18,7 +20,9 @@ the next character is not "{" or "(", skip that "@". The entry closes with
   Any other type: the key is everything up to the first "," or the closing
   character, trimmed. Then fields "name = value" separated by commas. A
   field name is read like a type and lower-cased; a field without a name or
-  "=" is skipped up to the next comma or the end of the entry. A later field
+  "=" is skipped up to the next "," or the entry's closing character, whichever
+comes first, not looking at braces or quotes; reaching the closing character
+this way ends the entry, so its later fields are lost. A later field
   with the same name replaces the earlier one. An entry with no key and no
   fields is dropped, and so is any entry whose title is missing or empty.
 VALUES are parts joined by "#": {braced} text (nested braces, a backslash
@@ -60,11 +64,12 @@ DRAFT FIELDS from an entry's fields (each one used is removed from
   abstract    plain(abstract); empty means absent.
   doi         with a leading http(s)://doi.org/ or dx.doi.org/ removed
               (case-insensitive); empty means absent.
-  url, file   as written.
+  url, file   as written; an empty value stays "" rather than absent.
   notes       annote, else note, as written.
   arxiv       arxivid; else eprint when archiveprefix or eprinttype is
               "arxiv" (any case); else the id in an arxiv.org/abs|pdf|html/
-              url, without version and .pdf suffix; else eprint when it
+              url (matched ignoring case, so a V3 version suffix and .PDF are removed
+              too); else eprint when it
               starts with NNNN.NNNN. A leading "arXiv:" and a trailing vN are
               removed. When an arxiv id is found, archiveprefix, eprinttype
               and primaryclass are removed; otherwise eprint stays in fields.

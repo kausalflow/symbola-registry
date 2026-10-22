@@ -4,9 +4,10 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |
-| `1/` | The pack: BRIEF, AGENTS, assumptions, obligations, and three component contracts | yes |
-| `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout | no |
-| `rebuilds/python-1/` | An AI build in Python made from `1/` alone, with the builder's NOTES.md | no |
+| `1/` | The pack: BRIEF, AGENTS, assumptions, obligations, and eight component contracts | yes |
+| `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester | no |
+| `rebuilds/python-1/` | Milestone 1: an AI build in Python of the first three contracts, made from `1/` alone | no |
+| `rebuilds/go-1/` | Milestone 2: a second AI's build in Go of all eight contracts, made from `1/` alone, with its NOTES.md | no |
 | `attestations/` | Signed evidence for both builds, plus the runner keys | yes, as evidence |
 
 ## Results (milestone 1)
@@ -30,12 +31,45 @@ Lightkone quirks the contracts pin rather than fix (worth a lightkone issue each
 - `Na\"{\i}ve` comes out as `Na\"ıve`, because the accent rule needs a plain letter.
 - Everything after the first malformed field in an entry is lost.
 
+## Results (milestone 2)
+
+Five more contracts: `citation-key`, `pdf-filing`, `library-merge`, `tidy`, and `library-file`, the data contract for `library.json` itself (how lightkone reads it and writes it back, byte for byte, with `library.bib`). Contracts can now share sample data in `fixtures/`, including raw text files with `{"$text": ...}`; `library-file` ships three sample libraries.
+
+| Contract | Checks | lightkone | Go rebuild | Holdout (Go) | Second runner |
+| --- | --- | --- | --- | --- | --- |
+| `lightkone/search-query@1` | 81 examples + 11 properties | PASSED | PASSED | 101/101 | reproduced both |
+| `lightkone/bibtex-import@1` | 36 examples + 13 properties | PASSED | PASSED | 55/55 | reproduced both |
+| `lightkone/bibtex-export@1` | 19 examples + 6 properties | PASSED | PASSED | 28/28 | reproduced both |
+| `lightkone/citation-key@1` | 19 examples + 6 properties | PASSED | PASSED | 28/28 | reproduced both |
+| `lightkone/pdf-filing@1` | 19 examples + 6 properties | PASSED | PASSED | 28/28 | reproduced both |
+| `lightkone/library-merge@1` | 21 examples + 8 properties | PASSED | PASSED | 31/31 | reproduced both |
+| `lightkone/tidy@1` | 21 examples + 5 properties | PASSED | PASSED | 28/28 | reproduced both |
+| `lightkone/library-file@1` | 39 examples + 7 properties | PASSED | PASSED | 54/54 | reproduced both |
+
+How it went:
+
+1. **Second builder, second language.** A different AI model got only `1/` and built all eight components in Go (standard library only), with lightkone, the oracle and the Python rebuild moved off the machine. It passed all eight contracts and all eight holdouts.
+2. **Passing is not agreeing.** `oracle/differential.py` sends the same generated inputs to lightkone and the Go build and reports every disagreement on inputs the contract accepts. On about 5,000 inputs, six contracts agreed completely. `bibtex-import` and `search-query` showed five real gaps that both the spec and the holdout had missed:
+   - a malformed BibTeX field skipped to a `}` ends the entry, but one skipped to a comma does not (the contract said the rest was always lost);
+   - "whitespace" means JavaScript's `\s`, including no-break space and U+2028;
+   - the arXiv URL match ignores case, so `V3` and `.PDF` are stripped;
+   - `year:` terms that are not numbers do not count, and do not replace an earlier one;
+   - `title` sort is Unicode collation (`localeCompare`), not code-point order.
+3. **Tightened and rebuilt.** The contracts now state each rule, with 18 new examples recorded from lightkone. The Go builder revised from the new text alone (adding `golang.org/x/text` for collation) and passes. The differential test then found no disagreement on search-query within scope, and 11 in 2,000 heavily mutated BibTeX files, all deliberately broken input (unbalanced braces, a value starting with `#`); those are left for a later version.
+4. **Evidence.** Runner A attested lightkone and the Go build on all eight contracts; runner B re-ran all sixteen in fresh containers with identical outcomes. The Python build's milestone 1 attestations are kept: they are for the earlier digests of search-query and bibtex-import.
+
+The pack now has 63 obligations: 53 decided, 9 defaults (lightkone's current behaviour, pinned until kausalflow decides), 1 open. Defaults that look like lightkone bugs: trashed papers are still written to `library.bib`, a user folder named in capitals (`ML`, `2019`) is taken for a Paperpile author folder, unknown top-level keys of `library.json` are dropped on save, whitespace-only DOIs match each other in tidy, and fields after a malformed BibTeX field are lost when the skip reaches a `}`.
+
+Two Symbolon bugs turned up and are fixed: examples containing U+2028 were split into two lines, and the container sandbox removed the execute bit, so no compiled implementation could run.
+
 ## Re-running
 
 ```bash
 LIGHTKONE=/path/to/lightkone oracle/build.sh        # needs npm ci in lightkone
 python3 oracle/record-examples.py search-query     # re-record golden examples
-oracle/holdout.sh search-query rebuilds/python-1/search-query
+oracle/holdout.sh search-query rebuilds/go-1/search-query
+python3 oracle/mutate.py bibtex-import 2000 9 > /tmp/cases.jsonl  # inputs for a differential run
+python3 oracle/differential.py bibtex-import /tmp/cases.jsonl rebuilds/go-1
 symbolon verify attestations/search-query.python-1.json --trust attestations/runner-a.pub \
   --contract 1/components/search-query/1 --impl rebuilds/python-1/search-query --rerun
 ```

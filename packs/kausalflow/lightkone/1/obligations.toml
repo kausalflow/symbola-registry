@@ -77,7 +77,7 @@ checks = ["search-query#test_each_filter_selects_what_it_says", "search-query#ex
 
 [[obligation]]
 id = "search.year-last-wins"
-statement = "Only the last year: term in a query applies, whatever its form."
+statement = "Only the last year: term that counts applies; a term whose value is not a number does not count."
 status = "decided"
 source = "replication"
 reason = "The python-1 rebuild read repeated year: filters differently; lightkone keeps one year slot."
@@ -85,9 +85,11 @@ checks = ["search-query#test_only_the_last_year_filter_counts", "search-query#ex
 
 [[obligation]]
 id = "search.year-malformed"
-statement = "What a year: value other than N or N-M matches."
-status = "open"
+statement = "year:A-B parts: A not a number or 0 means the term does not count; B missing, empty, 0 or not a number means A; later parts are ignored."
+status = "default"
 source = "replication"
+reason = "Pinned to lightkone's behaviour after the go-1 differential test found builds disagreeing. A typo such as year:20l7 silently filters nothing."
+checks = ["search-query#example:74", "search-query#example:75", "search-query#example:76", "search-query#example:77", "search-query#example:78", "search-query#example:79", "search-query#example:80", "search-query#example:81"]
 
 [[obligation]]
 id = "search.filter-folder"
@@ -135,9 +137,11 @@ checks = ["search-query#test_title_sort_is_ascending_and_stable"]
 
 [[obligation]]
 id = "search.title-sort-other"
-statement = "title: sort order for titles with capitals, punctuation or non-ASCII characters."
-status = "open"
+statement = "title: sort uses Unicode collation (CLDR root, tertiary), as JavaScript's localeCompare does: accents and case only break ties."
+status = "default"
 source = "replication"
+reason = "Pinned to lightkone's behaviour after the go-1 differential test. Builds without an ICU-grade collator will differ."
+checks = ["search-query#example:72", "search-query#example:73"]
 
 # ── bibtex-import ─────────────────────────────────────────────────────────
 
@@ -160,11 +164,11 @@ checks = ["bibtex-import#test_entries_without_a_title_are_left_out", "bibtex-imp
 
 [[obligation]]
 id = "import.malformed-field-skip"
-statement = "A field without a name or '=' is skipped to the next comma, so the rest of that entry is lost."
+statement = "A field without a name or '=' is skipped to the next comma or closing character, ignoring braces; reaching the closing character ends the entry and its later fields are lost."
 status = "default"
 source = "replication"
-reason = "The python-1 rebuild could settle this only from one example; lightkone does it this way."
-checks = ["bibtex-import#example:18"]
+reason = "Earlier wording said the rest of the entry is always lost; the go-1 differential test showed later fields survive when the skip stops at a comma. Losing fields after a braced value is likely a lightkone bug."
+checks = ["bibtex-import#example:18", "bibtex-import#example:29", "bibtex-import#example:30"]
 
 [[obligation]]
 id = "import.values"
@@ -175,8 +179,9 @@ checks = ["bibtex-import#test_string_macros_and_concatenation", "bibtex-import#t
 
 [[obligation]]
 id = "import.non-ascii-whitespace"
-statement = "Whether whitespace other than ASCII space, tab, CR and LF separates or collapses."
-status = "open"
+statement = "Whitespace is JavaScript's \\s set (incl. no-break space, U+2028, U+3000, BOM), everywhere in import."
+status = "default"
+checks = ["bibtex-import#example:31", "bibtex-import#example:32", "bibtex-import#example:36"]
 source = "extract"
 assumes = ["K-bibtex-sources"]
 
@@ -199,14 +204,14 @@ id = "import.identifiers"
 statement = "doi loses its resolver prefix; arxiv ids come from arxivid, arXiv eprints, arxiv.org URLs or new-style bare eprints, without version."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#test_doi_loses_its_resolver_prefix", "bibtex-import#test_arxiv_ids_are_found", "bibtex-import#test_other_eprints_stay_in_fields", "bibtex-import#example:16", "bibtex-import#example:28"]
+checks = ["bibtex-import#test_doi_loses_its_resolver_prefix", "bibtex-import#test_arxiv_ids_are_found", "bibtex-import#test_other_eprints_stay_in_fields", "bibtex-import#example:16", "bibtex-import#example:28", "bibtex-import#example:33", "bibtex-import#example:34"]
 
 [[obligation]]
 id = "import.draft-fields"
 statement = "year is the first four digits; venue is journal, else booktitle, else publisher; notes is annote, else note; empty abstract, doi and venue are absent."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#example:23"]
+checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#example:23", "bibtex-import#example:35"]
 
 [[obligation]]
 id = "import.venue-empty-journal"

@@ -8,8 +8,8 @@ license = "Proprietary (kausalflow)"
 authors = ["kausalflow"]
 
 [components]
-"lightkone/search-query@1" = "sha256:57ffa57d338059089c57030aae49c64e16162963902a153cc1de4fb086cd8fd0"
-"lightkone/bibtex-import@1" = "sha256:79e7b03ed2daec3d82c23ad3e41d080a63f039c25b6ad84cc840bded7f87d54e"
+"lightkone/search-query@1" = "sha256:0af52a9bc30cb440bf1ec9924e6c00c5659ca0b05e478501080466699d0a49bc"
+"lightkone/bibtex-import@1" = "sha256:626d7950a3116eb49cbaa2266a2cccdf8062cbe8b2c04c295f3fcc5e3c642f13"
 "lightkone/bibtex-export@1" = "sha256:b2be7e43a14a1cdf9f5f65dcef181d159fe2afb95859dd1c6c836a6a89c3b97c"
 "lightkone/citation-key@1" = "sha256:69041cb4a2e57a7ab161892db71ac21b103afb7e9187624207c66bbac1e5db94"
 "lightkone/pdf-filing@1" = "sha256:583b0fa4549f4b8e1a6f6818a2d32d7f4062114e1cd74eba18c5f24786b5fff9"

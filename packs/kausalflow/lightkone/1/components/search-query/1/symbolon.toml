@@ -13,11 +13,18 @@ Query terms are separated by whitespace. A term is one of:
   "quoted phrase"                        one word that may contain spaces
   anything else                          one word
 
-Filters (all must hold, except year: where only the last year: term counts):
+Filters (all must hold, except year:, where only the last year: term that
+counts applies):
   tag:T       some tag of the paper equals T after folding
   author:A    A is a substring of the folded authors joined with " ; "
   year:Y      year equals Y; year:A-B: A <= year <= B (missing year never matches).
-              Only the last year: term in the query applies, whichever form it has.
+              The value is split at "-": A is the first part, B the second,
+              later parts are ignored. When A is not a number, or is 0, the
+              term does not count (an earlier year: term stays in force).
+              When B is missing, empty, 0 or not a number, B is A. So
+              year:2017- means 2017 and year:-2017 does not count. A number
+              here is ASCII digits with an optional fraction; other
+              spellings are unspecified.
   in:F        the paper is in folder F or a folder inside it ("F/..."),
               compared after folding; trailing slashes on F are ignored
   has:X / no:X  for X in pdf, abstract, arxiv, notes. has:pdf accepts either
@@ -40,12 +47,15 @@ fields are all "absent".
 Order. sort=added: newest added first, except that a query with is:recent
 orders by opened, and otherwise a query with words orders by relevance.
 relevance: higher score first, then newest added. year: higher year first,
-missing as 0. title: ascending (defined in v1 only for titles of lowercase
-ASCII letters, digits and spaces). opened: latest opened first, never-opened
+missing as 0. title: ascending by the Unicode Collation Algorithm
+with the CLDR root collation at its default (tertiary) strength, which is
+what JavaScript's a.localeCompare(b) does with no locale or options: letters
+first, then accents, then case, lower case first ("apple" < "Apple" <
+"Äpple" < "banana"); punctuation and spaces are not ignored and sort before
+digits, digits before letters. opened: latest opened first, never-opened
 last, then newest added. Papers that compare equal keep their input order.
 
-year: values other than decimal N or N-M are unspecified in v1. Full-text
-search is out of scope.
+Full-text search is out of scope.
 """
 regenerability = "disposable"
 license = "Proprietary (kausalflow)"

@@ -1,0 +1,6 @@
+[implementation]
+contract = "sha256:69041cb4a2e57a7ab161892db71ac21b103afb7e9187624207c66bbac1e5db94"
+language = "command"
+command = ["./impl"]
+license = "MIT"
+authors = ["go-1 rebuild"]

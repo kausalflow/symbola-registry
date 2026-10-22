@@ -45,7 +45,7 @@ with target.open("w") as out:
         note = case.pop("note")
         raises = case.pop("raises", None)
         inp = {**defaults, **case}
-        sent = {"papers": papers, **inp} if papers is not None else resolve_fixtures(inp, contract / "fixtures")
+        sent = resolve_fixtures({"papers": papers, **inp} if papers is not None else inp, contract / "fixtures")
         if papers is not None:
             inp = {"papers": {"$fixture": "library.json"}, **inp}
         oracle.stdin.write(json.dumps(sent) + "\n")

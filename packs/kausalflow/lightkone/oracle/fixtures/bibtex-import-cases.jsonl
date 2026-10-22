@@ -26,3 +26,11 @@
 {"text": "no entries at all, just @ signs @ here", "note": "an @ not followed by a type and brace is skipped"}
 {"text": "@article{mixedcase, Title = {Mixed}, AUTHOR = {de la Fontaine, Jean and Ludwig van Beethoven}, Journal = {X}, MONTH = dec}", "note": "particles: First Last flips only the last word"}
 {"text": "@article{ids, title = {T}, doi = {HTTP://DX.DOI.ORG/10.5555/abc}, eprint = {ARXIV:2101.00001V2}, archiveprefix = {ArXiv}}", "note": "case-insensitive prefixes; an upper-case version suffix stays"}
+{"text": "@article{k, title={Kept}, junk here, year = 1999, note={also kept}}", "note": "a malformed field ending at a comma: later fields survive"}
+{"text": "@article{k, title={Kept}, = {x}, year = 1999}\n@book{b, title={Next entry}}", "note": "a malformed field skipped to a } ends the entry; the next entry is read"}
+{"text": "@article{k,\u00a0title\u00a0=\u00a0{A\u2028B\u3000C\ufeff},\u00a0author = {Doe,\u00a0Jane and\u00a0Roe, R.}}", "note": "Unicode whitespace (no-break space, line separator, ideographic space, BOM) counts as whitespace"}
+{"text": "@article{k, title={A\u0085B\u001fC}}", "note": "U+0085 and U+001F are not whitespace"}
+{"text": "@article{k, title={From a URL}, url={HTTPS://ARXIV.ORG/ABS/2106.09685V3}}", "note": "the arXiv URL match ignores case, version suffix included"}
+{"text": "@article{k, title={From a PDF URL}, url={https://arxiv.org/pdf/2106.09685v2.PDF}}", "note": "an upper-case .PDF suffix is removed too"}
+{"text": "@article{k, title={Empty values}, file = {}, url = \"\"}", "note": "empty url and file stay as empty strings"}
+{"text": "@art\u00a0icle{k, title={Lost}}\n@misc{m, title={Found}}", "note": "a no-break space ends the entry type, so the first entry is skipped"}

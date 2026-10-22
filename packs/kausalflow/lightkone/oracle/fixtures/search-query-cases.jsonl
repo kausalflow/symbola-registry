@@ -69,3 +69,13 @@
 {"query": "ml attention", "sort": "relevance", "note": "words can match in different fields"}
 {"query": "physics", "note": "equal scores fall back to newest added, not input order"}
 {"query": "tag:physics confinement", "note": "filter plus word"}
+{"papers": {"$fixture": "titles.json"}, "query": "", "sort": "title", "note": "title sort follows Unicode collation: letters, then accents, then case, lower case first; punctuation before digits before letters"}
+{"papers": {"$fixture": "titles.json"}, "query": "apple", "sort": "title", "note": "title sort with a word filter"}
+{"query": "year:2017 year:abc", "note": "a year: term that is not a number does not count; the earlier one stays"}
+{"query": "year:abc", "note": "a year: term that is not a number filters nothing"}
+{"query": "year:2017-", "note": "year:2017- means 2017"}
+{"query": "year:-2017", "note": "year:-2017 does not count"}
+{"query": "year:0", "note": "year:0 does not count"}
+{"query": "year:1990-2020-1900", "note": "parts after the second are ignored"}
+{"query": "year:2020-1990", "note": "a reversed range matches nothing"}
+{"query": "year:1990-x", "note": "a second part that is not a number means the first year only"}

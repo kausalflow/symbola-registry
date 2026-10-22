@@ -13,8 +13,8 @@ from hypothesis import given, strategies as st
 
 from schema import Input, Paper
 
-DOIS = ["10.1000/ABC", "https://doi.org/10.1000/abc", " 10.1000/abc ", "10.2000/xyz", "http://dx.doi.org/10.2000/XYZ", "doi.org/10.2000/xyz"]
-ARXIV = ["1207.0580", "arXiv:1207.0580v2", "1706.03762", "ARXIV:1706.03762V1", "1706.03762v3"]
+DOIS = ["10.1000/ABC", "https://doi.org/10.1000/abc", " 10.1000/abc ", "10.2000/xyz", "http://dx.doi.org/10.2000/XYZ", "doi.org/10.2000/xyz", " ", "  ", "https://doi.org/"]
+ARXIV = ["1207.0580", "arXiv:1207.0580v2", "1706.03762", "ARXIV:1706.03762V1", "1706.03762v3", " ", "\t"]
 TITLES = ["Improving neural networks by preventing co-adaptation", "Improving Neural Networks by Preventing Co-Adaptation!",
           "Attention is all you need", "Attention Is All You Need", "Über Sätze", "Uber Satze", "Deep learning", "Nets", "A"]
 AUTHORS = ["Hinton, Geoffrey", "Vaswani, Ashish", "Gödel, Kurt", "Godel, K.", "LeCun, Yann"]
@@ -49,19 +49,19 @@ def library(draw, max_size=7):
 
 def norm_doi(d):
     d = re.sub(r"^https?://(dx\.)?doi\.org/", "", d.strip().lower())
-    return d or "undefined"
+    return d
 
 
 def norm_arxiv(a):
     a = re.sub(r"v\d+$", "", re.sub(r"^arxiv:", "", a.strip().lower()))
-    return a or "undefined"
+    return a
 
 
 def keys(p: Paper) -> list[str]:
     out = []
-    if p.doi:
+    if p.doi and norm_doi(p.doi):
         out.append("doi:" + norm_doi(p.doi))
-    if p.arxiv:
+    if p.arxiv and norm_arxiv(p.arxiv):
         out.append("arxiv:" + norm_arxiv(p.arxiv))
     t = re.sub(r"[^a-z0-9]+", "", unicodedata.normalize("NFKD", p.title).lower())
     if len(t) > 20:

@@ -402,11 +402,11 @@ source = "oracle"
 checks = ["tidy#test_the_keeper_gains_what_the_others_have", "tidy#test_fields_prefer_the_keeper_then_earlier_papers", "tidy#example:15", "tidy#example:16", "tidy#example:17"]
 
 [[obligation]]
-id = "tidy.blank-doi"
-statement = "Whitespace-only DOIs match each other, as lightkone does today; likely a lightkone bug."
-status = "default"
+id = "tidy.blank-ids-ignored"
+statement = "A DOI or arXiv id that is empty once trimmed and stripped of its prefix gives no match key, so blank ones never make papers duplicates. Fixed in lightkone#52; until then whitespace-only DOIs matched each other."
+status = "decided"
 source = "oracle"
-checks = ["tidy#example:10"]
+checks = ["tidy#example:10", "tidy#example:22", "tidy#example:23", "tidy#test_groups_are_exactly_the_papers_that_share_a_key"]
 
 [[obligation]]
 id = "file.refuse-foreign"
@@ -444,11 +444,11 @@ source = "oracle"
 checks = ["library-file#test_papers_gain_folders_from_paperpile_paths", "library-file#example:1", "library-file#example:10", "library-file#example:11", "library-file#example:13", "library-file#example:14", "library-file#example:15", "library-file#example:16", "library-file#example:17"]
 
 [[obligation]]
-id = "file.folders-upper-case"
-statement = "A single all-upper-case directory such as ML or 2019 is taken for a Paperpile author folder and skipped, as lightkone does today. Likely wrong for users' own folders."
-status = "default"
+id = "file.folders-author-only"
+statement = "A single directory is skipped as an author folder only when it is Other or one of the paper's authors' surnames in capitals, so a user's own ML or 2019 folder is kept. With no authors to compare, a directory in capitals with a letter is still skipped. Fixed in lightkone#52; until then every single directory in capitals was skipped."
+status = "decided"
 source = "oracle"
-checks = ["library-file#example:12"]
+checks = ["library-file#example:12", "library-file#example:46", "library-file#example:47", "library-file#example:48", "library-file#example:49", "library-file#test_papers_gain_folders_from_paperpile_paths"]
 
 [[obligation]]
 id = "file.exact-text"

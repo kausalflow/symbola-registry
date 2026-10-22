@@ -1,5 +1,5 @@
 [implementation]
-contract = "sha256:de7d7a24e869f24c82b1a778ee20742d83601a9ebbdfad204d339b5fec803143"
+contract = "sha256:ad23258c3270d36b0cfb14273171a551d1f54a3e3963297ffebc2db5e864dd21"
 language = "command"
 command = ["./impl"]
 license = "MIT"

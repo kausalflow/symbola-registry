@@ -13,9 +13,11 @@ function authorPart(authors, title) {
 	const s = names.length === 0 ? title : names.length === 1 ? names[0] : names.length === 2 ? `${names[0]} and ${names[1]}` : `${names[0]} et al.`;
 	return s.length > 40 ? `${s.slice(0, 37)}...` : s;
 }
+/** The author folder Paperpile files an author's papers under: the surname in capitals ("HINTON"). */
+const authorFolder = (author) => clean(surname(author)).toUpperCase();
 /** Path under papers/, the same as Paperpile's BibTeX `file` field: as in its BibTeX `file` field: "All Papers/HINTON/Hinton et al. 2012 - ....pdf". */
 function paperpileFile(p) {
-	const first = p.authors[0] ? clean(surname(p.authors[0])).toUpperCase() : "";
+	const first = p.authors[0] ? authorFolder(p.authors[0]) : "";
 	const title = clean(p.title) || "Untitled";
 	let name = `${clean([authorPart(p.authors, title), p.year].filter(Boolean).join(" "))} - ${title}`;
 	if (name.length > 146) name = `${name.slice(0, 72).trimEnd()} ... ${name.slice(-69).trimStart()}`;

@@ -68,17 +68,15 @@ func keysOf(p *paper) []string {
 	var out []string
 	if nz(p.Doi) {
 		d := doiPrefix.ReplaceAllString(lk.Lower(lk.Trim(*p.Doi)), "")
-		if d == "" {
-			d = "undefined"
+		if d != "" {
+			out = append(out, "doi:"+d)
 		}
-		out = append(out, "doi:"+d)
 	}
 	if nz(p.Arxiv) {
 		a := arxivVer.ReplaceAllString(arxivPrefix.ReplaceAllString(lk.Lower(lk.Trim(*p.Arxiv)), ""), "")
-		if a == "" {
-			a = "undefined"
+		if a != "" {
+			out = append(out, "arxiv:"+a)
 		}
-		out = append(out, "arxiv:"+a)
 	}
 	var tb strings.Builder
 	for _, r := range lk.Lower(lk.NFKD(p.Title)) {

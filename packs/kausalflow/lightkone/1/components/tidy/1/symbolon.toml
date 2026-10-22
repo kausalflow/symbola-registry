@@ -9,12 +9,11 @@ The others are then moved to the trash by the caller.
 
 DUPLICATES. Papers in the trash (trashed present and non-empty) are ignored.
 Each remaining paper has up to three match keys:
-  doi    when doi is non-empty: "doi:" + doi trimmed, lower-cased, with a
-         leading http(s)://doi.org/ or http(s)://dx.doi.org/ removed. A doi
-         that is only whitespace gives the key "doi:undefined" (a quirk).
-  arxiv  when arxiv is non-empty: "arxiv:" + arxiv trimmed, lower-cased,
-         without a leading "arxiv:" and a trailing vN. Whitespace only gives
-         "arxiv:undefined".
+  doi    "doi:" + doi trimmed, lower-cased, with a leading http(s)://doi.org/
+         or http(s)://dx.doi.org/ removed; no key when that leaves nothing
+         (no doi, only whitespace, or only the prefix).
+  arxiv  "arxiv:" + arxiv trimmed, lower-cased, without a leading "arxiv:"
+         and a trailing vN; no key when that leaves nothing.
   title  t = title decomposed (NFKD), lower-cased, keeping only a-z and 0-9.
          If t is longer than 20: "title:" + t. Else if longer than 3:
          "title:" + t + ":" + the first author's surname (before the first

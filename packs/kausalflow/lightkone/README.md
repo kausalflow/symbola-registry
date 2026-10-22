@@ -1,6 +1,6 @@
 # Lightkone pilot
 
-This is the first spec pack built from a real product: [kausalflow/lightkone](https://github.com/kausalflow/lightkone) at commit 46f86da.
+This is the first spec pack built from a real product: [kausalflow/lightkone](https://github.com/kausalflow/lightkone) at commit 46f86da; `bibtex-import` follows 1d2b4dd, which has the importer fixes below.
 
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |
@@ -25,11 +25,11 @@ How it went:
 3. **Divergence found.** Comparing the two builds on the builder's listed ambiguities turned up one real gap. Lightkone keeps a single `year:` filter, so the last one wins whatever its form. The first contract said "all filters must hold", and its conjunction property never generated the pair that would tell the two apart. The contract now states the rule and has a property and two examples for it. The builder revised from the new contract alone, and both builds pass it. The other ambiguities it listed matched lightkone.
 4. **Reproduction.** A second runner key re-ran all six attestations in a fresh container, and every check had the same outcome. Both runners were on the same machine; runners on different machines come with the registry.
 
-Lightkone quirks the contracts pin rather than fix (worth a lightkone issue each):
+Lightkone bugs the milestone 1 contracts pinned, all fixed in [kausalflow/lightkone#50](https://github.com/kausalflow/lightkone/pull/50); `bibtex-import` now describes the fixed behaviour, and both builds pass it:
 
-- A `}` in a BibTeX key ends the entry early, so the entry is silently dropped. Example: `@ARTICLE{Erd\H{o}s1959, ...`.
-- `Na\"{\i}ve` comes out as `Na\"ıve`, because the accent rule needs a plain letter.
-- Everything after the first malformed field in an entry is lost.
+- A `}` in a BibTeX key ended the entry early, so the entry was silently dropped. Example: `@ARTICLE{Erd\H{o}s1959, ...`.
+- `Na\"{\i}ve` came out as `Na\"ıve`, because the accent rule needed a plain letter.
+- Everything after the first malformed field in an entry was lost when the field had a braced value.
 
 ## Results (milestone 2)
 
@@ -38,7 +38,7 @@ Five more contracts: `citation-key`, `pdf-filing`, `library-merge`, `tidy`, and 
 | Contract | Checks | lightkone | Go rebuild | Holdout (Go) | Second runner |
 | --- | --- | --- | --- | --- | --- |
 | `lightkone/search-query@1` | 81 examples + 11 properties | PASSED | PASSED | 101/101 | reproduced both |
-| `lightkone/bibtex-import@1` | 36 examples + 13 properties | PASSED | PASSED | 55/55 | reproduced both |
+| `lightkone/bibtex-import@1` | 37 examples + 13 properties | PASSED | PASSED | 56/56 | reproduced both |
 | `lightkone/bibtex-export@1` | 19 examples + 6 properties | PASSED | PASSED | 28/28 | reproduced both |
 | `lightkone/citation-key@1` | 19 examples + 6 properties | PASSED | PASSED | 28/28 | reproduced both |
 | `lightkone/pdf-filing@1` | 19 examples + 6 properties | PASSED | PASSED | 28/28 | reproduced both |
@@ -58,7 +58,7 @@ How it went:
 3. **Tightened and rebuilt.** The contracts now state each rule, with 18 new examples recorded from lightkone. The Go builder revised from the new text alone (adding `golang.org/x/text` for collation) and passes. The differential test then found no disagreement on search-query within scope, and 11 in 2,000 heavily mutated BibTeX files, all deliberately broken input (unbalanced braces, a value starting with `#`); those are left for a later version.
 4. **Evidence.** Runner A attested lightkone and the Go build on all eight contracts; runner B re-ran all sixteen in fresh containers with identical outcomes. The Python build's milestone 1 attestations are kept: they are for the earlier digests of search-query and bibtex-import.
 
-The pack now has 63 obligations: 53 decided, 9 defaults (lightkone's current behaviour, pinned until kausalflow decides), 1 open. Defaults that look like lightkone bugs: trashed papers are still written to `library.bib`, a user folder named in capitals (`ML`, `2019`) is taken for a Paperpile author folder, unknown top-level keys of `library.json` are dropped on save, whitespace-only DOIs match each other in tidy, and fields after a malformed BibTeX field are lost when the skip reaches a `}`.
+The pack now has 63 obligations: 54 decided, 8 defaults (lightkone's current behaviour, pinned until kausalflow decides), 1 open. Defaults that look like lightkone bugs: trashed papers are still written to `library.bib`, a user folder named in capitals (`ML`, `2019`) is taken for a Paperpile author folder, unknown top-level keys of `library.json` are dropped on save, and whitespace-only DOIs match each other in tidy.
 
 Two Symbolon bugs turned up and are fixed: examples containing U+2028 were split into two lines, and the container sandbox removed the execute bit, so no compiled implementation could run.
 

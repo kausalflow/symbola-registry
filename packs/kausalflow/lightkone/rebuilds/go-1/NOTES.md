@@ -273,3 +273,22 @@ Still ambiguous in the new text:
 * `Und` vs a specific root locale: I assume JavaScript's default `localeCompare` equals CLDR root; the
   collator does not ignore punctuation (matches the description) but I could not check exotic strings
   (e.g. Hangul, supplementary scripts) against ICU.
+
+## Revision 2 (importer bug fixes)
+
+Only bibtex-import changed; its manifest digest was set from `symbolon digest` (sha256:2d877ecf...) and
+checked. All 8 pass: search-query 92, bibtex-import 50, bibtex-export 25, citation-key 25, pdf-filing 25,
+library-merge 29, tidy 26, library-file 46.
+
+* **Key** is read to the first `,` or closing character at brace depth 0 (`{` raises, `}` lowers the
+  depth when it is above 0). Backslash is not an escape there.
+* **Malformed field skip** now steps over `{...}` and `"..."` with the same readers VALUES uses (braced:
+  backslash escapes; quoted: braces nest, no backslash escape), stopping at `,` (consumed, reading goes on)
+  or the closing character (consumed, entry ends).
+* **plain() step 1** accepts `\i` / `\j` as the base letter (read as i / j) when not followed by an ASCII
+  letter, digit or `_`; the check looks at the character after `\i`, before the optional closing braces.
+
+Still ambiguous: "outside braces" for keys does not say whether a backslash-escaped brace counts, nor
+whether quotes matter in keys (I ignore both); in a skipped malformed field an unterminated brace or quote
+swallows the rest of the text; `\i` with the "not followed by a letter" rule means `\"\ix` does not match
+step 1 and falls through to step 2/4 (`\"` stays). Two-digit years (example 37) already behaved as needed.

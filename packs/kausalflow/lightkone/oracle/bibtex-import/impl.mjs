@@ -113,7 +113,8 @@ function parseBibtex(text) {
 		}
 		skipSpace();
 		const keyStart = i;
-		while (i < n && text[i] !== "," && text[i] !== close) i++;
+		for (let depth = 0; i < n && (depth > 0 || text[i] !== "," && text[i] !== close); i++) if (text[i] === "{") depth++;
+		else if (text[i] === "}") depth--;
 		const key = text.slice(keyStart, i).trim();
 		const fields = {};
 		while (i < n && text[i] !== close) {
@@ -123,7 +124,9 @@ function parseBibtex(text) {
 			const name = readWord().toLowerCase();
 			skipSpace();
 			if (!name || text[i] !== "=") {
-				while (i < n && text[i] !== "," && text[i] !== close) i++;
+				while (i < n && text[i] !== "," && text[i] !== close) if (text[i] === "{") readBraced();
+				else if (text[i] === "\"") readQuoted();
+				else i++;
 				continue;
 			}
 			i++;
@@ -164,7 +167,7 @@ const LETTERS = {
 	i: "ı"
 };
 function plain(value) {
-	return value.replace(/\{?\\([\"'`^~=.]|[cvuH](?=[\s{]))\s*\{?([A-Za-z])\}?\}?/g, (_, a, ch) => (ch + ACCENTS[a]).normalize("NFC")).replace(/\{\\(ss|o|O|ae|AE|l|L|i)\}|\\(ss|o|O|ae|AE|l|L|i)\b ?/g, (_, a, b) => LETTERS[a ?? b]).replace(/\\(?:emph|textit|textbf|mathrm|textrm)\{([^{}]*)\}/g, "$1").replace(/\\([&%$#_{}])/g, "$1").replace(/(?<!\\)[{}]/g, "").replace(/~/g, " ").replace(/\s+/g, " ").trim();
+	return value.replace(/\{?\\([\"'`^~=.]|[cvuH](?=[\s{]))\s*\{?([A-Za-z]|\\[ij]\b)\}?\}?/g, (_, a, ch) => (ch.replace("\\", "") + ACCENTS[a]).normalize("NFC")).replace(/\{\\(ss|o|O|ae|AE|l|L|i)\}|\\(ss|o|O|ae|AE|l|L|i)\b ?/g, (_, a, b) => LETTERS[a ?? b]).replace(/\\(?:emph|textit|textbf|mathrm|textrm)\{([^{}]*)\}/g, "$1").replace(/\\([&%$#_{}])/g, "$1").replace(/(?<!\\)[{}]/g, "").replace(/~/g, " ").replace(/\s+/g, " ").trim();
 }
 const ARXIV_IN_URL = /arxiv\.org\/(?:abs|pdf|html)\/([^\s?#]+?)(?:v\d+)?(?:\.pdf)?(?:[?#]|$)/i;
 function entryToDraft(entry) {

@@ -43,9 +43,16 @@ func step1(rs []rune) []rune {
 				if k < n && rs[k] == '{' {
 					k++
 				}
+				letter := rune(0)
 				if k < n && isASCIILetter(rs[k]) {
-					letter := rs[k]
+					letter = rs[k]
 					k++
+				} else if k+1 < n && rs[k] == '\\' && (rs[k+1] == 'i' || rs[k+1] == 'j') &&
+					!(k+2 < n && (isASCIILetter(rs[k+2]) || (rs[k+2] >= '0' && rs[k+2] <= '9') || rs[k+2] == '_')) {
+					letter = rs[k+1]
+					k += 2
+				}
+				if letter != 0 {
 					if k < n && rs[k] == '}' {
 						k++
 					}

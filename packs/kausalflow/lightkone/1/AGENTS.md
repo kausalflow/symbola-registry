@@ -20,3 +20,9 @@ line (`docs/ATTESTATION.md`, "Implementations in other languages").
 for every component. Don't special-case the examples: the properties generate
 other inputs, and the publisher keeps a holdout. Write questions about unclear
 parts, and the reading you chose, in `NOTES.md` next to your build.
+
+**If the spec contradicts itself** (an example disagrees with the description or
+with a property), don't code around it. Run
+`symbolon flag <component>#example:<line> "<what disagrees, and the reading you chose>" --dir <impl-dir>`,
+build the reading you think is right, and carry on. A flagged contradiction counts
+in your favour; matching an example the spec rules out does not.

@@ -1,0 +1,3 @@
+{"paper": {"id": "new", "title": "Generative adversarial nets: a long title with many words to push the name length right up against the limit of one hundred forty-six", "authors": ["Goodfellow, Ian", "Pouget-Abadie, Jean"], "year": 2014}, "note": "two authors and long"}
+{"paper": {"id": "new", "title": "Ça va?", "authors": ["Ébert, Élodie"], "year": 2022}, "library": [{"id": "x", "file": " All Papers/ÉBERT/Ébert 2022 - Ça va.pdf "}], "note": "trimmed file part taken"}
+{"paper": {"id": "new", "title": "Three", "authors": ["A, a", "B, b", "C, c"], "year": 1999}, "note": "three short"}

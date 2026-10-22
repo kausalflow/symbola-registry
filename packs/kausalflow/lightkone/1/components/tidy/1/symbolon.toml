@@ -1,0 +1,57 @@
+[contract]
+id = "lightkone/tidy"
+version = 1
+title = "Find duplicate papers and merge them"
+description = """
+Finds papers entered more than once, picks the one to keep, and works out
+what the kept paper gains from the others, as lightkone's Tidy panel does.
+The others are then moved to the trash by the caller.
+
+DUPLICATES. Papers in the trash (trashed present and non-empty) are ignored.
+Each remaining paper has up to three match keys:
+  doi    when doi is non-empty: "doi:" + doi trimmed, lower-cased, with a
+         leading http(s)://doi.org/ or http(s)://dx.doi.org/ removed. A doi
+         that is only whitespace gives the key "doi:undefined" (a quirk).
+  arxiv  when arxiv is non-empty: "arxiv:" + arxiv trimmed, lower-cased,
+         without a leading "arxiv:" and a trailing vN. Whitespace only gives
+         "arxiv:undefined".
+  title  t = title decomposed (NFKD), lower-cased, keeping only a-z and 0-9.
+         If t is longer than 20: "title:" + t. Else if longer than 3:
+         "title:" + t + ":" + the first author's surname (before the first
+         comma), decomposed, lower-cased, keeping only a-z. Else no key.
+Papers that share a key are duplicates, and so are duplicates of duplicates.
+Groups of two or more are reported in the order of their first paper, and
+each group lists its papers in library order.
+
+KEEPER. The paper with a pdf; among those, the one with notes; among those,
+the earliest added (comparing the timestamps as text); then library order.
+
+PATCH (what the keeper gains), with "others" in group order:
+  tags     every tag of the keeper, then of the others, without repeats
+  folders  the same for folders
+  notes    every distinct trimmed non-empty note, keeper first, joined by a
+           blank line; absent if none
+  starred  true if any is starred; absent otherwise
+  fields   the BibTeX fields of all of them, the keeper's winning, then
+           earlier others over later ones
+  added    the earliest added
+  abstract, doi, arxiv, url, venue, year, pdf, file, opened: when the
+           keeper's is absent or empty, the first other's non-empty value
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

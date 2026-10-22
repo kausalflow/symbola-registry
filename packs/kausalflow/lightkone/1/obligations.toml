@@ -267,3 +267,138 @@ status = "decided"
 kind = "security"
 source = "extract"
 checks = ["bibtex-export#example:10"]
+
+
+# ── citation-key ──────────────────────────────────────────────────────
+
+[[obligation]]
+id = "keys.format"
+statement = "A new key is surname (NFKD, ASCII letters, Anon if none) + year + '-' + first letters of the first two title words longer than 3 letters."
+status = "decided"
+source = "oracle"
+checks = ["citation-key#test_a_key_is_surname_year_and_two_title_letters", "citation-key#example:1", "citation-key#example:2", "citation-key#example:3", "citation-key#example:10", "citation-key#example:11", "citation-key#example:12", "citation-key#example:13", "citation-key#example:14", "citation-key#example:15", "citation-key#example:16", "citation-key#example:17", "citation-key#example:18"]
+
+[[obligation]]
+id = "keys.unique"
+statement = "Keys are unique in the library: a taken key counts up from 2, and keys given earlier in a batch are taken."
+status = "decided"
+source = "oracle"
+checks = ["citation-key#test_keys_are_unique_and_never_taken", "citation-key#test_collisions_count_up_from_two", "citation-key#test_identical_drafts_in_one_batch_get_distinct_keys", "citation-key#example:4", "citation-key#example:5", "citation-key#example:6", "citation-key#example:19"]
+
+[[obligation]]
+id = "keys.stable"
+statement = "A key a paper arrives with is kept when it is free, so keys from an imported .bib never change."
+status = "decided"
+source = "oracle"
+checks = ["citation-key#test_an_arriving_key_is_kept_when_free", "citation-key#test_keys_look_like_keys", "citation-key#example:7", "citation-key#example:8", "citation-key#example:9"]
+
+# ── pdf-filing ────────────────────────────────────────────────────────
+
+[[obligation]]
+id = "filing.paperpile-layout"
+statement = "PDFs are filed as papers/All Papers/<SURNAME>/<Who Year - Title>.pdf, Paperpile's own layout, so a Paperpile folder can be copied in unchanged."
+status = "decided"
+source = "oracle"
+checks = ["pdf-filing#test_pdf_is_the_file_under_papers", "pdf-filing#test_folder_is_the_first_surname_in_capitals", "pdf-filing#test_same_paper_same_place", "pdf-filing#example:1", "pdf-filing#example:2", "pdf-filing#example:3", "pdf-filing#example:7", "pdf-filing#example:8", "pdf-filing#example:9", "pdf-filing#example:10", "pdf-filing#example:16", "pdf-filing#example:17"]
+
+[[obligation]]
+id = "filing.clean-names"
+statement = "File names hold no characters a file system or Drive rejects; they become ' - ', and -- / --- become dashes."
+status = "decided"
+source = "oracle"
+checks = ["pdf-filing#test_names_hold_no_forbidden_characters", "pdf-filing#example:4", "pdf-filing#example:5", "pdf-filing#example:6", "pdf-filing#example:18", "pdf-filing#example:19"]
+
+[[obligation]]
+id = "filing.length"
+statement = "Long author lists and names are shortened the way Paperpile shortens them."
+status = "decided"
+source = "oracle"
+checks = ["pdf-filing#test_long_names_are_shortened_around_an_ellipsis", "pdf-filing#example:11", "pdf-filing#example:12"]
+
+[[obligation]]
+id = "filing.no-overwrite"
+statement = "A new PDF never takes a name another paper uses; it gets (2), (3), ..."
+status = "decided"
+source = "oracle"
+checks = ["pdf-filing#test_taken_names_count_up_and_own_pdf_is_ignored", "pdf-filing#example:13", "pdf-filing#example:14", "pdf-filing#example:15"]
+
+# ── library-merge ─────────────────────────────────────────────────────
+
+[[obligation]]
+id = "merge.no-lost-edits"
+statement = "A save never silently drops a change made elsewhere: one-sided changes are taken, different fields of one paper both survive."
+status = "decided"
+source = "oracle"
+checks = ["library-merge#test_nothing_changed_merges_to_itself", "library-merge#test_changes_made_only_elsewhere_are_taken_whole", "library-merge#test_changes_made_only_here_are_kept", "library-merge#test_edits_to_different_fields_both_survive", "library-merge#example:1", "library-merge#example:2", "library-merge#example:3", "library-merge#example:4", "library-merge#example:9"]
+
+[[obligation]]
+id = "merge.conflict-ours"
+statement = "When both sides change the same field differently, this device's edit wins."
+status = "decided"
+source = "oracle"
+checks = ["library-merge#test_the_same_field_changed_both_ways_keeps_ours", "library-merge#example:5", "library-merge#example:20"]
+
+[[obligation]]
+id = "merge.sets"
+statement = "tags and folders merge as sets: additions from either side are kept, removals from either side stick."
+status = "decided"
+source = "oracle"
+checks = ["library-merge#test_tags_merge_as_sets", "library-merge#example:6", "library-merge#example:7", "library-merge#example:8", "library-merge#example:21"]
+
+[[obligation]]
+id = "merge.deletes"
+statement = "A paper deleted on one side and unchanged on the other is gone; changed on the other, it survives."
+status = "decided"
+source = "oracle"
+checks = ["library-merge#test_a_paper_deleted_here_but_changed_there_survives", "library-merge#example:10", "library-merge#example:11", "library-merge#example:12", "library-merge#example:13", "library-merge#example:14"]
+
+[[obligation]]
+id = "merge.order-and-count"
+statement = "Their order first, then papers only here; fromThem counts papers that took a change made elsewhere."
+status = "decided"
+source = "oracle"
+checks = ["library-merge#test_without_a_base_every_paper_is_kept_and_ours_wins", "library-merge#example:15", "library-merge#example:16", "library-merge#example:17"]
+
+[[obligation]]
+id = "merge.bibsync"
+statement = "bibSync takes theirs unless changed here, and is written only when non-empty."
+status = "decided"
+source = "oracle"
+checks = ["library-merge#example:18", "library-merge#example:19"]
+
+# ── tidy ──────────────────────────────────────────────────────────────
+
+[[obligation]]
+id = "tidy.match"
+statement = "Duplicates share a DOI, an arXiv id, a long title, or a short title and first author, after normalising; chains join."
+status = "decided"
+source = "oracle"
+checks = ["tidy#test_groups_are_exactly_the_papers_that_share_a_key", "tidy#example:1", "tidy#example:2", "tidy#example:3", "tidy#example:4", "tidy#example:5", "tidy#example:6", "tidy#example:7", "tidy#example:8", "tidy#example:18", "tidy#example:19", "tidy#example:20", "tidy#example:21"]
+
+[[obligation]]
+id = "tidy.trash-ignored"
+statement = "Papers in the trash are never grouped."
+status = "decided"
+source = "oracle"
+checks = ["tidy#test_trash_is_never_grouped", "tidy#example:9"]
+
+[[obligation]]
+id = "tidy.keeper"
+statement = "The kept paper is the one with a PDF, then notes, then the oldest."
+status = "decided"
+source = "oracle"
+checks = ["tidy#test_the_keeper_has_a_pdf_then_notes_then_is_oldest", "tidy#example:11", "tidy#example:12", "tidy#example:13", "tidy#example:14"]
+
+[[obligation]]
+id = "tidy.nothing-lost"
+statement = "Merging keeps every tag, folder, note and star, and fills the keeper's missing fields from the others."
+status = "decided"
+source = "oracle"
+checks = ["tidy#test_the_keeper_gains_what_the_others_have", "tidy#test_fields_prefer_the_keeper_then_earlier_papers", "tidy#example:15", "tidy#example:16", "tidy#example:17"]
+
+[[obligation]]
+id = "tidy.blank-doi"
+statement = "Whitespace-only DOIs match each other, as lightkone does today; likely a lightkone bug."
+status = "default"
+source = "oracle"
+checks = ["tidy#example:10"]

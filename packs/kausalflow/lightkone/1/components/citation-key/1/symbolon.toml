@@ -1,0 +1,45 @@
+[contract]
+id = "lightkone/citation-key"
+version = 1
+title = "Give new papers lightkone's citation keys"
+description = """
+Gives each new paper a BibTeX citation key the way lightkone does when papers
+are added, in Paperpile's style: Hinton2012-ip. Keys are unique within the
+library, and a key, once given, never changes, so LaTeX documents keep
+working.
+
+Drafts are handled in order. Each key given is taken for the drafts after it.
+
+  1. A draft that already has a key (non-empty) that is not taken keeps it.
+  2. Otherwise the key is BASE-SUFFIX:
+     BASE    the first author's surname (the part before the first comma),
+             decomposed with Unicode NFKD, keeping only the ASCII letters
+             A-Z and a-z; "Anon" when there is no first author or nothing is
+             left. Its first letter is upper-cased, the rest kept as is.
+             Then the year, if the draft has one.
+     SUFFIX  the title lower-cased, with every character other than a-z and
+             space removed (so accented letters disappear, they are not
+             decomposed), split on single spaces, keeping words longer than
+             3 letters. SUFFIX is the first letter of the first such word and
+             the first letter of the second, or of the first again when there
+             is only one. With none, "xx".
+  3. If BASE-SUFFIX is taken, try BASE-SUFFIX2, BASE-SUFFIX3, ... and use the
+     first that is free.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "Filed": {
+      "additionalProperties": false,
+      "description": "A paper already in the library, as far as filing cares.",
+      "properties": {
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Paperpile file field: paths under papers/, separated by ';'.",
+          "title": "File"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "pdf": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Storage key of its PDF, e.g. 'papers/All Papers/A/a.pdf'.",
+          "title": "Pdf"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "Filed",
+      "type": "object"
+    },
+    "Paper": {
+      "additionalProperties": false,
+      "properties": {
+        "authors": {
+          "description": "'Last, First' strings or whole names, in order.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Authors",
+          "type": "array"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "title": "Paper",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "library": {
+      "description": "The library; may include the paper itself.",
+      "items": {
+        "$ref": "#/$defs/Filed"
+      },
+      "title": "Library",
+      "type": "array"
+    },
+    "paper": {
+      "$ref": "#/$defs/Paper"
+    }
+  },
+  "required": [
+    "paper"
+  ],
+  "title": "Input",
+  "type": "object"
+}

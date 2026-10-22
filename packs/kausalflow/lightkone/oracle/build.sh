@@ -16,6 +16,7 @@ contracts="$here/../1/components"
 for adapter in "$here"/adapters/*.ts; do
   name=$(basename "$adapter" .ts)
   [ "$name" = serve ] && continue
+  [ -d "$contracts/$name/1" ] || { echo "skip $name: no contract yet"; continue; }
   out="$here/$name"
   mkdir -p "$out"
   cat > "$here/.rolldown.config.mjs" <<CFG

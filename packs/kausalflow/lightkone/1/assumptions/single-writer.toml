@@ -1,4 +1,4 @@
 id = "K-single-writer"
-statement = "At most one client writes a given library at a time."
-basis = "Sync is manual and libraries are personal, so concurrent edits are rare and resolved by library merge (a later component)."
-monitor = "none"
+statement = "Two clients (devices, or Claude through MCP) do not write the same library within the moment between lightkone re-reading library.json and writing it."
+basis = "Libraries are personal and saves are small. Writes that are minutes apart are reconciled by lightkone/library-merge; storage offers no lock for the instant in between."
+monitor = "After each save, re-read library.json and report when it differs from what was written."

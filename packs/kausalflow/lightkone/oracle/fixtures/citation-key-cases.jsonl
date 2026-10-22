@@ -1,0 +1,19 @@
+{"drafts": [{"title": "Improving neural networks by preventing co-adaptation", "authors": ["Hinton, Geoffrey"], "year": 2012}], "note": "surname, year, first letters of the first two long words"}
+{"drafts": [{"title": "Attention is all you need", "authors": ["Vaswani, Ashish"], "year": 2017}], "note": "short words are skipped: attention, need"}
+{"drafts": [{"title": "Über formal unentscheidbare Sätze", "authors": ["Gödel, Kurt"], "year": 1931}], "note": "accents decompose in the surname but vanish from the title"}
+{"drafts": [{"title": "Deep learning", "authors": ["LeCun, Yann"], "year": 2015}], "taken": ["LeCun2015-dl"], "note": "a taken key counts up from 2"}
+{"drafts": [{"title": "Deep learning", "authors": ["LeCun, Yann"], "year": 2015}], "taken": ["LeCun2015-dl", "LeCun2015-dl2", "LeCun2015-dl3"], "note": "first free number"}
+{"drafts": [{"title": "Deep learning", "authors": ["LeCun, Yann"], "year": 2015}, {"title": "Deep learning", "authors": ["LeCun, Yann"], "year": 2015}, {"title": "Deep learning", "authors": ["LeCun, Yann"], "year": 2015}], "note": "drafts in one batch take keys from each other"}
+{"drafts": [{"title": "Imported", "authors": ["Doe, Jane"], "year": 2020, "key": "Doe2020-im"}, {"title": "Imported again", "authors": ["Doe, Jane"], "year": 2020, "key": "Doe2020-im"}], "note": "an arriving key is kept unless taken, then a new key is made"}
+{"drafts": [{"title": "Kept key", "authors": [], "key": "mykey"}], "taken": ["mykey"], "note": "a taken arriving key is replaced"}
+{"drafts": [{"title": "Empty key", "authors": ["Smith, J"], "year": 2001, "key": ""}], "note": "an empty key is no key"}
+{"drafts": [{"title": "No authors here at all", "authors": []}], "note": "no authors and no year: Anon"}
+{"drafts": [{"title": "Title", "authors": ["李, 雷"], "year": 2019}], "note": "a surname with no ASCII letters becomes Anon"}
+{"drafts": [{"title": "On it", "authors": ["Plato"], "year": 1}], "note": "no comma: the whole name is the surname; no long words: xx"}
+{"drafts": [{"title": "Theory of games", "authors": ["von Neumann, John", "Morgenstern, Oskar"], "year": 1944}], "note": "only the first author counts; the first letter is upper-cased"}
+{"drafts": [{"title": "A study", "authors": ["O'Neil, Cathy"], "year": 2016}], "note": "punctuation in surnames is dropped; one long word gives its letter twice"}
+{"drafts": [{"title": "X-ray crystallography of DNA's double-helix", "authors": ["Franklin, Rosalind"], "year": 1953}], "note": "hyphens and apostrophes are removed before splitting"}
+{"drafts": [{"title": "Nets", "authors": ["Łukasiewicz, Jan"], "year": 1920}], "note": "Ł has no decomposition, so it is dropped"}
+{"drafts": [{"title": "Year zero", "authors": ["Zed, A"], "year": 0}], "note": "year 0 is still written"}
+{"drafts": [{"title": "Two  spaces  between", "authors": ["Ng, Andrew"], "year": 2000}], "note": "double spaces make empty words, which are skipped"}
+{"drafts": [{"title": "Research", "authors": ["Smith, J"], "year": 2010}, {"title": "Research", "authors": ["Smith, K"], "year": 2010}], "taken": ["Smith2010-rr"], "note": "the second gets 3 after the first takes 2"}

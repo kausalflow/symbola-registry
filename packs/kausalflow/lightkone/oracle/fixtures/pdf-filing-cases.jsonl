@@ -1,0 +1,19 @@
+{"paper": {"id": "new", "title": "Improving neural networks by preventing co-adaptation of feature detectors", "authors": ["Hinton, Geoffrey E", "Srivastava, Nitish", "Krizhevsky, Alex"], "year": 2012}, "note": "three or more authors: et al."}
+{"paper": {"id": "new", "title": "Attention is all you need", "authors": ["Vaswani, Ashish", "Shazeer, Noam"], "year": 2017}, "note": "two authors: A and B"}
+{"paper": {"id": "new", "title": "Über formal unentscheidbare Sätze", "authors": ["Gödel, Kurt"], "year": 1931}, "note": "one author; the folder keeps accents in capitals"}
+{"paper": {"id": "new", "title": "Deep learning: a review", "authors": ["LeCun, Yann"], "year": 2015}, "note": "a colon becomes ' - '"}
+{"paper": {"id": "new", "title": "What is a p-value? And/or <why> \"it\" matters*|", "authors": ["Smith, J"], "year": 2001}, "note": "every forbidden character becomes ' - ', and runs collapse"}
+{"paper": {"id": "new", "title": "Pages 1--10 and 1---2", "authors": ["Doe, Jane"], "year": 2020}, "note": "-- and --- become en and em dashes"}
+{"paper": {"id": "new", "title": "An untitled-author preprint", "authors": [], "year": 2021}, "note": "no authors: the title stands in for them, folder Other"}
+{"paper": {"id": "new", "title": "", "authors": ["Plato"]}, "note": "empty title becomes Untitled; no year"}
+{"paper": {"id": "new", "title": "Straßen und Wege", "authors": ["Straße, Hans"], "year": 1990}, "note": "ß upper-cases to SS in the folder"}
+{"paper": {"id": "new", "title": "Corporate work", "authors": ["LIGO Scientific Collaboration", "Virgo Collaboration"], "year": 2016}, "note": "names without commas are whole surnames"}
+{"paper": {"id": "new", "title": "A paper by a very long collaboration name indeed", "authors": ["The International Consortium of Very Long Names"], "year": 2019}, "note": "who longer than 40 is cut to 37 plus ..."}
+{"paper": {"id": "new", "title": "On the electrodynamics of moving bodies, being a very long title that goes on and on well past the limit of what Paperpile allows in a file name", "authors": ["Einstein, Albert"], "year": 1905}, "note": "a name longer than 146 keeps its start and end around ' ... '"}
+{"paper": {"id": "new", "title": "Duplicate", "authors": ["Doe, Jane"], "year": 2020}, "library": [{"id": "a", "pdf": "papers/All Papers/DOE/Doe 2020 - Duplicate.pdf"}], "note": "a taken name gets (2)"}
+{"paper": {"id": "new", "title": "Duplicate", "authors": ["Doe, Jane"], "year": 2020}, "library": [{"id": "a", "pdf": "papers/All Papers/DOE/Doe 2020 - Duplicate.pdf"}, {"id": "b", "file": "elsewhere.pdf;All Papers/DOE/Doe 2020 - Duplicate (2).pdf"}], "note": "file fields with ; list several paths, each taken"}
+{"paper": {"id": "new", "title": "Duplicate", "authors": ["Doe, Jane"], "year": 2020}, "library": [{"id": "new", "pdf": "papers/All Papers/DOE/Doe 2020 - Duplicate.pdf"}], "note": "the paper's own PDF does not count as taken"}
+{"paper": {"id": "new", "title": "Spaces", "authors": ["  Spaced ,  Out  ", ""], "year": 2000}, "note": "surnames are trimmed; empty authors are skipped in the name"}
+{"paper": {"id": "new", "title": "Empty first", "authors": ["", "Second, B"], "year": 2000}, "note": "an empty first author means folder Other, but the name uses the rest"}
+{"paper": {"id": "new", "title": "-Leading and trailing-", "authors": ["-Dash-, A"], "year": 2000}, "note": "leading and trailing hyphens are removed by clean"}
+{"paper": {"id": "new", "title": "Trailing slash/", "authors": ["Back\\slash, A"], "year": 2000}, "note": "backslash and slash at the edges"}

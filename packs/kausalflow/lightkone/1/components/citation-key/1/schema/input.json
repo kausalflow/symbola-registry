@@ -1,0 +1,76 @@
+{
+  "$defs": {
+    "Draft": {
+      "additionalProperties": false,
+      "properties": {
+        "authors": {
+          "description": "'Last, First' strings or whole names, in order.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Authors",
+          "type": "array"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A key the paper arrived with, e.g. from an imported .bib file.",
+          "title": "Key"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "title": "Draft",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "drafts": {
+      "description": "New papers, in the order they are added.",
+      "items": {
+        "$ref": "#/$defs/Draft"
+      },
+      "title": "Drafts",
+      "type": "array"
+    },
+    "taken": {
+      "description": "Keys already in the library.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Taken",
+      "type": "array"
+    }
+  },
+  "required": [
+    "drafts"
+  ],
+  "title": "Input",
+  "type": "object"
+}

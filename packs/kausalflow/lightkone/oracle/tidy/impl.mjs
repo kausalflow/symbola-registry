@@ -21,9 +21,11 @@ function findDuplicates(papers) {
 	const seen = /* @__PURE__ */ new Map();
 	for (const p of live) {
 		const t = normTitle(p.title);
+		const doi = normDoi(p.doi);
+		const arxiv = normArxiv(p.arxiv);
 		const keys = [
-			p.doi && `doi:${normDoi(p.doi)}`,
-			p.arxiv && `arxiv:${normArxiv(p.arxiv)}`,
+			doi && `doi:${doi}`,
+			arxiv && `arxiv:${arxiv}`,
 			t.length > 20 ? `title:${t}` : t.length > 3 && `title:${t}:${firstAuthor(p)}`
 		].filter(Boolean);
 		for (const k of keys) {

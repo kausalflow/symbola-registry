@@ -23,10 +23,21 @@ Folders. Each paper with no "folders" key gets one, from its "file" (a
 Paperpile Drive path, or several separated by ";"): for each path, trimmed,
 skipping empty ones, take its directories (every segment but the last); drop
 a leading "All Papers"; skip it when nothing is left, or when a single
-directory is left that is all upper case (an author folder like "HINTON") or
-is "Other". Join the rest with "/". Keep the first of any repeats, in order.
-A paper with no file gets []. foldered counts the papers that gained a
-non-empty list. A paper that already has "folders", even [], keeps it.
+directory is left that is an author folder. Join the rest with "/". Keep the
+first of any repeats, in order. A paper with no file gets []. foldered
+counts the papers that gained a non-empty list. A paper that already has
+"folders", even [], keeps it.
+
+Author folders. Paperpile files a PDF under its first author's surname in
+capitals, as lightkone/pdf-filing names the folder; any of the paper's
+authors counts, since the author list may have changed since. Let N be the
+set of clean(surname(a)) upper-cased, for each author a, leaving out empty
+ones (clean and surname as lightkone/pdf-filing defines them; upper-casing
+is JavaScript's toUpperCase, so "ß" becomes "SS"). A directory is an author
+folder when it is "Other" or is in N. When N is empty there is nothing to
+compare, and a directory is an author folder when upper-casing leaves it
+unchanged and lower-casing changes it ("HINTON", but not "2019"). So a
+user's own "ML" folder is kept unless an author is called Ml.
 
 Writing. The saved file holds format "lightkone-library", version 1, papers,
 and bibSync when it is a non-empty list, then every other top-level key of

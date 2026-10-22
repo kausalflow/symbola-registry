@@ -300,3 +300,12 @@ after format/version/papers/bibSync, in input order (duplicates: last value, fir
 keys still sort first). library.bib skips papers whose `trashed` is JavaScript-truthy (null, false, 0, -0,
 "" are falsy; [], {}, "0", " " are truthy). Ambiguity: an input `bibSync` that is empty or not a list is
 dropped (not re-emitted as an "other" key); `null` for `trashed` is treated as falsy.
+
+## Revision 4 (library-file author folders, tidy empty keys)
+
+library-file (56 checks) and tidy (28 checks) re-pinned. library-file: a lone directory is skipped only if
+"Other" or in N = {upper(clean(surname(a)))} over the paper's authors (empties left out); with N empty the
+old test is "upper-case unchanged and lower-case changed". `clean` moved into `lk.Clean` (copy of the
+pdf-filing one; pdf-filing source untouched). Authors come from the paper's `authors` list (non-strings
+ignored). tidy: a DOI/arXiv id that normalises to "" gives no key. Ambiguity: "Other" is matched
+case-sensitively; the N-empty case treats caseless directories (digits) as non-author folders.

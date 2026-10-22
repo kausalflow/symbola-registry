@@ -14,7 +14,23 @@ type output struct {
 	Foldered int     `json:"foldered"`
 }
 
-func foldersFrom(file string) []lk.Val {
+func foldersFrom(file string, authors []string) []lk.Val {
+	names := map[string]bool{}
+	for _, a := range authors {
+		n, _, _ := strings.Cut(a, ",")
+		if f := lk.Upper(lk.Clean(lk.Trim(n))); f != "" {
+			names[f] = true
+		}
+	}
+	authorFolder := func(d string) bool {
+		if d == "Other" {
+			return true
+		}
+		if len(names) > 0 {
+			return names[d]
+		}
+		return lk.Upper(d) == d && lk.Lower(d) != d
+	}
 	out := []lk.Val{}
 	seen := map[string]bool{}
 	for _, path := range strings.Split(file, ";") {
@@ -30,7 +46,7 @@ func foldersFrom(file string) []lk.Val {
 		if len(dirs) == 0 {
 			continue
 		}
-		if len(dirs) == 1 && (dirs[0] == lk.Upper(dirs[0]) || dirs[0] == "Other") {
+		if len(dirs) == 1 && authorFolder(dirs[0]) {
 			continue
 		}
 		f := strings.Join(dirs, "/")
@@ -116,7 +132,7 @@ func main() {
 			}
 			fl := []lk.Val{}
 			if f, ok := p.M["file"].(string); ok {
-				fl = foldersFrom(f)
+				fl = foldersFrom(f, strList(p, "authors"))
 			}
 			if len(fl) > 0 {
 				foldered++

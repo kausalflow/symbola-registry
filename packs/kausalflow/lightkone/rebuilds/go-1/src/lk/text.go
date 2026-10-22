@@ -2,6 +2,7 @@
 package lk
 
 import (
+	"regexp"
 	"sort"
 	"strings"
 	"unicode"
@@ -290,4 +291,18 @@ func ComposeLetter(s string) string {
 		return c
 	}
 	return s
+}
+
+var dashRuns = regexp.MustCompile(`( - ){2,}`)
+
+// Clean is pdf-filing's clean(s).
+func Clean(s string) string {
+	s = strings.ReplaceAll(s, "---", "—")
+	s = strings.ReplaceAll(s, "--", "–")
+	for _, c := range []string{":", "/", "\\", "?", "*", "\"", "<", ">", "|"} {
+		s = strings.ReplaceAll(s, c, " - ")
+	}
+	s = CollapseSpaceKeep(s)
+	s = dashRuns.ReplaceAllString(s, " - ")
+	return strings.Trim(s, " -")
 }

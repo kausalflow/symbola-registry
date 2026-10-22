@@ -29,19 +29,35 @@ function paperToBibtex(p) {
 const libraryToBibtex = (papers) => papers.map(paperToBibtex).join("\n");
 
 //#endregion
+//#region src/core/filing.ts
+const surname = (a) => (a.includes(",") ? a.split(",")[0] : a).trim();
+/** Characters a file name cannot hold become " - ", as Paperpile does ("Title: Subtitle" → "Title - Subtitle"). */
+function clean(s) {
+	return s.replace(/---/g, "—").replace(/--/g, "–").replace(/[:/\\?*"<>|]/g, " - ").replace(/\s+/g, " ").replace(/( - )+/g, " - ").replace(/^[\s-]+|[\s-]+$/g, "");
+}
+/** The author folder Paperpile files an author's papers under: the surname in capitals ("HINTON"). */
+const authorFolder = (author) => clean(surname(author)).toUpperCase();
+
+//#endregion
 //#region src/core/folders.ts
 /**
 * Folders implied by Paperpile's Drive paths. Paperpile files new PDFs under an
 * author folder ("All Papers/HINTON/...", or "Other" without authors); older
 * libraries filed them by the user's own folders ("All Papers/MLDS/Physics/...").
+* A lone directory is an author folder when it is "Other" or one of the paper's
+* authors' surnames in capitals, so the user's own "ML" or "2019" stays a folder.
+* Without authors to compare, any lone directory in capitals with a letter is
+* taken for one.
 */
-function foldersFromPaperpile(file) {
+function foldersFromPaperpile(file, authors = []) {
+	const names = new Set(authors.map(authorFolder).filter(Boolean));
+	const isAuthorFolder = (d) => d === "Other" || (names.size ? names.has(d) : d === d.toUpperCase() && d !== d.toLowerCase());
 	const out = /* @__PURE__ */ new Set();
 	for (const path of (file ?? "").split(";").map((s) => s.trim()).filter(Boolean)) {
 		const dirs = path.split("/").slice(0, -1);
 		if (dirs[0] === "All Papers") dirs.shift();
 		if (!dirs.length) continue;
-		if (dirs.length === 1 && (dirs[0] === dirs[0].toUpperCase() || dirs[0] === "Other")) continue;
+		if (dirs.length === 1 && isAuthorFolder(dirs[0])) continue;
 		out.add(dirs.join("/"));
 	}
 	return [...out];
@@ -193,7 +209,7 @@ var Library = class {
 		let foldered = 0;
 		for (const p of this.papers) {
 			if (p.folders) continue;
-			p.folders = foldersFromPaperpile(p.file);
+			p.folders = foldersFromPaperpile(p.file, p.authors);
 			if (p.folders.length) foldered++;
 		}
 		this.emit();
@@ -284,7 +300,7 @@ var Library = class {
 					existing.tags = tags;
 					changed = true;
 				}
-				const folders = [.../* @__PURE__ */ new Set([...existing.folders ?? [], ...d.folders ?? foldersFromPaperpile(d.file)])];
+				const folders = [.../* @__PURE__ */ new Set([...existing.folders ?? [], ...d.folders ?? foldersFromPaperpile(d.file, d.authors)])];
 				if (folders.length !== (existing.folders ?? []).length) {
 					existing.folders = folders;
 					changed = true;
@@ -300,7 +316,7 @@ var Library = class {
 				fields: {},
 				...d,
 				tags: d.tags ?? [],
-				folders: d.folders ?? foldersFromPaperpile(d.file),
+				folders: d.folders ?? foldersFromPaperpile(d.file, d.authors),
 				id: newId(),
 				key,
 				added: d.added ?? (/* @__PURE__ */ new Date()).toISOString()

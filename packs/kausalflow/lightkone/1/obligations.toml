@@ -1,0 +1,269 @@
+# Obligations of the lightkone spec pack (format: docs/PACK_FORMAT.md).
+#
+# Each obligation is one decision a builder could get wrong, with the checks
+# that pin it down. status: decided (required), default (chosen; a fork may
+# change it with a note), open (deliberately undecided; builds may differ).
+# Checks are "<component>#example:<line in examples.jsonl>" or
+# "<component>#<property test name>".
+#
+# This is a retrofit of the v1 pack, which was written before v0.5. Pruning
+# (dropping obligations that builders get right unprompted) comes with
+# `replicate` in step 4.
+
+# ── search-query ──────────────────────────────────────────────────────────
+
+[[obligation]]
+id = "search.results-from-library"
+statement = "Results are distinct ids of papers in the input library."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_results_are_distinct_papers_from_the_library"]
+
+[[obligation]]
+id = "search.trash"
+statement = "Trashed papers appear only with is:trash, and then only trashed papers appear; an empty trashed field is not trashed."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_trash_shows_only_with_is_trash", "search-query#example:25", "search-query#example:61", "search-query#example:62"]
+
+[[obligation]]
+id = "search.query-tokens"
+statement = "Terms split on whitespace; quotes make one word; an unknown field:value or unmatched quote is an ordinary word."
+status = "decided"
+source = "extract"
+checks = ["search-query#example:8", "search-query#example:9", "search-query#example:21", "search-query#example:22", "search-query#example:23", "search-query#example:27"]
+
+[[obligation]]
+id = "search.terms-conjunctive"
+statement = "Every filter and every word must hold (except year:, see search.year-last-wins)."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_terms_are_conjunctive", "search-query#example:7", "search-query#example:31", "search-query#example:36", "search-query#example:47", "search-query#example:52", "search-query#example:63", "search-query#example:71"]
+
+[[obligation]]
+id = "search.folding"
+statement = "Text and query compare after NFKD, removing combining marks, and lower-casing."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_case_and_accents_in_the_query_do_not_matter", "search-query#example:12", "search-query#example:13", "search-query#example:14", "search-query#example:15", "search-query#example:16"]
+
+[[obligation]]
+id = "search.word-scoring"
+statement = "A word scores 5 in the title, 4 in authors joined by ' ; ', 1 in the rest text; a paper with any zero-scoring word is left out."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_words_rank_title_over_author_over_rest", "search-query#example:3", "search-query#example:6", "search-query#example:10", "search-query#example:11", "search-query#example:17", "search-query#example:18", "search-query#example:19", "search-query#example:20", "search-query#example:24", "search-query#example:68", "search-query#example:69"]
+
+[[obligation]]
+id = "search.filter-tag"
+statement = "tag:T matches a whole tag after folding, never a substring."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_each_filter_selects_what_it_says", "search-query#example:26", "search-query#example:28", "search-query#example:29", "search-query#example:30", "search-query#example:32"]
+
+[[obligation]]
+id = "search.filter-author"
+statement = "author:A is a substring of the folded authors joined with ' ; '."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_each_filter_selects_what_it_says", "search-query#example:33", "search-query#example:34", "search-query#example:35"]
+
+[[obligation]]
+id = "search.filter-year"
+statement = "year:Y is an exact year and year:A-B an inclusive range; a missing year never matches."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_each_filter_selects_what_it_says", "search-query#example:37", "search-query#example:38", "search-query#example:39"]
+
+[[obligation]]
+id = "search.year-last-wins"
+statement = "Only the last year: term in a query applies, whatever its form."
+status = "decided"
+source = "replication"
+reason = "The python-1 rebuild read repeated year: filters differently; lightkone keeps one year slot."
+checks = ["search-query#test_only_the_last_year_filter_counts", "search-query#example:40", "search-query#example:41", "search-query#example:42"]
+
+[[obligation]]
+id = "search.year-malformed"
+statement = "What a year: value other than N or N-M matches."
+status = "open"
+source = "replication"
+
+[[obligation]]
+id = "search.filter-folder"
+statement = "in:F matches folder F and folders inside it, after folding, ignoring trailing slashes, never by name prefix."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_each_filter_selects_what_it_says", "search-query#example:43", "search-query#example:44", "search-query#example:45", "search-query#example:46"]
+
+[[obligation]]
+id = "search.filter-has-no"
+statement = "has:/no: test presence of pdf, abstract, arxiv and notes; empty counts as absent; has:pdf also accepts file; unknown values are ignored."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_each_filter_selects_what_it_says", "search-query#example:48", "search-query#example:49", "search-query#example:50", "search-query#example:51", "search-query#example:53", "search-query#example:54", "search-query#example:55", "search-query#example:56"]
+
+[[obligation]]
+id = "search.filter-is"
+statement = "is:starred and is:recent select starred and opened papers; unknown is: values are ignored."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_each_filter_selects_what_it_says", "search-query#example:57", "search-query#example:64"]
+
+[[obligation]]
+id = "search.default-order"
+statement = "The default sort is newest added first, relevance when there are words, opened with is:recent; ties keep input order, relevance ties fall back to newest added."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_empty_query_lists_the_library_newest_first", "search-query#example:1", "search-query#example:2", "search-query#example:4", "search-query#example:59", "search-query#example:67", "search-query#example:70"]
+assumes = ["K-iso-timestamps"]
+
+[[obligation]]
+id = "search.explicit-sorts"
+statement = "year: later first, missing as 0; opened: latest first, never-opened last; an explicit sort overrides the default."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_year_sort_puts_later_years_first", "search-query#test_opened_order_and_is_recent", "search-query#example:5", "search-query#example:58", "search-query#example:60", "search-query#example:65", "search-query#example:66"]
+assumes = ["K-iso-timestamps"]
+
+[[obligation]]
+id = "search.title-sort-ascii"
+statement = "title: sort is ascending and stable for titles of lowercase ASCII letters, digits and spaces."
+status = "decided"
+source = "extract"
+checks = ["search-query#test_title_sort_is_ascending_and_stable"]
+
+[[obligation]]
+id = "search.title-sort-other"
+statement = "title: sort order for titles with capitals, punctuation or non-ASCII characters."
+status = "open"
+source = "replication"
+
+# ── bibtex-import ─────────────────────────────────────────────────────────
+
+[[obligation]]
+id = "import.never-fails"
+statement = "Import never fails: malformed parts are skipped and the rest is read."
+status = "decided"
+kind = "constraint"
+source = "extract"
+reason = "People import whole .bib files from other managers; one bad entry must not lose the file."
+checks = ["bibtex-import#test_well_formed_entries_become_drafts", "bibtex-import#example:24", "bibtex-import#example:25", "bibtex-import#example:26"]
+assumes = ["K-bibtex-sources"]
+
+[[obligation]]
+id = "import.entries"
+statement = "@type{key, fields} and @type(key, fields) become drafts; @comment, @preamble and untitled entries do not."
+status = "decided"
+source = "extract"
+checks = ["bibtex-import#test_entries_without_a_title_are_left_out", "bibtex-import#test_comments_and_preambles_are_not_entries", "bibtex-import#example:1", "bibtex-import#example:2", "bibtex-import#example:7", "bibtex-import#example:9", "bibtex-import#example:10", "bibtex-import#example:11", "bibtex-import#example:12"]
+
+[[obligation]]
+id = "import.malformed-field-skip"
+statement = "A field without a name or '=' is skipped to the next comma, so the rest of that entry is lost."
+status = "default"
+source = "replication"
+reason = "The python-1 rebuild could settle this only from one example; lightkone does it this way."
+checks = ["bibtex-import#example:18"]
+
+[[obligation]]
+id = "import.values"
+statement = "Values are braced, quoted, numeric or macro parts joined by #; @string and month macros expand; later fields replace earlier ones; whitespace collapses."
+status = "decided"
+source = "extract"
+checks = ["bibtex-import#test_string_macros_and_concatenation", "bibtex-import#test_month_macros", "bibtex-import#test_whitespace_in_values_collapses", "bibtex-import#test_later_fields_replace_earlier_ones", "bibtex-import#example:8", "bibtex-import#example:17", "bibtex-import#example:21", "bibtex-import#example:22"]
+
+[[obligation]]
+id = "import.non-ascii-whitespace"
+statement = "Whether whitespace other than ASCII space, tab, CR and LF separates or collapses."
+status = "open"
+source = "extract"
+assumes = ["K-bibtex-sources"]
+
+[[obligation]]
+id = "import.latex-to-plain"
+statement = "Title, venue, abstract, names and tags go through plain(): LaTeX accents and specials become Unicode, formatting commands unwrap, braces go."
+status = "decided"
+source = "extract"
+checks = ["bibtex-import#example:3", "bibtex-import#example:6", "bibtex-import#example:13", "bibtex-import#example:14"]
+
+[[obligation]]
+id = "import.authors"
+statement = "Authors split on 'and'; First Last flips to Last, First; comma names, 'others' and {braced} names are kept; editor stands in only without an author field."
+status = "decided"
+source = "extract"
+checks = ["bibtex-import#test_braced_names_and_others_are_kept", "bibtex-import#test_editors_stand_in_for_missing_authors", "bibtex-import#example:5", "bibtex-import#example:11", "bibtex-import#example:19", "bibtex-import#example:27"]
+
+[[obligation]]
+id = "import.identifiers"
+statement = "doi loses its resolver prefix; arxiv ids come from arxivid, arXiv eprints, arxiv.org URLs or new-style bare eprints, without version."
+status = "decided"
+source = "extract"
+checks = ["bibtex-import#test_doi_loses_its_resolver_prefix", "bibtex-import#test_arxiv_ids_are_found", "bibtex-import#test_other_eprints_stay_in_fields", "bibtex-import#example:16", "bibtex-import#example:28"]
+
+[[obligation]]
+id = "import.draft-fields"
+statement = "year is the first four digits; venue is journal, else booktitle, else publisher; notes is annote, else note; empty abstract, doi and venue are absent."
+status = "decided"
+source = "extract"
+checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#example:23"]
+
+[[obligation]]
+id = "import.venue-empty-journal"
+statement = "Whether an empty journal field still blocks booktitle as the venue."
+status = "open"
+source = "replication"
+
+[[obligation]]
+id = "import.tags"
+statement = "keywords split on ; or , into tags, dropping identifiers and URLs."
+status = "decided"
+source = "extract"
+checks = ["bibtex-import#test_keywords_become_tags_without_identifiers", "bibtex-import#example:15"]
+
+# ── bibtex-export ─────────────────────────────────────────────────────────
+
+[[obligation]]
+id = "export.byte-exact"
+statement = "Export writes the exact entry lightkone writes: frame, aligned names, field order."
+status = "decided"
+kind = "constraint"
+source = "extract"
+reason = "library.bib is synced with Overleaf and git; any difference shows up as a spurious diff for every user."
+checks = ["bibtex-export#test_entry_frame", "bibtex-export#test_names_are_aligned", "bibtex-export#test_fields_appear_in_order_when_present", "bibtex-export#example:1", "bibtex-export#example:11", "bibtex-export#example:13"]
+
+[[obligation]]
+id = "export.values"
+statement = "Values are written as given, except that & % # are escaped once in title, venue and abstract."
+status = "decided"
+source = "extract"
+checks = ["bibtex-export#test_values_are_written_as_given", "bibtex-export#test_title_venue_and_abstract_are_escaped", "bibtex-export#example:9", "bibtex-export#example:14", "bibtex-export#example:16", "bibtex-export#example:19"]
+
+[[obligation]]
+id = "export.venue"
+statement = "The venue is written as journal, or booktitle for inproceedings and incollection, unless a non-empty journal field is already there."
+status = "decided"
+source = "extract"
+checks = ["bibtex-export#example:2", "bibtex-export#example:3", "bibtex-export#example:4", "bibtex-export#example:5"]
+
+[[obligation]]
+id = "export.authors-and-keywords"
+statement = "Authors join with ' and ', whole names braced; tags join with ';' as keywords."
+status = "decided"
+source = "extract"
+checks = ["bibtex-export#test_authors_and_keywords", "bibtex-export#example:7", "bibtex-export#example:8", "bibtex-export#example:18"]
+
+[[obligation]]
+id = "export.empty-values"
+statement = "Empty values are left out, except title and year 0; an empty type becomes misc."
+status = "decided"
+source = "extract"
+checks = ["bibtex-export#example:6", "bibtex-export#example:12", "bibtex-export#example:15", "bibtex-export#example:17"]
+
+[[obligation]]
+id = "export.no-private-fields"
+statement = "Fields whose names start with lightkone- are private and never written to BibTeX."
+status = "decided"
+kind = "security"
+source = "extract"
+checks = ["bibtex-export#example:10"]

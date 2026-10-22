@@ -1,0 +1,4 @@
+id = "K-personal-library"
+statement = "A library belongs to one person, holds at most tens of thousands of papers, and is searched in memory on their device."
+basis = "lightkone is a static app with no server, so search runs over the whole library in the browser."
+monitor = "Report the library size when it is loaded."

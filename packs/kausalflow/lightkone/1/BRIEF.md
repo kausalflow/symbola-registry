@@ -31,3 +31,26 @@ Builders who want lightkone's behavior in their own stack: a different
 language, a server instead of a static app, or a fork with their own features.
 A build that passes these contracts reads the same queries and BibTeX the same
 way lightkone does, so its users' libraries and habits carry over.
+
+## Non-goals
+
+- Full-text search inside PDFs. Search covers metadata and notes only.
+- Collaboration. A library belongs to one person; there are no shared libraries, roles or permissions.
+- Being a general BibTeX validator. Import reads what the common managers export and skips the rest.
+- Pixel-level UI. Later versions specify user flows, not layout or styling.
+
+## Priorities
+
+When goals conflict, earlier ones win:
+
+1. **The owner's data stays theirs and stays readable.** Never lose or corrupt a library, and keep it in plain files.
+2. **Compatibility with lightkone's files.** A build reads and writes the same `library.json` and `library.bib`, byte for byte where the contracts say so.
+3. **Same answers to the same queries,** so habits carry over between builds.
+4. Speed and features beyond the pack.
+
+## Who resolves gaps
+
+kausalflow, as the namespace holder. If the pack doesn't settle something, record the
+question and the reading you chose in `NOTES.md` next to your build; obligations marked
+`open` in `obligations.toml` are yours to choose. Unsettled questions are answered in the
+next version of the pack.

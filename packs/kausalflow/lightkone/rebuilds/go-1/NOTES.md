@@ -292,3 +292,11 @@ Still ambiguous: "outside braces" for keys does not say whether a backslash-esca
 whether quotes matter in keys (I ignore both); in a skipped malformed field an unterminated brace or quote
 swallows the rest of the text; `\i` with the "not followed by a letter" rule means `\"\ix` does not match
 step 1 and falls through to step 2/4 (`\"` stays). Two-digit years (example 37) already behaved as needed.
+
+## Revision 3 (library-file)
+
+Only library-file changed (digest sha256:de7d7a24...; 52 checks pass). Other top-level keys are now kept
+after format/version/papers/bibSync, in input order (duplicates: last value, first position; index-like
+keys still sort first). library.bib skips papers whose `trashed` is JavaScript-truthy (null, false, 0, -0,
+"" are falsy; [], {}, "0", " " are truthy). Ambiguity: an input `bibSync` that is empty or not a list is
+dropped (not re-emitted as an "other" key); `null` for `trashed` is treated as falsy.

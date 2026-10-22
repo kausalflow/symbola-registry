@@ -423,11 +423,11 @@ source = "oracle"
 checks = ["library-file#test_saved_file_keeps_exactly_the_library", "library-file#example:1", "library-file#example:3", "library-file#example:7", "library-file#example:23"]
 
 [[obligation]]
-id = "file.drops-unknown-keys"
-statement = "Top-level keys other than format, version, papers and bibSync are dropped on save, as lightkone does today. Another tool's data at the top level is lost."
-status = "default"
+id = "file.keeps-unknown-keys"
+statement = "Top-level keys other than format, version, papers and bibSync are kept on save, after lightkone's own, in the file's order, so another tool's data at the top level survives. Fixed in lightkone#51; until then they were dropped."
+status = "decided"
 source = "oracle"
-checks = ["library-file#example:3"]
+checks = ["library-file#example:3", "library-file#example:40", "library-file#example:41", "library-file#example:42", "library-file#test_saved_file_keeps_exactly_the_library"]
 
 [[obligation]]
 id = "file.version-unchecked"
@@ -466,14 +466,14 @@ checks = ["library-file#test_writes_only_when_the_text_changes", "library-file#t
 
 [[obligation]]
 id = "file.bib-alongside"
-statement = "library.bib is written with every save: each paper's BibTeX entry, in library order."
+statement = "library.bib is written with every save: the BibTeX entry of each paper not in the trash, in library order."
 status = "decided"
 source = "oracle"
-checks = ["library-file#test_bib_has_one_entry_per_paper_in_order", "library-file#example:21"]
+checks = ["library-file#test_bib_has_one_entry_per_live_paper_in_order", "library-file#example:21"]
 
 [[obligation]]
-id = "file.bib-includes-trash"
-statement = "Papers in the trash are still written to library.bib, as lightkone does today. Likely a bug: Overleaf would see deleted papers."
-status = "default"
+id = "file.bib-leaves-out-trash"
+statement = "Papers in the trash are left out of library.bib, so Overleaf does not see deleted papers. A paper is in the trash when its trashed value is true in JavaScript. Fixed in lightkone#51; until then they were written."
+status = "decided"
 source = "oracle"
-checks = ["library-file#example:22"]
+checks = ["library-file#example:22", "library-file#example:43", "library-file#example:44", "library-file#example:45", "library-file#test_bib_has_one_entry_per_live_paper_in_order"]

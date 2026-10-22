@@ -28,9 +28,10 @@ is "Other". Join the rest with "/". Keep the first of any repeats, in order.
 A paper with no file gets []. foldered counts the papers that gained a
 non-empty list. A paper that already has "folders", even [], keeps it.
 
-Writing. The saved file holds exactly format "lightkone-library", version 1,
-papers, and bibSync when it is a non-empty list; other top-level keys are
-dropped. written is false only when that text equals the input exactly; then
+Writing. The saved file holds format "lightkone-library", version 1, papers,
+and bibSync when it is a non-empty list, then every other top-level key of
+the input with its value as read, in the input's order: lightkone keeps
+other tools' data. written is false only when that text equals the input exactly; then
 nothing is written and library is the input.
 
 The text is JavaScript's JSON.stringify with an indent of one space:
@@ -47,9 +48,11 @@ The text is JavaScript's JSON.stringify with an indent of one space:
     e+21 or e-7 for magnitudes from 1e21 up or below 1e-6
   - no newline at the end
 
-library.bib: each paper, trashed ones included, as lightkone/bibtex-export
-writes it (its fields in the order library.json lists them), joined by "\\n".
-An empty library gives "".
+library.bib: each paper not in the trash, as lightkone/bibtex-export writes
+it (its fields in the order library.json lists them), joined by "\\n". A
+paper is in the trash when its "trashed" value is true in JavaScript: any
+value but a missing key, false, 0 and "" ([] and {} are in the trash,
+and so is "0"). No papers left gives "".
 """
 regenerability = "disposable"
 license = "Proprietary (kausalflow)"

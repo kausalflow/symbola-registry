@@ -66,6 +66,8 @@ def library(draw):
         data["bibSync"] = draw(st.lists(st.just({"folder": "", "repo": "a/b", "path": "refs.bib"}), max_size=1))
     if draw(st.booleans()):
         data["note"] = "kept elsewhere"
+    if draw(st.booleans()):
+        data = {"source": {"tool": "sync", "at": 3}, **data}
     return data
 
 
@@ -88,9 +90,11 @@ def test_saved_file_keeps_exactly_the_library(impl, s):
     expect = {"format": "lightkone-library", "version": 1, "papers": data["papers"]}
     if data.get("bibSync"):
         expect["bibSync"] = data["bibSync"]
+    expect.update((k, v) for k, v in data.items() if k not in ("format", "version", "papers", "bibSync"))
     for p in expect["papers"]:
         p.setdefault("folders", folders_from(p.get("file")))
     assert out == expect
+    assert list(out) == list(expect), "other tools' keys come after lightkone's, in the file's order"
 
 
 @given(stored())
@@ -130,13 +134,14 @@ def test_saving_again_writes_nothing(impl, s):
 
 
 @given(library(), st.booleans())
-def test_bib_has_one_entry_per_paper_in_order(impl, data, pretty):
+def test_bib_has_one_entry_per_live_paper_in_order(impl, data, pretty):
     text = json.dumps(data) + ("\n" if pretty else "")
     out = run(impl, text)
     assert out.written
     heads = re.findall(r"^@(\w+)\{([^,\n]*),$", out.bib, re.M)
-    assert heads == [(p["type"] or "misc", p["key"]) for p in data["papers"]]
-    assert (out.bib == "") == (not data["papers"])
+    live = [p for p in data["papers"] if not p.get("trashed")]
+    assert heads == [(p["type"] or "misc", p["key"]) for p in live]
+    assert (out.bib == "") == (not live)
 
 
 not_a_library = st.one_of(

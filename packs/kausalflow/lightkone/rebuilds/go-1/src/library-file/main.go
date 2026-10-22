@@ -130,17 +130,42 @@ func main() {
 		if bs, ok := root.M["bibSync"].([]lk.Val); ok && len(bs) > 0 {
 			out.Set("bibSync", bs)
 		}
+		for _, k := range root.Keys {
+			switch k {
+			case "format", "version", "papers", "bibSync":
+			default:
+				out.Set(k, root.M[k])
+			}
+		}
 		text := lk.Stringify(out, 1)
 		res := output{Library: text, Foldered: foldered}
 		if text != in.Text {
 			res.Written = true
-			parts := make([]string, len(papers))
-			for i, p := range papers {
-				parts[i] = exportPaper(p)
+			parts := []string{}
+			for _, p := range papers {
+				if truthy(p.M["trashed"]) {
+					continue
+				}
+				parts = append(parts, exportPaper(p))
 			}
 			b := strings.Join(parts, "\n")
 			res.Bib = &b
 		}
 		return res, nil
 	})
+}
+
+// truthy is JavaScript truthiness for parsed JSON values.
+func truthy(v lk.Val) bool {
+	switch x := v.(type) {
+	case nil:
+		return false
+	case bool:
+		return x
+	case string:
+		return x != ""
+	case lk.Num:
+		return x.F != 0
+	}
+	return true
 }

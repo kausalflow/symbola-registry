@@ -182,7 +182,7 @@ id = "import.non-ascii-whitespace"
 statement = "Whitespace is JavaScript's \\s set (incl. no-break space, U+2028, U+3000, BOM), everywhere in import."
 status = "default"
 checks = ["bibtex-import#example:31", "bibtex-import#example:32", "bibtex-import#example:36"]
-source = "extract"
+source = "replication"
 assumes = ["K-bibtex-sources"]
 
 [[obligation]]

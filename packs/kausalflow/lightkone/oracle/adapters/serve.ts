@@ -18,7 +18,7 @@ export async function serve(run: (input: any) => unknown): Promise<void> {
   for await (const line of createInterface({ input: process.stdin })) {
     let reply: unknown;
     try {
-      reply = { output: run(dropNulls(JSON.parse(line))) };
+      reply = { output: await run(dropNulls(JSON.parse(line))) };
     } catch (e) {
       const err = e as Error;
       reply = { error: { type: err instanceof ValueError ? "ValueError" : err.name || "Error", message: err.message } };

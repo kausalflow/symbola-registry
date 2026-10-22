@@ -13,17 +13,21 @@ Overleaf.
 
 ## What this version of the pack covers
 
-Version 1 covers the three pure components everything else leans on:
+Version 1 covers the pure components everything else leans on, and the
+library file they all share:
 
 | Component | What it does |
 | --- | --- |
 | `lightkone/search-query@1` | The search box: filters (`tag:`, `author:`, `year:`, `in:`, `has:`, `no:`, `is:`), words with accent folding, ranking, sort orders, and the trash rule |
 | `lightkone/bibtex-import@1` | Reading BibTeX from Paperpile, Zotero, JabRef and Google Scholar into paper drafts, including LaTeX accents, macros, author names and arXiv ids |
 | `lightkone/bibtex-export@1` | Writing a paper as the exact BibTeX entry lightkone writes, byte for byte |
+| `lightkone/citation-key@1` | Paperpile-style citation keys for new papers, unique within the library |
+| `lightkone/pdf-filing@1` | Where a paper's PDF goes, named the way Paperpile names it |
+| `lightkone/library-merge@1` | Merging two devices' edits to `library.json` without losing either |
+| `lightkone/tidy@1` | Finding duplicate papers and how to merge each group |
+| `lightkone/library-file@1` | Reading `library.json` and writing it back, with `library.bib`, byte for byte |
 
-Later versions add the citation key, PDF filing, library merge and tidy
-components, the `library.json` data contract, the MCP server's tools, and UI
-acceptance scenarios.
+Later versions add the MCP server's tools and UI acceptance scenarios.
 
 ## Who it is for
 

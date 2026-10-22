@@ -3,7 +3,7 @@
 [pack]
 id = "kausalflow/lightkone"
 version = 1
-title = "Lightkone core: search, BibTeX, keys, filing, merge and tidy"
+title = "Lightkone core: search, BibTeX, keys, filing, merge, tidy and the library file"
 license = "Proprietary (kausalflow)"
 authors = ["kausalflow"]
 
@@ -15,3 +15,4 @@ authors = ["kausalflow"]
 "lightkone/pdf-filing@1" = "sha256:583b0fa4549f4b8e1a6f6818a2d32d7f4062114e1cd74eba18c5f24786b5fff9"
 "lightkone/library-merge@1" = "sha256:70141d55339b28b0dd81d1b37e1426f04e8d1de9d0380cb90766666b7a8ed89b"
 "lightkone/tidy@1" = "sha256:18517351a4384da0a483b8e5aa52907b77c4675818fe3bd8d4dc193e0196c513"
+"lightkone/library-file@1" = "sha256:8b4b51cdf1c27440244790272e5d3cd30455b456909bbc56fd8c6bec6ccd177a"

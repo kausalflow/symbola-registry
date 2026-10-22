@@ -41,7 +41,7 @@ async function serve(run) {
 	for await (const line of createInterface({ input: process.stdin })) {
 		let reply;
 		try {
-			reply = { output: run(dropNulls(JSON.parse(line))) };
+			reply = { output: await run(dropNulls(JSON.parse(line))) };
 		} catch (e) {
 			const err = e;
 			reply = { error: {

@@ -402,3 +402,73 @@ statement = "Whitespace-only DOIs match each other, as lightkone does today; lik
 status = "default"
 source = "oracle"
 checks = ["tidy#example:10"]
+
+[[obligation]]
+id = "file.refuse-foreign"
+statement = "A file that is not a lightkone library (not JSON, wrong format, no papers list, a paper that is not an object) is refused with an error and nothing is written."
+status = "decided"
+source = "oracle"
+checks = ["library-file#test_anything_else_is_refused", "library-file#example:25", "library-file#example:26", "library-file#example:27", "library-file#example:28", "library-file#example:29", "library-file#example:30", "library-file#example:31", "library-file#example:32", "library-file#example:33", "library-file#example:34", "library-file#example:35", "library-file#example:36", "library-file#example:37", "library-file#example:38", "library-file#example:39"]
+
+[[obligation]]
+id = "file.keeps-papers"
+statement = "Opening and saving keeps every paper and every key of every paper, in order, plus bibSync when it has entries."
+status = "decided"
+source = "oracle"
+checks = ["library-file#test_saved_file_keeps_exactly_the_library", "library-file#example:1", "library-file#example:3", "library-file#example:7", "library-file#example:23"]
+
+[[obligation]]
+id = "file.drops-unknown-keys"
+statement = "Top-level keys other than format, version, papers and bibSync are dropped on save, as lightkone does today. Another tool's data at the top level is lost."
+status = "default"
+source = "oracle"
+checks = ["library-file#example:3"]
+
+[[obligation]]
+id = "file.version-unchecked"
+statement = "The version is not checked: a version 2 file is read as version 1 and saved as 1, as lightkone does today."
+status = "default"
+source = "oracle"
+checks = ["library-file#example:8"]
+
+[[obligation]]
+id = "file.folders"
+statement = "Papers without folders take them once from Paperpile's Drive paths, skipping All Papers, author folders and Other."
+status = "decided"
+source = "oracle"
+checks = ["library-file#test_papers_gain_folders_from_paperpile_paths", "library-file#example:1", "library-file#example:10", "library-file#example:11", "library-file#example:13", "library-file#example:14", "library-file#example:15", "library-file#example:16", "library-file#example:17"]
+
+[[obligation]]
+id = "file.folders-upper-case"
+statement = "A single all-upper-case directory such as ML or 2019 is taken for a Paperpile author folder and skipped, as lightkone does today. Likely wrong for users' own folders."
+status = "default"
+source = "oracle"
+checks = ["library-file#example:12"]
+
+[[obligation]]
+id = "file.exact-text"
+statement = "library.json is written byte for byte as lightkone writes it: JSON with a one-space indent, JavaScript's key order, escaping and number printing."
+status = "decided"
+source = "oracle"
+checks = ["library-file#test_layout_is_one_space_indented_json", "library-file#example:4", "library-file#example:9", "library-file#example:18", "library-file#example:19", "library-file#example:20", "library-file#example:24"]
+
+[[obligation]]
+id = "file.no-needless-write"
+statement = "Nothing is written when the file would not change, so opening a library on several devices does not cause sync churn."
+status = "decided"
+source = "oracle"
+checks = ["library-file#test_writes_only_when_the_text_changes", "library-file#test_saving_again_writes_nothing", "library-file#example:2", "library-file#example:5", "library-file#example:6"]
+
+[[obligation]]
+id = "file.bib-alongside"
+statement = "library.bib is written with every save: each paper's BibTeX entry, in library order."
+status = "decided"
+source = "oracle"
+checks = ["library-file#test_bib_has_one_entry_per_paper_in_order", "library-file#example:21"]
+
+[[obligation]]
+id = "file.bib-includes-trash"
+statement = "Papers in the trash are still written to library.bib, as lightkone does today. Likely a bug: Overleaf would see deleted papers."
+status = "default"
+source = "oracle"
+checks = ["library-file#example:22"]

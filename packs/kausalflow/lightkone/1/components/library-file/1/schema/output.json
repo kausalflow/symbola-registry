@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "bib": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The library.bib written with it; null when nothing is written.",
+      "title": "Bib"
+    },
+    "foldered": {
+      "description": "How many papers took their folders from Paperpile's file paths.",
+      "minimum": 0,
+      "title": "Foldered",
+      "type": "integer"
+    },
+    "library": {
+      "description": "The text of library.json after the save.",
+      "title": "Library",
+      "type": "string"
+    },
+    "written": {
+      "description": "Whether saving writes anything: false when library.json would not change.",
+      "title": "Written",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "written",
+    "library",
+    "bib",
+    "foldered"
+  ],
+  "title": "Output",
+  "type": "object"
+}

@@ -4,7 +4,7 @@
     python record-examples.py search-query --holdout
 
 Reads fixtures/<name>-cases.jsonl (one input per line, plus a "note"), runs
-each through the built oracle (see build.sh), and writes the answers to the
+each through the built oracle (a case with "raises" must make it fail that way) (see build.sh), and writes the answers to the
 contract's examples.jsonl. If fixtures/<name>-library.json exists, it is the
 "papers" of every case: it is copied into the contract as fixtures/library.json
 and each example refers to it with {"$fixture": "library.json"}. Cases may
@@ -36,13 +36,14 @@ defaults = {"sort": "added"} if papers is not None else {}
 if papers is not None and not holdout:
     (contract / "fixtures").mkdir(exist_ok=True)
     (contract / "fixtures" / "library.json").write_text(json.dumps(papers, indent=1, ensure_ascii=False) + "\n")
-cases = [json.loads(line) for line in (fixtures / f"{name}-cases.jsonl").read_text().splitlines() if line]
+cases = [json.loads(line) for line in (fixtures / f"{name}-cases.jsonl").read_text().split("\n") if line]
 
 oracle = subprocess.Popen(["node", "impl.mjs"], cwd=here / name, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
 target.parent.mkdir(exist_ok=True)
 with target.open("w") as out:
     for case in cases:
         note = case.pop("note")
+        raises = case.pop("raises", None)
         inp = {**defaults, **case}
         sent = {"papers": papers, **inp} if papers is not None else resolve_fixtures(inp, contract / "fixtures")
         if papers is not None:
@@ -50,6 +51,11 @@ with target.open("w") as out:
         oracle.stdin.write(json.dumps(sent) + "\n")
         oracle.stdin.flush()
         reply = json.loads(oracle.stdout.readline())
+        if raises:
+            if reply.get("error", {}).get("type") != raises:
+                sys.exit(f"expected {raises} on {case}, oracle gave {reply}")
+            out.write(json.dumps({"input": inp, "raises": raises, "note": note}, ensure_ascii=False) + "\n")
+            continue
         if "error" in reply:
             sys.exit(f"oracle failed on {case}: {reply['error']}")
         out.write(json.dumps({"input": inp, "output": reply["output"], "note": note}, ensure_ascii=False) + "\n")

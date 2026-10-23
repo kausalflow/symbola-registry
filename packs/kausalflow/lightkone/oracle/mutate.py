@@ -4,7 +4,7 @@ import json, random, sys, copy
 from symbolon.spec import load_examples
 name=sys.argv[1]; n=int(sys.argv[2]); random.seed(int(sys.argv[3]) if len(sys.argv)>3 else 1)
 base=str(__import__("pathlib").Path(__file__).resolve().parent.parent)
-ex=[e["input"] for e in load_examples(f"{base}/1/components/{name}/1/examples.jsonl")]
+ex=[e["input"] for e in load_examples(f"{base}/versions/1/components/{name}/versions/1/examples.jsonl")]
 NASTY=["", " ", "  ", "\t", "\n", "-", " - ", "{", "}", "\\", "\"", ",", ";", "/", "é", "É", "ß", "Ł", "ø", "İ", "ı", "Σ", "ς", "李", "🙂", " ", " ", "́", "A", "z", "0", "12", "_", ".", ":", "@", "%", "&", "#", "~", "'", "(", ")", "All Papers/", "HINTON", "et al", "and", "others", "v2", "V2", "doi.org/", "https://", "arXiv:", "  x  "]
 def leaves(v, path=()):
     if isinstance(v,str): yield path

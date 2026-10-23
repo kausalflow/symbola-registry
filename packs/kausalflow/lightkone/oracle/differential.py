@@ -15,7 +15,7 @@ def ask(p,x):
 name=sys.argv[1]; cases=[json.loads(l) for l in open(sys.argv[2]).read().split("\n") if l]
 a=proc(f"{base}/oracle/{name}"); b=proc(f"{sys.argv[3]}/{name}")
 import importlib.util
-spec=importlib.util.spec_from_file_location("schema_"+name.replace("-","_"), f"{base}/1/components/{name}/1/schema.py")
+spec=importlib.util.spec_from_file_location("schema_"+name.replace("-","_"), f"{base}/versions/1/components/{name}/versions/1/schema.py")
 schema=importlib.util.module_from_spec(spec); spec.loader.exec_module(schema)
 def ok(c):
     try: schema.Input.model_validate(c); return True

@@ -27,7 +27,7 @@ from symbolon.spec import resolve_fixtures
 here = Path(__file__).resolve().parent
 name = sys.argv[1]
 holdout = "--holdout" in sys.argv[2:]
-contract = here.parent / "1" / "components" / name / "1"
+contract = here.parent / "versions" / "1" / "components" / name / "versions" / "1"
 fixtures = here / "fixtures" / ("holdout" if holdout else "")
 target = here / "holdout" / f"{name}.jsonl" if holdout else contract / "examples.jsonl"
 library = here / "fixtures" / f"{name}-library.json"

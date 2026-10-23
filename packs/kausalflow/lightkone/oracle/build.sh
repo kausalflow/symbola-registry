@@ -11,12 +11,12 @@ here=$(cd "$(dirname "$0")" && pwd)
 : "${LIGHTKONE:?set LIGHTKONE to a lightkone checkout}"
 lk=$(cd "$LIGHTKONE" && pwd)
 commit=$(git -C "$lk" rev-parse HEAD)
-contracts="$here/../1/components"
+contracts="$here/../versions/1/components"
 
 for adapter in "$here"/adapters/*.ts; do
   name=$(basename "$adapter" .ts)
   [ "$name" = serve ] && continue
-  [ -d "$contracts/$name/1" ] || { echo "skip $name: no contract yet"; continue; }
+  [ -d "$contracts/$name/versions/1" ] || { echo "skip $name: no contract yet"; continue; }
   out="$here/$name"
   mkdir -p "$out"
   cat > "$here/.rolldown.config.mjs" <<CFG
@@ -29,7 +29,7 @@ export default {
 CFG
   (cd "$lk" && npx --no-install rolldown -c "$here/.rolldown.config.mjs" > /dev/null)
   rm "$here/.rolldown.config.mjs"
-  digest=$(symbolon digest "$contracts/$name/1")
+  digest=$(symbolon digest "$contracts/$name/versions/1")
   cat > "$out/symbolon-impl.toml" <<TOML
 # Lightkone's own code, bundled from kausalflow/lightkone@$commit by oracle/build.sh.
 [implementation]

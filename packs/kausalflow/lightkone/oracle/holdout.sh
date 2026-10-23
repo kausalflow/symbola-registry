@@ -9,7 +9,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 name=$1 impl=$(cd "$2" && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-cp -r "$here/../1/components/$name/1" "$work/contract"
+cp -r "$here/../versions/1/components/$name/versions/1" "$work/contract"
 cat "$here/holdout/$name.jsonl" >> "$work/contract/examples.jsonl"
 python3 - "$work/contract/symbolon.toml" <<'PY'
 import re, sys

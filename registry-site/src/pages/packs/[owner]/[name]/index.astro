@@ -116,6 +116,10 @@ for (const f of pack.files) {
   </div>
 
   <h2>Files</h2>
+  {pack.preview === "brief" && (
+    <p class="muted">This is a priced pack, so the preview shows the brief, assumptions and obligations.
+      The component contracts, schemas and tests come with the purchase.</p>
+  )}
   {[...dirs.entries()].map(([d, fs]) => (
     <details open={d === "" || d === "assumptions"}>
       <summary><code>{d || "/"}</code> <span class="muted">({fs.length})</span></summary>

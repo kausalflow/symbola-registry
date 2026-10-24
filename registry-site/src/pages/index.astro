@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import { packs, url } from "../lib/registry";
+import { formatPrice, packs, url } from "../lib/registry";
 const all = packs();
 ---
 <Base title="Symbolon packs" search>
@@ -15,7 +15,7 @@ const all = packs();
       <a class="card" href={url(`packs/${p.id}/`)} style="text-decoration: none; color: inherit; display: block">
         <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline">
           <strong>{p.id}</strong>
-          <span class="muted">version {p.version} · {p.license}</span>
+          <span class="muted">version {p.version} · {p.license} · {formatPrice(p.price)}</span>
         </div>
         <div>{p.title}</div>
         <div class="muted" style="font-size: 14px">{p.summary_line}</div>

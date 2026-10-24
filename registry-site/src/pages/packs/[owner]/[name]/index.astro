@@ -1,7 +1,7 @@
 ---
 import { marked } from "marked";
 import Base from "../../../../layouts/Base.astro";
-import { assumptions, obligations, packs, readFile, url, type Pack } from "../../../../lib/registry";
+import { assumptions, formatPrice, obligations, packs, readFile, store, url, type Pack } from "../../../../lib/registry";
 
 export function getStaticPaths() {
   return packs().map((pack) => {
@@ -16,6 +16,7 @@ const brief = marked.parse(readFile(pack, "BRIEF.md"));
 const obs = obligations(pack);
 const ks = assumptions(pack);
 const s = pack.summary;
+const shop = store();
 const dirs = new Map<string, string[]>();
 for (const f of pack.files) {
   const d = f.includes("/") ? f.slice(0, f.lastIndexOf("/")) : "";
@@ -34,10 +35,18 @@ for (const f of pack.files) {
     </p>
 
     <div class="card" style="display: grid; gap: 6px">
-      <div><strong>Use it</strong></div>
-      <pre style="margin: 0">symbolon pull {pack.id}</pre>
+      <div><strong>Use it</strong> <span class="muted">· {formatPrice(pack.price)}</span></div>
+      {pack.price && shop && (
+        <form method="post" action={`${shop}/checkout`} style="margin: 4px 0">
+          <input type="hidden" name="pack" value={pack.id} />
+          <button type="submit" style="font: inherit; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--accent);
+                  background: var(--accent); color: var(--bg); cursor: pointer">Buy for {formatPrice(pack.price)}</button>
+          <span class="muted" style="font-size: 13px">You get a license token for <code>symbolon pull</code>.</span>
+        </form>
+      )}
+      <pre style="margin: 0">symbolon pull {pack.id}{pack.price ? " --token <license>" : ""}</pre>
       <div style="font-size: 14px; display: flex; gap: 14px; flex-wrap: wrap">
-        <a href={url(base + "latest.tar.gz")}>latest.tar.gz</a>
+        {!pack.price && <a href={url(base + "latest.tar.gz")}>latest.tar.gz</a>}
         <a href={url(base + "latest.sha256")}>sha256</a>
         {pack.signed && <a href={url(base + "latest.sig.json")}>signature</a>}
         <a href={url(base + "pack.md")}>pack.md (whole pack, for agents)</a>

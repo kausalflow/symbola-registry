@@ -25,6 +25,63 @@ export interface Pack {
   };
   files: string[];
   price: { amount: number; currency: string } | null;
+  evidence?: EvidenceSummary;
+  older?: { version: number; digest: string; tarball_sha256: string; path: string }[];
+}
+
+export interface EvidenceSummary {
+  attestations: number;
+  invalid: number;
+  on_latest: number;
+  components: number;
+  components_with_passing_build: number;
+  builds: string[];
+  full_builds: string[];
+  runners: string[];
+  newest: string | null;
+}
+
+export interface Attestation {
+  file: string;
+  valid: boolean;
+  problems: string[];
+  contract?: string;
+  component?: string | null;
+  covers?: "latest" | "older" | "unpublished";
+  pack_version?: number | null;
+  pack_digest?: string;
+  build?: string;
+  result?: string;
+  passed?: number;
+  failed?: string[];
+  runner?: string;
+  finished?: string | null;
+}
+
+export function evidence(pack: Pack): Attestation[] {
+  const file = path.join(ROOT, "packs", pack.id, "evidence.json");
+  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")).attestations : [];
+}
+
+/** Catalog order: packs with more independently passing evidence first (design v0.5, 2.2). */
+export function rank(a: Pack, b: Pack): number {
+  const key = (p: Pack) => [
+    p.evidence?.components_with_passing_build ?? 0,
+    p.evidence?.builds.length ?? 0,
+    p.evidence?.runners.length ?? 0,
+  ];
+  const [x, y] = [key(a), key(b)];
+  for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return y[i] - x[i];
+  return a.id.localeCompare(b.id);
+}
+
+export function evidenceLine(e: EvidenceSummary | undefined): string {
+  if (!e || e.attestations === 0) return "No evidence yet";
+  const parts = [`${e.components_with_passing_build} of ${e.components} components pass a build`,
+    `${e.builds.length} build${e.builds.length === 1 ? "" : "s"}`,
+    `${e.runners.length} runner${e.runners.length === 1 ? "" : "s"}`];
+  if (e.invalid) parts.push(`${e.invalid} invalid`);
+  return parts.join(" · ");
 }
 
 function index(): { packs: Pack[]; store?: string } {

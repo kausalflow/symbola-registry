@@ -3,7 +3,7 @@
 Public spec packs for [Symbolon](https://github.com/kausalflow/symbolon). The
 website that serves them is built from this repository by
 `spikinglabs/symbolon-store` and hosted on Cloudflare Pages at
-<https://symbolon.pages.dev/> (not live yet).
+<https://symbola.sh/> (not live yet).
 
 | Path | What it is |
 | --- | --- |

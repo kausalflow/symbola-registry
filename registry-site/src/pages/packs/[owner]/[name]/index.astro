@@ -49,7 +49,7 @@ for (const f of pack.files) {
         {!pack.price && <a href={url(base + "latest.tar.gz")}>latest.tar.gz</a>}
         <a href={url(base + "latest.sha256")}>sha256</a>
         {pack.signed && <a href={url(base + "latest.sig.json")}>signature</a>}
-        <a href={url(base + "pack.md")}>pack.md (whole pack, for agents)</a>
+        <a href={url(base + "pack.md")}>pack.md (for agents: brief and obligations, links to each component)</a>
         <a href={url(base + "llms.txt")}>llms.txt</a>
       </div>
       <div class="muted wrap" style="font-size: 13px">Digest <code>{pack.digest}</code></div>

@@ -1,0 +1,65 @@
+---
+import { url } from "../lib/registry";
+interface Props { title: string; description?: string; search?: boolean }
+const { title, description = "Spec packs that AI coding agents can build from.", search = false } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="alternate" type="text/plain" title="llms.txt" href={url("llms.txt")} />
+    {search && <link rel="stylesheet" href={url("pagefind/pagefind-ui.css")} />}
+    <style is:global>
+      :root {
+        --bg: #fbfbf9; --fg: #1c1c1a; --muted: #6a6a64; --line: #e3e3dd; --card: #ffffff;
+        --accent: #3456c4; --decided: #2f7d4f; --default: #9a6a12; --open: #6a6a64;
+        --pagefind-ui-scale: 0.85; --pagefind-ui-primary: var(--accent); --pagefind-ui-text: var(--fg);
+        --pagefind-ui-background: var(--card); --pagefind-ui-border: var(--line);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #151614; --fg: #e8e8e3; --muted: #9a9a92; --line: #2e2f2b; --card: #1d1e1b;
+          --accent: #8aa4ff; --decided: #6cc08f; --default: #d9a94a; --open: #9a9a92;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--fg);
+             font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+      a { color: var(--accent); }
+      main, header { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+      header { display: flex; gap: 16px; align-items: baseline; padding-top: 20px; padding-bottom: 8px;
+               border-bottom: 1px solid var(--line); }
+      header .brand { font-weight: 650; text-decoration: none; color: var(--fg); }
+      header nav { margin-left: auto; display: flex; gap: 14px; font-size: 14px; }
+      h1 { font-size: 28px; line-height: 1.25; margin: 28px 0 8px; }
+      h2 { font-size: 20px; margin: 32px 0 10px; }
+      .muted { color: var(--muted); }
+      .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+      code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px; }
+      pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px;
+            overflow-x: auto; }
+      table { border-collapse: collapse; width: 100%; font-size: 14px; }
+      th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      .pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 99px; border: 1px solid currentColor; }
+      .decided { color: var(--decided); } .default { color: var(--default); } .open { color: var(--open); }
+      .brief h1 { font-size: 22px; margin-top: 8px; } .brief h2 { font-size: 18px; } .brief h3 { font-size: 16px; }
+      .wrap { overflow-wrap: anywhere; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href={url("/")}>Symbolon packs</a>
+      <nav>
+        <a href={url("index.json")}>index.json</a>
+        <a href={url("llms.txt")}>llms.txt</a>
+        <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>

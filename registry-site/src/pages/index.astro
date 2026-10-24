@@ -15,7 +15,7 @@ const all = packs().sort(rank);
       <a class="card" href={url(`packs/${p.id}/`)} style="text-decoration: none; color: inherit; display: block">
         <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline">
           <strong>{p.id}</strong>
-          <span class="muted">version {p.version} · {p.license} · {formatPrice(p.price)}</span>
+          <span class="muted">version {p.version} · by {p.publisher?.name ?? p.id.split("/")[0]} · {p.license} · {formatPrice(p.price)}</span>
         </div>
         <div>{p.title}</div>
         <div class="muted" style="font-size: 14px">{p.summary_line}</div>

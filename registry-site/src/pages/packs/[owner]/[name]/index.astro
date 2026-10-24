@@ -64,6 +64,21 @@ for (const f of pack.files) {
       <div class="muted wrap" style="font-size: 13px">Digest <code>{pack.digest}</code></div>
     </div>
 
+    {pack.publisher && (
+      <div class="card" style="display: grid; gap: 6px; margin-top: 12px">
+        <div>Published by <a href={pack.publisher.url} rel="noopener">{pack.publisher.name}</a></div>
+        {pack.publisher.support.length > 0 && (
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+            <span class="muted" style="font-size: 14px">Support their work:</span>
+            {pack.publisher.support.map((l) => (
+              <a href={l.url} rel="noopener nofollow" style="font-size: 14px; padding: 3px 12px; border-radius: 99px;
+                 border: 1px solid var(--accent); text-decoration: none">{l.label}</a>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+
     <h2>Evidence</h2>
     <p class="muted" style="margin-top: 0">{evidenceLine(pack.evidence)}. Every signature and digest below was checked when this site was built;
       re-check one with <code>symbolon verify</code> on the linked file.</p>

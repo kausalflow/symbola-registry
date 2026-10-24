@@ -25,6 +25,7 @@ export interface Pack {
   files: string[];
   price: { amount: number; currency: string } | null;
   preview?: "full" | "brief";
+  publisher?: { name: string; url: string; support: { label: string; url: string }[] };
   evidence?: EvidenceSummary;
   older?: { version: number; digest: string; tarball_sha256: string; path: string }[];
 }

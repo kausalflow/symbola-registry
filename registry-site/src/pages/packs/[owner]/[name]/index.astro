@@ -1,0 +1,81 @@
+---
+import { marked } from "marked";
+import Base from "../../../../layouts/Base.astro";
+import { assumptions, obligations, packs, readFile, url, type Pack } from "../../../../lib/registry";
+
+export function getStaticPaths() {
+  return packs().map((pack) => {
+    const [owner, name] = pack.id.split("/");
+    return { params: { owner, name }, props: { pack } };
+  });
+}
+
+const { pack } = Astro.props as { pack: Pack };
+const base = `packs/${pack.id}/`;
+const brief = marked.parse(readFile(pack, "BRIEF.md"));
+const obs = obligations(pack);
+const ks = assumptions(pack);
+const s = pack.summary;
+const dirs = new Map<string, string[]>();
+for (const f of pack.files) {
+  const d = f.includes("/") ? f.slice(0, f.lastIndexOf("/")) : "";
+  dirs.set(d, [...(dirs.get(d) ?? []), f]);
+}
+---
+<Base title={`${pack.id} · Symbolon packs`} description={pack.title}>
+  <div data-pagefind-body>
+    <h1>{pack.id}</h1>
+    <p data-pagefind-meta="title">{pack.title}</p>
+    <p class="muted">
+      Version {pack.version} · {pack.license} · by {pack.authors.join(", ")} ·
+      {s.obligations} obligations (<span class="decided">{s.by_status.decided} decided</span>,
+      <span class="default">{s.by_status.default} default</span>, <span class="open">{s.by_status.open} open</span>) ·
+      {s.assumptions} assumptions · {s.components} components · {s.checks} checks
+    </p>
+
+    <div class="card" style="display: grid; gap: 6px">
+      <div><strong>Use it</strong></div>
+      <pre style="margin: 0">symbolon pull {pack.id}</pre>
+      <div style="font-size: 14px; display: flex; gap: 14px; flex-wrap: wrap">
+        <a href={url(base + "latest.tar.gz")}>latest.tar.gz</a>
+        <a href={url(base + "latest.sha256")}>sha256</a>
+        {pack.signed && <a href={url(base + "latest.sig.json")}>signature</a>}
+        <a href={url(base + "pack.md")}>pack.md (whole pack, for agents)</a>
+        <a href={url(base + "llms.txt")}>llms.txt</a>
+      </div>
+      <div class="muted wrap" style="font-size: 13px">Digest <code>{pack.digest}</code></div>
+    </div>
+
+    <h2>Brief</h2>
+    <div class="brief" set:html={brief} />
+
+    <h2>Assumptions</h2>
+    <table>
+      <tr data-pagefind-ignore><th>Id</th><th>Statement</th><th>Monitor</th></tr>
+      {ks.map((k) => <tr><td><code>{k.id}</code></td><td>{k.statement}</td><td class="muted">{k.monitor}</td></tr>)}
+    </table>
+
+    <h2>Obligations</h2>
+    <table>
+      <tr data-pagefind-ignore><th>Id</th><th>Status</th><th>Statement</th></tr>
+      {obs.map((o) => (
+        <tr>
+          <td class="wrap"><code>{o.id}</code></td>
+          <td><span class={`pill ${o.status}`}>{o.status}</span></td>
+          <td>{o.statement}</td>
+        </tr>
+      ))}
+    </table>
+  </div>
+
+  <h2>Files</h2>
+  {[...dirs.entries()].map(([d, fs]) => (
+    <details open={d === "" || d === "assumptions"}>
+      <summary><code>{d || "/"}</code> <span class="muted">({fs.length})</span></summary>
+      <ul>
+        {fs.map((f) => <li><a href={url(`${base}view/${f}/`)}>{f.slice(d ? d.length + 1 : 0)}</a></li>)}
+      </ul>
+    </details>
+  ))}
+  <p style="margin-bottom: 48px"></p>
+</Base>

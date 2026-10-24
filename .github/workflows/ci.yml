@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      # The CLI is pinned in .symbolon-version, so a CLI change reaches the registry only when the pin moves.
+      - run: pip install "git+https://github.com/kausalflow/symbolon@$(cat .symbolon-version)"
+      # The checks every pack submission must pass.
+      - run: symbolon site check packs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: registry-site/build.sh /tmp/site https://kausalflow.github.io /symbolon-registry

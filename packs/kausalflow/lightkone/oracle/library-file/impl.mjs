@@ -158,6 +158,7 @@ function makeKey(d, taken) {
 const parseFile = (raw) => {
 	const file = JSON.parse(raw);
 	if (file.format !== "lightkone-library") throw new Error("lightkone/library.json is not a Lightkone library.");
+	if (typeof file.version === "number" && file.version > 1) throw new Error(`lightkone/library.json was saved by a newer Lightkone (format version ${file.version}). Update Lightkone to open it.`);
 	return file;
 };
 /** Top-level keys of library.json that lightkone does not use; other tools' data, kept as found. */

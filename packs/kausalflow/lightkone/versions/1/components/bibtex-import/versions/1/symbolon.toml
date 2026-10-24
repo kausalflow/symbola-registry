@@ -61,8 +61,11 @@ DRAFT FIELDS from an entry's fields (each one used is removed from
               otherwise move the last space-separated word to the front:
               "Ada King Lovelace" -> "Lovelace, Ada King".
   year        the first run of 4 ASCII digits in year, as a number.
-  venue       plain(journal, else booktitle, else publisher); publisher is
-              not removed. Empty means absent.
+  venue       the first of plain(journal), plain(booktitle), plain(publisher)
+              that is not empty, so journal = {} does not hide a booktitle;
+              absent when all are empty or missing. journal always leaves
+              the fields; booktitle leaves them only when journal was empty;
+              publisher never does.
   abstract    plain(abstract); empty means absent.
   doi         with a leading http(s)://doi.org/ or dx.doi.org/ removed
               (case-insensitive); empty means absent.

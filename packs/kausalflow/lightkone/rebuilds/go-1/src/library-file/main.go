@@ -113,6 +113,9 @@ func main() {
 		if f, _ := root.M["format"].(string); f != "lightkone-library" {
 			return nil, lk.Errf("not a lightkone library")
 		}
+		if v, ok := root.M["version"].(lk.Num); ok && v.F > 1 {
+			return nil, lk.Errf("library was saved by a newer lightkone (version %s)", v.Raw)
+		}
 		plist, ok := root.M["papers"].([]lk.Val)
 		if !ok {
 			return nil, lk.Errf("library has no papers list")

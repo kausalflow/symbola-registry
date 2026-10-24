@@ -359,15 +359,17 @@ func (p *parser) emit(typ, key string, f map[string]string) {
 		}
 	}
 	// venue
-	venueRaw, _ := take("journal")
-	if venueRaw == "" {
-		venueRaw, _ = take("booktitle")
+	jr, _ := take("journal")
+	venue := plain(jr)
+	if venue == "" {
+		br, _ := take("booktitle")
+		venue = plain(br)
 	}
-	if venueRaw == "" {
-		venueRaw = f["publisher"]
+	if venue == "" {
+		venue = plain(f["publisher"])
 	}
-	if v := plain(venueRaw); v != "" {
-		d.Venue = &v
+	if venue != "" {
+		d.Venue = &venue
 	}
 	if v, ok := take("abstract"); ok {
 		if a := plain(v); a != "" {

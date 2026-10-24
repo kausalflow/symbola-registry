@@ -169,7 +169,8 @@ not_a_library = st.one_of(
     st.builds(lambda f: json.dumps({"format": f, "version": 1, "papers": []}),
               st.sampled_from(["", "lightkone", "Lightkone-library", "lightkone-library ", "paperpile"])),
     st.builds(lambda p: json.dumps({"format": "lightkone-library", "version": 1, **p}),
-              st.sampled_from([{}, {"papers": {}}, {"papers": 3}, {"papers": "abc"}, {"papers": [None]}, {"papers": [1, {}]}])),
+              st.sampled_from([{}, {"papers": {}}, {"papers": 3}, {"papers": "abc"}, {"papers": [None]}, {"papers": [1, {}]},
+                              {"version": 2, "papers": []}, {"version": 1.5, "papers": []}, {"version": 1000, "papers": []}])),
 )
 
 

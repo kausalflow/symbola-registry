@@ -9,10 +9,10 @@ authors = ["kausalflow"]
 
 [components]
 "lightkone/search-query@1" = "sha256:0af52a9bc30cb440bf1ec9924e6c00c5659ca0b05e478501080466699d0a49bc"
-"lightkone/bibtex-import@1" = "sha256:2d877ecf2e7d74e786218e9286d6e7e5e118366a9da99cd87a5ee38d6d4cbdf9"
+"lightkone/bibtex-import@1" = "sha256:549f518845ebd601650bf502cd18bb372368a3fea4e44510d2e67a53ba8ee88a"
 "lightkone/bibtex-export@1" = "sha256:b2be7e43a14a1cdf9f5f65dcef181d159fe2afb95859dd1c6c836a6a89c3b97c"
 "lightkone/citation-key@1" = "sha256:69041cb4a2e57a7ab161892db71ac21b103afb7e9187624207c66bbac1e5db94"
 "lightkone/pdf-filing@1" = "sha256:583b0fa4549f4b8e1a6f6818a2d32d7f4062114e1cd74eba18c5f24786b5fff9"
 "lightkone/library-merge@1" = "sha256:70141d55339b28b0dd81d1b37e1426f04e8d1de9d0380cb90766666b7a8ed89b"
 "lightkone/tidy@1" = "sha256:b7513bd79d1c0b85eec6ff719f16f92dc9c4ec641b01fb6ab9a76fc7403f6e96"
-"lightkone/library-file@1" = "sha256:ad23258c3270d36b0cfb14273171a551d1f54a3e3963297ffebc2db5e864dd21"
+"lightkone/library-file@1" = "sha256:c51dba7de999b5fbcaee57007e3b55aea18ea538bc28e898f0f92c12696b1b51"

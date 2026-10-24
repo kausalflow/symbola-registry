@@ -309,3 +309,11 @@ old test is "upper-case unchanged and lower-case changed". `clean` moved into `l
 pdf-filing one; pdf-filing source untouched). Authors come from the paper's `authors` list (non-strings
 ignored). tidy: a DOI/arXiv id that normalises to "" gives no key. Ambiguity: "Other" is matched
 case-sensitively; the N-empty case treats caseless directories (digits) as non-author folders.
+
+## Revision 5 (importer venue, library-file version)
+
+bibtex-import (52 checks) and library-file (61 checks) re-pinned; contracts now live under `versions/1/...`.
+Venue: first non-empty of plain(journal), plain(booktitle), plain(publisher); journal always removed,
+booktitle removed only when plain(journal) was empty. library-file: a numeric `version` above 1 raises
+ValueError; anything else (string, missing, <=1) reads as 1. Ambiguity: "journal was empty" is judged after
+plain(); a non-numeric version such as "2" is read as 1.

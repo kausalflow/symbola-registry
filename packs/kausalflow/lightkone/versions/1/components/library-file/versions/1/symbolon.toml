@@ -17,7 +17,10 @@ Input: the file's text. Output:
 
 Accepting a file. Raise ValueError, writing nothing, when the text is not
 JSON, is not an object whose "format" is "lightkone-library", has no
-"papers" list, or a paper is not an object. "version" is not checked.
+"papers" list, or a paper is not an object. Also raise ValueError when
+"version" is a number above 1: the file was saved by a newer lightkone,
+which may store things this one would drop. Any other version, or none, is
+read as 1.
 
 Folders. Each paper with no "folders" key gets one, from its "file" (a
 Paperpile Drive path, or several separated by ";"): for each path, trimmed,

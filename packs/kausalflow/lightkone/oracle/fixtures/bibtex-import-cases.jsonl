@@ -35,3 +35,5 @@
 {"text": "@article{k, title={Empty values}, file = {}, url = \"\"}", "note": "empty url and file stay as empty strings"}
 {"text": "@art\u00a0icle{k, title={Lost}}\n@misc{m, title={Found}}", "note": "a no-break space ends the entry type, so the first entry is skipped"}
 {"text": "@article{y, title = {Two-digit year}, year = {99}}\n@article{z, title = {Year in words}, year = {circa 1999}}", "note": "year needs four digits in a row: 99 gives no year; circa 1999 gives 1999"}
+{"text": "@inproceedings{a, title={A}, journal={}, booktitle={NeurIPS}}\n@inproceedings{b, title={B}, journal={ {} }, booktitle={ICML}, publisher={PMLR}}", "note": "an empty journal does not hide the booktitle; the booktitle becomes the venue and leaves the fields"}
+{"text": "@book{c, title={C}, journal={}, booktitle={  }, publisher={MIT Press}}\n@article{d, title={D}, journal={JMLR}, booktitle={NeurIPS}}\n@misc{e, title={E}, journal={}, booktitle={}}", "note": "empty journal and booktitle fall through to the publisher, which stays in the fields; a booktitle not used as the venue stays too; all empty means no venue"}

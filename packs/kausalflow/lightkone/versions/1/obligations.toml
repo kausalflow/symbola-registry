@@ -85,10 +85,9 @@ checks = ["search-query#test_only_the_last_year_filter_counts", "search-query#ex
 
 [[obligation]]
 id = "search.year-malformed"
-statement = "year:A-B parts: A not a number or 0 means the term does not count; B missing, empty, 0 or not a number means A; later parts are ignored."
-status = "default"
+statement = "year:A-B parts: A not a number or 0 means the term does not count; B missing, empty, 0 or not a number means A; later parts are ignored. A typo such as year:20l7 filters nothing, by kausalflow's decision (2026-10-24): forgiving, low stakes."
+status = "decided"
 source = "replication"
-reason = "Pinned to lightkone's behaviour after the go-1 differential test found builds disagreeing. A typo such as year:20l7 silently filters nothing."
 checks = ["search-query#example:74", "search-query#example:75", "search-query#example:76", "search-query#example:77", "search-query#example:78", "search-query#example:79", "search-query#example:80", "search-query#example:81"]
 
 [[obligation]]
@@ -137,10 +136,9 @@ checks = ["search-query#test_title_sort_is_ascending_and_stable"]
 
 [[obligation]]
 id = "search.title-sort-other"
-statement = "title: sort uses Unicode collation (CLDR root, tertiary), as JavaScript's localeCompare does: accents and case only break ties."
-status = "default"
+statement = "title: sort uses Unicode collation (CLDR root, tertiary), as JavaScript's localeCompare does: accents and case only break ties. Kept by kausalflow's decision (2026-10-24); builds need an ICU-grade collator."
+status = "decided"
 source = "replication"
-reason = "Pinned to lightkone's behaviour after the go-1 differential test. Builds without an ICU-grade collator will differ."
 checks = ["search-query#example:72", "search-query#example:73"]
 
 # ── bibtex-import ─────────────────────────────────────────────────────────
@@ -179,8 +177,8 @@ checks = ["bibtex-import#test_string_macros_and_concatenation", "bibtex-import#t
 
 [[obligation]]
 id = "import.non-ascii-whitespace"
-statement = "Whitespace is JavaScript's \\s set (incl. no-break space, U+2028, U+3000, BOM), everywhere in import."
-status = "default"
+statement = "Whitespace is JavaScript's \\s set (incl. no-break space, U+2028, U+3000, BOM), everywhere in import. Kept by kausalflow's decision (2026-10-24)."
+status = "decided"
 checks = ["bibtex-import#example:31", "bibtex-import#example:32", "bibtex-import#example:36"]
 source = "replication"
 assumes = ["K-bibtex-sources"]
@@ -215,9 +213,10 @@ checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#
 
 [[obligation]]
 id = "import.venue-empty-journal"
-statement = "Whether an empty journal field still blocks booktitle as the venue."
-status = "open"
+statement = "The venue is the first of journal, booktitle, publisher that is not empty, so an empty journal does not hide a booktitle. Fixed in lightkone#53; until then an empty journal left the paper without a venue."
+status = "decided"
 source = "replication"
+checks = ["bibtex-import#example:38", "bibtex-import#example:39"]
 
 [[obligation]]
 id = "import.tags"
@@ -430,11 +429,11 @@ source = "oracle"
 checks = ["library-file#example:3", "library-file#example:40", "library-file#example:41", "library-file#example:42", "library-file#test_saved_file_keeps_exactly_the_library"]
 
 [[obligation]]
-id = "file.version-unchecked"
-statement = "The version is not checked: a version 2 file is read as version 1 and saved as 1, as lightkone does today."
-status = "default"
+id = "file.newer-version-refused"
+statement = "A library.json whose version is a number above 1 was saved by a newer lightkone and is refused, writing nothing; any other version, or none, is read and saved as 1. Fixed in lightkone#53; until then a newer file was read as version 1 and could lose data on save."
+status = "decided"
 source = "oracle"
-checks = ["library-file#example:8"]
+checks = ["library-file#example:8", "library-file#example:50", "library-file#example:51", "library-file#example:52", "library-file#example:53", "library-file#example:54", "library-file#test_anything_else_is_refused"]
 
 [[obligation]]
 id = "file.folders"

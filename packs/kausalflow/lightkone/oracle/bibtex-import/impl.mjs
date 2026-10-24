@@ -181,7 +181,9 @@ function entryToDraft(entry) {
 	const authors = splitAuthors(take("author") ?? take("editor") ?? "");
 	const yearRaw = take("year");
 	const year = yearRaw && /\d{4}/.test(yearRaw) ? Number(yearRaw.match(/\d{4}/)[0]) : void 0;
-	const venue = plain(take("journal") ?? take("booktitle") ?? f.publisher ?? "") || void 0;
+	let venue = plain(take("journal") ?? "");
+	if (!venue) venue = plain(take("booktitle") ?? "");
+	if (!venue) venue = plain(f.publisher ?? "");
 	const abstract = take("abstract");
 	const doi = take("doi")?.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "");
 	const url = take("url");
@@ -204,7 +206,7 @@ function entryToDraft(entry) {
 		title,
 		authors,
 		year,
-		venue,
+		venue: venue || void 0,
 		abstract: abstract ? plain(abstract) : void 0,
 		doi: doi || void 0,
 		arxiv: arxiv?.replace(/^arxiv:/i, "").replace(/v\d+$/, "") || void 0,

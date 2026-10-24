@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/bibtex-export/versions/1/properties.py · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/bibtex-export/versions/1/properties.py</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/bibtex-export/versions/1/properties.py">raw</a> </p> <pre>&quot;&quot;&quot;Behavioral properties for lightkone/bibtex-export.
+
+Each property checks one rule of the description on generated papers whose
+values have no newlines, so an entry can be read back line by line.
+&quot;&quot;&quot;
+
+import re
+
+from hypothesis import given, strategies as st
+
+from schema import Input, Paper
+
+SAFE = st.text(st.characters(codec=&quot;utf-8&quot;, exclude_characters=&quot;\n\r{}\\&quot;, exclude_categories=[&quot;Cs&quot;, &quot;Cc&quot;]), max_size=20)
+SPECIAL = st.lists(st.sampled_from([&quot;a&quot;, &quot;b c&quot;, &quot;&amp;&quot;, &quot;%&quot;, &quot;#&quot;, &quot;\\&amp;&quot;, &quot;\\%&quot;, &quot;\\#&quot;, &quot;50&quot;, &quot; &quot;]), max_size=6).map(&quot;&quot;.join)
+WORDS = st.text(&quot;abcdefghijklmnopqrstuvwxyz &quot;, min_size=1, max_size=15)
+NAMES = st.sampled_from([&quot;pages&quot;, &quot;volume&quot;, &quot;publisher&quot;, &quot;month&quot;, &quot;journal&quot;, &quot;booktitle&quot;, &quot;lightkone-id&quot;, &quot;lightkone-x&quot;, &quot;note&quot;, &quot;isbn&quot;])
+LINE = re.compile(r&quot;^  (\S+)( *) = \{(.*)\}(,?)$&quot;)
+
+
+@st.composite
+def papers(draw, text=SAFE):
+    return Paper(
+        key=draw(st.text(&quot;abcdefghijklmnopqrstuvwxyzABC0123456789:-_&quot;, max_size=12)),
+        type=draw(st.sampled_from([&quot;article&quot;, &quot;inproceedings&quot;, &quot;incollection&quot;, &quot;book&quot;, &quot;misc&quot;, &quot;&quot;])),
+        title=draw(text),
+        authors=draw(st.lists(st.sampled_from([&quot;Hinton, Geoffrey&quot;, &quot;others&quot;, &quot;LIGO Collaboration&quot;, &quot;Plato&quot;, &quot;Others&quot;, &quot;&quot;]), max_size=4)),
+        year=draw(st.none() | st.integers(0, 3000)),
+        venue=draw(st.none() | text),
+        doi=draw(st.none() | SAFE),
+        arxiv=draw(st.none() | st.sampled_from([&quot;&quot;, &quot;2101.00001&quot;, &quot;hep-th/9711200&quot;])),
+        url=draw(st.none() | SAFE),
+        abstract=draw(st.none() | text),
+        tags=draw(st.lists(st.sampled_from([&quot;ml&quot;, &quot;to read&quot;, &quot;&quot;, &quot;a;b&quot;]), max_size=3)),
+        file=draw(st.none() | SAFE),
+        fields=draw(st.dictionaries(NAMES, SAFE, max_size=4)),
+    )
+
+
+def write(impl, p: Paper) -&gt; str:
+    return impl(Input(paper=p)).text
+
+
+def lines(text: str) -&gt; list[tuple[str, str]]:
+    &quot;&quot;&quot;The (name, value) pairs of an entry written as the description says.&quot;&quot;&quot;
+    body = text.split(&quot;\n&quot;)[1:-2]
+    out = []
+    for i, line in enumerate(body):
+        m = LINE.match(line)
+        assert m, f&quot;not a field line: {line!r}&quot;
+        assert (m.group(4) == &quot;,&quot;) == (i &lt; len(body) - 1), &quot;lines are joined by &#39;,\\n&#39;&quot;
+        out.append((m.group(1), m.group(3)))
+    return out
+
+
+def escaped(s: str) -&gt; str:
+    return re.sub(r&quot;\\?([&amp;%#])&quot;, r&quot;\\\1&quot;, s)
+
+
+def present(v) -&gt; bool:
+    return v is not None and v != &quot;&quot;
+
+
+@given(p=papers())
+def test_entry_frame(impl, p):
+    text = write(impl, p)
+    assert text.startswith(f&quot;@{p.type or &#39;misc&#39;}{{{p.key},\n&quot;)
+    assert text.endswith(&quot;\n}\n&quot;)
+
+
+@given(p=papers())
+def test_names_are_aligned(impl, p):
+    text = write(impl, p)
+    body = text.split(&quot;\n&quot;)[1:-2]
+    width = max(len(n) for n, _ in lines(text))
+    assert all(line.index(&quot; = {&quot;) == 2 + width for line in body)
+
+
+@given(p=papers())
+def test_fields_appear_in_order_when_present(impl, p):
+    venue_field = &quot;booktitle&quot; if p.type in (&quot;inproceedings&quot;, &quot;incollection&quot;) else &quot;journal&quot;
+    expected = [&quot;title&quot;]
+    expected += [&quot;author&quot;] if p.authors else []
+    expected += [&quot;year&quot;] if p.year is not None else []
+    expected += [venue_field] if present(p.venue) and not p.fields.get(venue_field) else []
+    expected += [&quot;doi&quot;] if present(p.doi) else []
+    expected += [&quot;eprint&quot;, &quot;archiveprefix&quot;] if present(p.arxiv) else []
+    expected += [&quot;url&quot;] if present(p.url) else []
+    expected += [&quot;abstract&quot;] if present(p.abstract) else []
+    expected += [&quot;keywords&quot;] if &quot;;&quot;.join(p.tags) else []
+    expected += [&quot;file&quot;] if present(p.file) else []
+    expected += [k for k, _ in kept_fields(p)]
+    assert [n for n, _ in lines(write(impl, p))] == expected
+
+
+def kept_fields(p: Paper) -&gt; list[tuple[str, str]]:
+    return [(k, v) for k, v in p.fields.items() if v and not k.startswith(&quot;lightkone-&quot;)]
+
+
+@given(p=papers())
+def test_values_are_written_as_given(impl, p):
+    got = lines(write(impl, p))
+    named = dict(got)
+    if p.year is not None:
+        assert named[&quot;year&quot;] == str(p.year)
+    for name in (&quot;doi&quot;, &quot;url&quot;, &quot;file&quot;):
+        if present(getattr(p, name)):
+            assert named[name] == getattr(p, name)
+    if present(p.arxiv):
+        assert named[&quot;eprint&quot;] == p.arxiv and named[&quot;archiveprefix&quot;] == &quot;arXiv&quot;
+    kept = kept_fields(p)
+    assert got[len(got) - len(kept):] == kept
+
+
+@given(p=papers(text=SPECIAL))
+def test_title_venue_and_abstract_are_escaped(impl, p):
+    got = dict(lines(write(impl, p)))
+    assert got[&quot;title&quot;] == &quot;{&quot; + escaped(p.title) + &quot;}&quot;
+    venue_field = &quot;booktitle&quot; if p.type in (&quot;inproceedings&quot;, &quot;incollection&quot;) else &quot;journal&quot;
+    if present(p.venue) and not p.fields.get(venue_field):
+        assert got[venue_field] == escaped(p.venue)
+    if present(p.abstract):
+        assert got[&quot;abstract&quot;] == escaped(p.abstract)
+
+
+@given(p=papers())
+def test_authors_and_keywords(impl, p):
+    got = dict(lines(write(impl, p)))
+    joined = &quot; and &quot;.join(a if &quot;,&quot; in a or a == &quot;others&quot; else &quot;{&quot; + a + &quot;}&quot; for a in p.authors)
+    assert got.get(&quot;author&quot;, &quot;&quot;) == joined
+    assert got.get(&quot;keywords&quot;, &quot;&quot;) == &quot;;&quot;.join(p.tags)
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

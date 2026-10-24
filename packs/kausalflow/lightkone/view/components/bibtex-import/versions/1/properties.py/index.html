@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/bibtex-import/versions/1/properties.py · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/bibtex-import/versions/1/properties.py</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/bibtex-import/versions/1/properties.py">raw</a> </p> <pre>&quot;&quot;&quot;Behavioral properties for lightkone/bibtex-import.
+
+Entries are generated as data, rendered as BibTeX in the many ways exporters
+write it (braces or quotes, any field-name case, odd spacing, parentheses,
+trailing commas), and the drafts must come back as the description says.
+Generated values avoid LaTeX, so plain() leaves them alone; LaTeX and the
+messier corners are pinned by the examples.
+&quot;&quot;&quot;
+
+from hypothesis import given, strategies as st
+
+from schema import Draft, Input
+
+WORD = st.text(&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&quot;, min_size=1, max_size=8)
+TEXT = st.lists(WORD, min_size=1, max_size=5).map(&quot; &quot;.join)
+KEY = st.text(&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:_-&quot;, min_size=1, max_size=12)
+GAP = st.sampled_from([&quot;&quot;, &quot; &quot;, &quot;  &quot;, &quot;\n&quot;, &quot;\n  &quot;, &quot;\t&quot;])
+NAME = st.text(&quot;abcdefghijklmnopqrstuvwxyz&quot;, min_size=2, max_size=8).map(str.capitalize).filter(lambda w: w.lower() not in (&quot;and&quot;, &quot;others&quot;))
+
+
+def run(impl, text: str) -&gt; list[Draft]:
+    return impl(Input(text=text)).papers
+
+
+def collapse(s: str) -&gt; str:
+    return &quot; &quot;.join(s.split())
+
+
+@st.composite
+def value(draw, v: str) -&gt; str:
+    &quot;&quot;&quot;One way an exporter writes the value v.&quot;&quot;&quot;
+    if v.isdigit() and draw(st.booleans()):
+        return v
+    if draw(st.booleans()):
+        return &quot;{&quot; + v + &quot;}&quot;
+    return &#39;&quot;&#39; + v + &#39;&quot;&#39;
+
+
+@st.composite
+def entry_text(draw, type_: str, key: str, fields: list[tuple[str, str]]) -&gt; str:
+    &quot;&quot;&quot;Render one entry. Field names get a random case; values a random style.&quot;&quot;&quot;
+    paren = draw(st.booleans())
+    open_, close = (&quot;(&quot;, &quot;)&quot;) if paren else (&quot;{&quot;, &quot;}&quot;)
+    parts = []
+    for name, v in fields:
+        name = &quot;&quot;.join(c.upper() if draw(st.booleans()) else c for c in name)
+        parts.append(f&quot;{draw(GAP)}{name}{draw(GAP)}={draw(GAP)}{draw(value(v))}&quot;)
+    body = &quot;,&quot;.join(parts) + (&quot;,&quot; if draw(st.booleans()) else &quot;&quot;) + draw(GAP)
+    return f&quot;@{type_}{draw(GAP)}{open_}{draw(GAP)}{key},{body}{close}&quot;
+
+
+@st.composite
+def simple_entry(draw):
+    &quot;&quot;&quot;(BibTeX text, expected draft) for an entry with ordinary fields.&quot;&quot;&quot;
+    type_ = draw(st.sampled_from([&quot;article&quot;, &quot;ARTICLE&quot;, &quot;InProceedings&quot;, &quot;misc&quot;, &quot;book&quot;]))
+    key = draw(KEY)
+    title = draw(TEXT)
+    names = draw(st.lists(st.tuples(st.lists(NAME, min_size=0, max_size=2), NAME), max_size=4))
+    comma_style = draw(st.booleans())
+    rendered = [f&quot;{last}, {&#39; &#39;.join(first)}&quot; if comma_style and first else &quot; &quot;.join([*first, last]) for first, last in names]
+    authors = [f&quot;{last}, {&#39; &#39;.join(first)}&quot; if first else last for first, last in names]
+    year = draw(st.none() | st.integers(1000, 9999))
+    venue_field = draw(st.sampled_from([&quot;journal&quot;, &quot;booktitle&quot;, None]))
+    venue = draw(TEXT) if venue_field else None
+    extra = draw(st.dictionaries(st.sampled_from([&quot;pages&quot;, &quot;volume&quot;, &quot;number&quot;, &quot;publisher&quot;, &quot;isbn&quot;, &quot;series&quot;]), TEXT, max_size=3))
+    fields = [(&quot;title&quot;, title)]
+    if rendered:
+        fields.append((&quot;author&quot;, draw(st.sampled_from([&quot; and &quot;, &quot; AND &quot;, &quot;\nand &quot;])).join(rendered)))
+    if year is not None:
+        fields.append((&quot;year&quot;, str(year)))
+    if venue_field:
+        fields.append((venue_field, venue))
+    fields += list(extra.items())
+    fields = draw(st.permutations(fields))
+    if venue is None and &quot;publisher&quot; in extra:
+        venue = extra[&quot;publisher&quot;]
+    expected = Draft(
+        key=key, type=type_.lower(), title=title, authors=authors, year=year, venue=venue,
+        tags=[], fields={k: collapse(v) for k, v in extra.items()},
+    )
+    return draw(entry_text(type_, key, fields)), expected
+
+
+@given(entries=st.lists(simple_entry(), max_size=4), junk=st.lists(st.sampled_from([&quot;&quot;, &quot;\n\n&quot;, &quot;% a comment\n&quot;, &quot;text between entries\n&quot;]), min_size=5, max_size=5))
+def test_well_formed_entries_become_drafts(impl, entries, junk):
+    text = junk[0] + &quot;&quot;.join(t + junk[i % 4 + 1] for i, (t, _) in enumerate(entries))
+    assert run(impl, text) == [d for _, d in entries]
+
+
+@given(entries=st.lists(simple_entry(), min_size=1, max_size=3), drop=st.data())
+def test_entries_without_a_title_are_left_out(impl, entries, drop):
+    keep = drop.draw(st.lists(st.booleans(), min_size=len(entries), max_size=len(entries)))
+    text = &quot;&quot;
+    for (t, d), k in zip(entries, keep):
+        text += (t if k else f&quot;@misc{{{d.key}, note = {{no title here}}}}&quot;) + &quot;\n&quot;
+    assert [p.key for p in run(impl, text)] == [d.key for (_, d), k in zip(entries, keep) if k]
+
+
+@given(e=simple_entry(), wrapper=st.sampled_from([&quot;@comment{{{0}}}&quot;, &quot;@preamble{{\&quot;{0}\&quot;}}&quot;, &quot;@COMMENT {{{0}}}&quot;]), note=TEXT)
+def test_comments_and_preambles_are_not_entries(impl, e, wrapper, note):
+    text, draft = e
+    assert run(impl, wrapper.format(note) + &quot;\n&quot; + text) == [draft]
+
+
+@given(name=st.text(&quot;abcdefghij&quot;, min_size=3, max_size=6), v=TEXT, suffix=TEXT, key=KEY, upper=st.booleans())
+def test_string_macros_and_concatenation(impl, name, v, suffix, key, upper):
+    use = name.upper() if upper else name
+    text = f&#39;@string{{{name} = &quot;{v}&quot;}}\n@article{{{key}, title = {{T}}, journal = {use} # &quot; {suffix}&quot;}}&#39;
+    assert run(impl, text)[0].venue == f&quot;{v} {suffix}&quot;
+
+
+@given(month=st.sampled_from([&quot;jan&quot;, &quot;feb&quot;, &quot;mar&quot;, &quot;apr&quot;, &quot;may&quot;, &quot;jun&quot;, &quot;jul&quot;, &quot;aug&quot;, &quot;sep&quot;, &quot;oct&quot;, &quot;nov&quot;, &quot;dec&quot;]), key=KEY, upper=st.booleans())
+def test_month_macros(impl, month, key, upper):
+    full = [&quot;January&quot;, &quot;February&quot;, &quot;March&quot;, &quot;April&quot;, &quot;May&quot;, &quot;June&quot;, &quot;July&quot;, &quot;August&quot;, &quot;September&quot;, &quot;October&quot;,
+            &quot;November&quot;, &quot;December&quot;][[&quot;jan&quot;, &quot;feb&quot;, &quot;mar&quot;, &quot;apr&quot;, &quot;may&quot;, &quot;jun&quot;, &quot;jul&quot;, &quot;aug&quot;, &quot;sep&quot;, &quot;oct&quot;, &quot;nov&quot;, &quot;dec&quot;].index(month)]
+    papers = run(impl, f&quot;@misc{{{key}, title = {{T}}, month = {month.upper() if upper else month}}}&quot;)
+    assert papers[0].fields[&quot;month&quot;] == full
+
+
+@given(key=KEY, pieces=st.lists(st.tuples(WORD, GAP), min_size=1, max_size=6))
+def test_whitespace_in_values_collapses(impl, key, pieces):
+    raw = &quot;&quot;.join(w + (g or &quot; &quot;) for w, g in pieces)
+    papers = run(impl, f&quot;@misc{{{key}, title = {{{raw}}}, howpublished = {{  {raw}  }}}}&quot;)
+    assert papers[0].title == collapse(raw) and papers[0].fields[&quot;howpublished&quot;] == collapse(raw)
+
+
+@given(key=KEY, a=TEXT, b=TEXT)
+def test_later_fields_replace_earlier_ones(impl, key, a, b):
+    papers = run(impl, f&quot;@misc{{{key}, title = {{{a}}}, title = {{{b}}}, pages = {{{a}}}, PAGES = {{{b}}}}}&quot;)
+    assert papers[0].title == b and papers[0].fields == {&quot;pages&quot;: b}
+
+
+@given(key=KEY, corp=TEXT.filter(lambda t: &quot;and&quot; not in t.lower().split()), name=NAME)
+def test_braced_names_and_others_are_kept(impl, key, corp, name):
+    papers = run(impl, f&quot;@misc{{{key}, title = {{T}}, author = {{{{{corp}}} and Ada {name} and others}}}}&quot;)
+    assert papers[0].authors == [corp, f&quot;{name}, Ada&quot;, &quot;others&quot;]
+
+
+@given(key=KEY, ed=st.lists(NAME, min_size=1, max_size=3))
+def test_editors_stand_in_for_missing_authors(impl, key, ed):
+    papers = run(impl, f&quot;@book{{{key}, title = {{T}}, editor = {{{&#39; and &#39;.join(ed)}}}}}&quot;)
+    assert papers[0].authors == ed and &quot;editor&quot; not in papers[0].fields
+
+
+@given(key=KEY, doi=st.from_regex(r&quot;10\.[0-9]{4,5}/[a-z0-9.]{1,10}&quot;, fullmatch=True),
+       prefix=st.sampled_from([&quot;&quot;, &quot;https://doi.org/&quot;, &quot;http://dx.doi.org/&quot;, &quot;HTTPS://DOI.ORG/&quot;]))
+def test_doi_loses_its_resolver_prefix(impl, key, doi, prefix):
+    assert run(impl, f&quot;@article{{{key}, title = {{T}}, doi = {{{prefix}{doi}}}}}&quot;)[0].doi == doi
+
+
+ARXIV = st.from_regex(r&quot;[0-9]{4}\.[0-9]{4,5}&quot;, fullmatch=True)
+
+
+@given(key=KEY, aid=ARXIV, version=st.sampled_from([&quot;&quot;, &quot;v1&quot;, &quot;v12&quot;]), how=st.sampled_from([&quot;eprint&quot;, &quot;arxivid&quot;, &quot;url-abs&quot;, &quot;url-pdf&quot;, &quot;bare&quot;]))
+def test_arxiv_ids_are_found(impl, key, aid, version, how):
+    fields = {
+        &quot;eprint&quot;: f&quot;eprint = {{arXiv:{aid}{version}}}, archivePrefix = {{arXiv}}, primaryClass = {{cs.LG}}&quot;,
+        &quot;arxivid&quot;: f&quot;arxivid = {{{aid}{version}}}&quot;,
+        &quot;url-abs&quot;: f&quot;url = {{https://arxiv.org/abs/{aid}{version}}}&quot;,
+        &quot;url-pdf&quot;: f&quot;url = {{https://arxiv.org/pdf/{aid}{version}.pdf}}&quot;,
+        &quot;bare&quot;: f&quot;eprint = {{{aid}{version}}}&quot;,
+    }[how]
+    p = run(impl, f&quot;@article{{{key}, title = {{T}}, {fields}}}&quot;)[0]
+    assert p.arxiv == aid
+    assert not {&quot;eprint&quot;, &quot;archiveprefix&quot;, &quot;primaryclass&quot;, &quot;arxivid&quot;} &amp; set(p.fields)
+
+
+@given(key=KEY, eprint=st.from_regex(r&quot;[a-z]{3,6}/[0-9]{3}&quot;, fullmatch=True))
+def test_other_eprints_stay_in_fields(impl, key, eprint):
+    p = run(impl, f&quot;@article{{{key}, title = {{T}}, eprint = {{{eprint}}}}}&quot;)[0]
+    assert p.arxiv is None and p.fields == {&quot;eprint&quot;: eprint}
+
+
+@given(key=KEY, tags=st.lists(TEXT, min_size=1, max_size=4), seps=st.sampled_from([&quot;;&quot;, &quot;,&quot;, &quot;; &quot;, &quot; , &quot;]),
+       ids=st.lists(st.sampled_from([&quot;doi:10.1/x&quot;, &quot;URL:http://a.b&quot;, &quot;https://x.org&quot;, &quot;arXiv:2101.00001&quot;, &quot;isbn:123&quot;]), max_size=2))
+def test_keywords_become_tags_without_identifiers(impl, key, tags, seps, ids):
+    p = run(impl, f&quot;@article{{{key}, title = {{T}}, keywords = {{{seps.join(tags + ids)}}}}}&quot;)[0]
+    assert p.tags == tags and &quot;keywords&quot; not in p.fields
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

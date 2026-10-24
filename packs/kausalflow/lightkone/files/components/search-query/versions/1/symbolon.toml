@@ -1,0 +1,78 @@
+[contract]
+id = "lightkone/search-query"
+version = 1
+title = "Search a paper library with lightkone's query language"
+description = """
+Filters and orders a list of papers by a query string, as lightkone's search
+box does. Returns the ids of the matching papers, in display order.
+
+Query terms are separated by whitespace. A term is one of:
+
+  field:value or field:"quoted value"   a filter (field names are ASCII
+                                         letters, digits and _, any case)
+  "quoted phrase"                        one word that may contain spaces
+  anything else                          one word
+
+Filters (all must hold, except year:, where only the last year: term that
+counts applies):
+  tag:T       some tag of the paper equals T after folding
+  author:A    A is a substring of the folded authors joined with " ; "
+  year:Y      year equals Y; year:A-B: A <= year <= B (missing year never matches).
+              The value is split at "-": A is the first part, B the second,
+              later parts are ignored. When A is not a number, or is 0, the
+              term does not count (an earlier year: term stays in force).
+              When B is missing, empty, 0 or not a number, B is A. So
+              year:2017- means 2017 and year:-2017 does not count. A number
+              here is ASCII digits with an optional fraction; other
+              spellings are unspecified.
+  in:F        the paper is in folder F or a folder inside it ("F/..."),
+              compared after folding; trailing slashes on F are ignored
+  has:X / no:X  for X in pdf, abstract, arxiv, notes. has:pdf accepts either
+              pdf or file; no:pdf looks at pdf only. Unknown X is ignored.
+  is:starred, is:recent (has been opened), is:trash. Unknown values are ignored.
+Any other field:value term is an ordinary word, including the colon. So is a
+field with nothing after the colon (author: is the word author:), and an
+unknown field with a quoted value is one word, quotes included: o:"a b".
+
+Trashed papers appear only with is:trash, and then only trashed papers appear.
+
+Words: every word must be a substring of the paper's folded title (5 points),
+folded author text (4 points) or folded rest (1 point): abstract, venue,
+tags joined by spaces, key, doi, arxiv and notes, the non-empty ones joined
+by single spaces. A paper's score is the sum over words; a paper where any
+word scores 0 is left out.
+
+Folding: Unicode NFKD, remove U+0300..U+036F, then lower case. Values of
+has:, no: and is: are only lower-cased. Empty strings, false, and missing
+fields are all "absent".
+
+Order. sort=added: newest added first, except that a query with is:recent
+orders by opened, and otherwise a query with words orders by relevance.
+relevance: higher score first, then newest added. year: higher year first,
+missing as 0. title: ascending by the Unicode Collation Algorithm
+with the CLDR root collation at its default (tertiary) strength, which is
+what JavaScript's a.localeCompare(b) does with no locale or options: letters
+first, then accents, then case, lower case first ("apple" < "Apple" <
+"Äpple" < "banana"); punctuation and spaces are not ignored and sort before
+digits, digits before letters. opened: latest opened first, never-opened
+last, then newest added. Papers that compare equal keep their input order.
+
+Full-text search is out of scope.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 150
+timeout_seconds = 300

@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/search-query/versions/1/properties.py · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/search-query/versions/1/properties.py</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/search-query/versions/1/properties.py">raw</a> </p> <pre>&quot;&quot;&quot;Behavioral properties for lightkone/search-query.
+
+Each property states one rule from the description in symbolon.toml, checked
+on small generated libraries whose vocabulary overlaps on purpose: shared
+words, accents, mixed case, nested folders, ties in dates.
+&quot;&quot;&quot;
+
+import unicodedata
+
+from hypothesis import given, strategies as st
+
+from schema import Input, Paper
+
+# Helpers that restate the description. They are the spec, not an implementation hint.
+
+
+def fold(s: str) -&gt; str:
+    s = unicodedata.normalize(&quot;NFKD&quot;, s)
+    return &quot;&quot;.join(c for c in s if not 0x300 &lt;= ord(c) &lt;= 0x36F).lower()
+
+
+def title_text(p: Paper) -&gt; str:
+    return fold(p.title)
+
+
+def author_text(p: Paper) -&gt; str:
+    return fold(&quot; ; &quot;.join(p.authors))
+
+
+def rest_text(p: Paper) -&gt; str:
+    parts = [p.abstract, p.venue, &quot; &quot;.join(p.tags), p.key, p.doi, p.arxiv, p.notes]
+    return fold(&quot; &quot;.join(x for x in parts if x))
+
+
+def word_score(p: Paper, word: str) -&gt; int:
+    w = fold(word)
+    return 5 * (w in title_text(p)) + 4 * (w in author_text(p)) + (w in rest_text(p))
+
+
+def render(word: str) -&gt; str:
+    return f&#39;&quot;{word}&quot;&#39; if &quot; &quot; in word else word
+
+
+def run(impl, papers, query, sort=&quot;added&quot;) -&gt; list[str]:
+    return impl(Input(papers=papers, query=query, sort=sort)).ids
+
+
+def newest_first(papers, key=lambda p: p.added):
+    &quot;&quot;&quot;Descending by key; Python&#39;s sort is stable, so equal papers keep their input order.&quot;&quot;&quot;
+    return sorted(papers, key=key, reverse=True)
+
+
+# Generated libraries
+
+TITLE_WORDS = [&quot;alpha&quot;, &quot;beta&quot;, &quot;Gamma&quot;, &quot;café&quot;, &quot;Über&quot;, &quot;naïve&quot;, &quot;networks&quot;, &quot;qft&quot;, &quot;lattice&quot;, &quot;ML&quot;]
+AUTHORS = [&quot;Hinton, Geoffrey&quot;, &quot;Gödel, Kurt&quot;, &quot;Noether, Emmy&quot;, &quot;Alpha, Ann&quot;, &quot;Müller, Jörg&quot;]
+TAGS = [&quot;ml&quot;, &quot;ML&quot;, &quot;physics&quot;, &quot;Café&quot;, &quot;to read&quot;, &quot;qft&quot;]
+FOLDERS = [&quot;Physics&quot;, &quot;Physics/QFT&quot;, &quot;physics/qft/Lattice&quot;, &quot;Math&quot;, &quot;Mathematics&quot;, &quot;Café/Ébauche&quot;]
+TEXTS = [&quot;&quot;, &quot;about alpha and beta&quot;, &quot;Lattice QFT on networks&quot;, &quot;see re:search&quot;, &quot;naive café notes&quot;, &quot;Gödel&quot;]
+TIMES = [f&quot;2024-0{m}-0{d}T10:00:00.000Z&quot; for m in (1, 2, 3) for d in (1, 2)]
+
+
+def opt(s):
+    return st.none() | s
+
+
+@st.composite
+def papers_st(draw, min_size=0, max_size=8, titles=None):
+    n = draw(st.integers(min_size, max_size))
+    out = []
+    for i in range(n):
+        title = draw(titles) if titles is not None else &quot; &quot;.join(draw(st.lists(st.sampled_from(TITLE_WORDS), max_size=4)))
+        out.append(Paper(
+            id=f&quot;p{i}&quot;,
+            title=title,
+            added=draw(st.sampled_from(TIMES)),
+            key=draw(st.sampled_from([&quot;&quot;, f&quot;Key{i}&quot;, &quot;Alpha2020-ab&quot;])),
+            authors=draw(st.lists(st.sampled_from(AUTHORS), max_size=3, unique=True)),
+            year=draw(opt(st.integers(2015, 2022))),
+            venue=draw(opt(st.sampled_from(TEXTS))),
+            abstract=draw(opt(st.sampled_from(TEXTS))),
+            doi=draw(opt(st.sampled_from([&quot;&quot;, &quot;10.1000/alpha&quot;, &quot;10.2/xyz&quot;]))),
+            arxiv=draw(opt(st.sampled_from([&quot;&quot;, &quot;2101.00001&quot;]))),
+            tags=draw(st.lists(st.sampled_from(TAGS), max_size=3, unique=True)),
+            file=draw(opt(st.sampled_from([&quot;&quot;, &quot;All Papers/A/a.pdf&quot;]))),
+            pdf=draw(opt(st.sampled_from([&quot;&quot;, &quot;pdfs/p.pdf&quot;]))),
+            notes=draw(opt(st.sampled_from(TEXTS))),
+            folders=draw(opt(st.lists(st.sampled_from(FOLDERS), max_size=2, unique=True))),
+            starred=draw(opt(st.booleans())),
+            trashed=draw(opt(st.sampled_from([&quot;&quot;, &quot;2024-05-01T00:00:00.000Z&quot;]))),
+            opened=draw(opt(st.sampled_from([&quot;&quot;, *TIMES]))),
+        ))
+    return out
+
+
+WORDS = [&quot;alpha&quot;, &quot;ALPHA&quot;, &quot;alp&quot;, &quot;beta&quot;, &quot;cafe&quot;, &quot;CAFÉ&quot;, &quot;uber&quot;, &quot;naive&quot;, &quot;naïve&quot;, &quot;godel&quot;, &quot;gödel&quot;, &quot;hinton&quot;,
+         &quot;qft&quot;, &quot;lattice&quot;, &quot;ml&quot;, &quot;net&quot;, &quot;alpha beta&quot;, &quot;n, g&quot;, &quot;re:search&quot;, &quot;10.1000&quot;, &quot;2101&quot;, &quot;key1&quot;, &quot;zzz&quot;]
+FILTERS = [&quot;tag:ml&quot;, &quot;tag:Physics&quot;, &#39;tag:&quot;to read&quot;&#39;, &quot;tag:cafe&quot;, &quot;author:hinton&quot;, &quot;author:godel&quot;, &quot;author:\&quot;l, a\&quot;&quot;,
+           &quot;year:2018&quot;, &quot;year:2016-2019&quot;, &quot;year:2020-2017&quot;, &quot;in:physics&quot;, &quot;in:Physics/QFT/&quot;, &quot;in:Math&quot;, &#39;in:&quot;cafe/ebauche&quot;&#39;,
+           &quot;has:pdf&quot;, &quot;has:abstract&quot;, &quot;has:arxiv&quot;, &quot;has:notes&quot;, &quot;has:nothing&quot;, &quot;no:pdf&quot;, &quot;no:abstract&quot;, &quot;no:arxiv&quot;,
+           &quot;no:notes&quot;, &quot;is:starred&quot;, &quot;is:recent&quot;, &quot;is:unknown&quot;]
+terms = st.sampled_from(FILTERS) | st.sampled_from(WORDS).map(render)
+SORTS = [&quot;added&quot;, &quot;year&quot;, &quot;title&quot;, &quot;relevance&quot;, &quot;opened&quot;]
+
+
+def is_trashed(p: Paper) -&gt; bool:
+    return bool(p.trashed)
+
+
+def satisfies(p: Paper, f: str) -&gt; bool:
+    field, _, value = f.partition(&quot;:&quot;)
+    value = value.strip(&#39;&quot;&#39;)
+    if field == &quot;tag&quot;:
+        return any(fold(t) == fold(value) for t in p.tags)
+    if field == &quot;author&quot;:
+        return fold(value) in author_text(p)
+    if field == &quot;year&quot;:
+        a, _, b = value.partition(&quot;-&quot;)
+        lo, hi = int(a), int(b or a)
+        return bool(p.year) and lo &lt;= p.year &lt;= hi
+    if field == &quot;in&quot;:
+        target = fold(value).rstrip(&quot;/&quot;)
+        return any(fold(x) == target or fold(x).startswith(target + &quot;/&quot;) for x in p.folders or [])
+    if field == &quot;has&quot;:
+        return {&quot;pdf&quot;: bool(p.pdf or p.file), &quot;abstract&quot;: bool(p.abstract), &quot;arxiv&quot;: bool(p.arxiv),
+                &quot;notes&quot;: bool(p.notes)}.get(value, True)
+    if field == &quot;no&quot;:
+        return {&quot;pdf&quot;: not p.pdf, &quot;abstract&quot;: not p.abstract, &quot;arxiv&quot;: not p.arxiv,
+                &quot;notes&quot;: not p.notes}.get(value, True)
+    if field == &quot;is&quot;:
+        return {&quot;starred&quot;: bool(p.starred), &quot;recent&quot;: bool(p.opened)}.get(value, True)
+    raise AssertionError(f)
+
+
+# Properties
+
+
+@given(papers=papers_st(), query=st.lists(terms, max_size=3).map(&quot; &quot;.join), sort=st.sampled_from(SORTS))
+def test_results_are_distinct_papers_from_the_library(impl, papers, query, sort):
+    ids = run(impl, papers, query, sort)
+    assert len(ids) == len(set(ids))
+    assert set(ids) &lt;= {p.id for p in papers}
+
+
+@given(papers=papers_st(), query=st.lists(terms, max_size=2).map(&quot; &quot;.join), trash=st.booleans())
+def test_trash_shows_only_with_is_trash(impl, papers, query, trash):
+    by_id = {p.id: p for p in papers}
+    ids = run(impl, papers, (&quot;is:trash &quot; if trash else &quot;&quot;) + query)
+    assert all(is_trashed(by_id[i]) == trash for i in ids)
+
+
+@given(papers=papers_st(), a=terms, b=terms, trash=st.booleans())
+def test_terms_are_conjunctive(impl, papers, a, b, trash):
+    if a.startswith(&quot;year:&quot;) and b.startswith(&quot;year:&quot;):
+        return  # only the last year: term counts, see test_only_the_last_year_filter_counts
+    prefix = &quot;is:trash &quot; if trash else &quot;&quot;
+    both = set(run(impl, papers, f&quot;{prefix}{a} {b}&quot;))
+    assert both == set(run(impl, papers, prefix + a)) &amp; set(run(impl, papers, prefix + b))
+
+
+@given(papers=papers_st(min_size=1), query=st.sampled_from([&quot;&quot;, &quot; &quot;, &quot;  \t &quot;]))
+def test_empty_query_lists_the_library_newest_first(impl, papers, query):
+    expected = [p.id for p in newest_first([p for p in papers if not is_trashed(p)])]
+    assert run(impl, papers, query) == expected
+
+
+@given(papers=papers_st(min_size=1), f=st.sampled_from(FILTERS), trash=st.booleans())
+def test_each_filter_selects_what_it_says(impl, papers, f, trash):
+    got = set(run(impl, papers, (&quot;is:trash &quot; if trash else &quot;&quot;) + f))
+    assert got == {p.id for p in papers if is_trashed(p) == trash and satisfies(p, f)}
+
+
+@given(papers=papers_st(min_size=1), words=st.lists(st.sampled_from(WORDS), min_size=1, max_size=2),
+       sort=st.sampled_from([&quot;added&quot;, &quot;relevance&quot;]))
+def test_words_rank_title_over_author_over_rest(impl, papers, words, sort):
+    scored = []
+    for p in papers:
+        scores = [word_score(p, w) for w in words]
+        if not is_trashed(p) and all(scores):
+            scored.append((p, sum(scores)))
+    by_added = newest_first([p for p, _ in scored])
+    rank = {p.id: i for i, p in enumerate(by_added)}
+    total = {p.id: s for p, s in scored}
+    expected = sorted(rank, key=lambda i: (-total[i], rank[i]))
+    assert run(impl, papers, &quot; &quot;.join(render(w) for w in words), sort) == expected
+
+
+@given(papers=papers_st(), query=st.lists(terms, min_size=1, max_size=3).map(&quot; &quot;.join), sort=st.sampled_from(SORTS))
+def test_case_and_accents_in_the_query_do_not_matter(impl, papers, query, sort):
+    assert run(impl, papers, query.upper(), sort) == run(impl, papers, query, sort)
+
+
+@given(papers=papers_st(min_size=1), f=st.sampled_from([&quot;&quot;] + FILTERS))
+def test_year_sort_puts_later_years_first(impl, papers, f):
+    ids = run(impl, papers, f, &quot;year&quot;)
+    keep = set(ids)
+    expected = [p.id for p in newest_first([p for p in papers if p.id in keep], key=lambda p: p.year or 0)]
+    assert ids == expected
+
+
+ASCII_TITLES = st.lists(st.sampled_from([&quot;alpha&quot;, &quot;beta&quot;, &quot;b&quot;, &quot;a1&quot;, &quot;zeta 2&quot;, &quot;a beta&quot;, &quot;&quot;]), max_size=3).map(&quot; &quot;.join)
+
+
+@given(papers=papers_st(min_size=1, titles=ASCII_TITLES), f=st.sampled_from([&quot;&quot;] + FILTERS))
+def test_title_sort_is_ascending_and_stable(impl, papers, f):
+    ids = run(impl, papers, f, &quot;title&quot;)
+    keep = set(ids)
+    assert ids == [p.id for p in sorted((p for p in papers if p.id in keep), key=lambda p: p.title)]
+
+
+@given(papers=papers_st(min_size=1), how=st.sampled_from([(&quot;&quot;, &quot;opened&quot;), (&quot;is:recent&quot;, &quot;added&quot;), (&quot;is:recent&quot;, &quot;opened&quot;)]))
+def test_opened_order_and_is_recent(impl, papers, how):
+    query, sort = how
+    ids = run(impl, papers, query, sort)
+    keep = set(ids)
+    by_added = newest_first([p for p in papers if p.id in keep])
+    assert ids == [p.id for p in newest_first(by_added, key=lambda p: p.opened or &quot;&quot;)]
+
+
+YEARS = [f for f in FILTERS if f.startswith(&quot;year:&quot;)]
+
+
+@given(papers=papers_st(min_size=1), first=st.sampled_from(YEARS), last=st.sampled_from(YEARS), word=st.sampled_from([&quot;&quot;, &quot;alpha&quot;]))
+def test_only_the_last_year_filter_counts(impl, papers, first, last, word):
+    assert run(impl, papers, f&quot;{first} {word} {last}&quot;) == run(impl, papers, f&quot;{word} {last}&quot;)
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

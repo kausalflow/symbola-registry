@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/library-merge/versions/1/symbolon.toml · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/library-merge/versions/1/symbolon.toml</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/library-merge/versions/1/symbolon.toml">raw</a> </p> <pre>[contract]
+id = &quot;lightkone/library-merge&quot;
+version = 1
+title = &quot;Merge two edited copies of a lightkone library&quot;
+description = &quot;&quot;&quot;
+Before lightkone writes library.json it reads it again. If another device, or
+Claude through MCP, saved in the meantime, the two versions are merged
+against the version both started from, paper by paper and field by field,
+instead of the later save silently winning. Only when both sides changed the
+same field differently does this device&#39;s edit win.
+
+Inputs: base (what this device last read or wrote; null if none), ours (what
+this device holds now), theirs (what is in storage now).
+
+Equality is by value: two papers are the same when they have the same
+fields with equal values, in any key order.
+
+Per paper id, with b, o, t its version in base, ours and theirs:
+  no b:            o if present, else t
+  b, no o:         t if t is present and differs from b, else dropped
+  b, no t:         dropped if o equals b, else o
+  o equals b:      t
+  t equals b:      o
+  otherwise        a field-by-field merge of b, o and t:
+    tags, folders  (when o or t has the list) kept as sets: every item in o,
+                   then every item in t not already listed, minus any item of
+                   b that o or t removed
+    other fields   t&#39;s value if o&#39;s equals b&#39;s, else o&#39;s; a field absent from
+                   the chosen side is absent
+Order: theirs&#39; ids in theirs&#39; order, then ids only in ours, in ours&#39; order.
+Ids only in base are gone.
+
+fromThem counts the ids in that order whose result (a paper, or nothing)
+differs from ours&#39; version (a paper, or nothing).
+
+bibSync: theirs&#39; list if ours&#39; equals base&#39;s (a missing list counts as
+empty), else ours&#39;. It is written only when non-empty.
+
+The result is a library file: format &quot;lightkone-library&quot;, version 1.
+&quot;&quot;&quot;
+regenerability = &quot;disposable&quot;
+license = &quot;Proprietary (kausalflow)&quot;
+authors = [&quot;kausalflow/lightkone&quot;]
+
+[entrypoint]
+function = &quot;run&quot;
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

@@ -1,0 +1,87 @@
+[contract]
+id = "lightkone/library-file"
+version = 1
+title = "Read and rewrite lightkone's library.json"
+description = """
+lightkone/library.json is the library: lightkone's own data, and what other
+devices, Claude through MCP, and anyone's scripts read and write. This
+contract fixes what lightkone does when it opens that file and saves it
+again with nothing else changed (Library.load, then Library.save): which
+files it accepts, what it adds, and the exact text it writes.
+
+Input: the file's text. Output:
+  written    whether the save writes anything
+  library    library.json's text after the save
+  bib        lightkone/library.bib, written alongside; null when not written
+  foldered   how many papers took their folders from Paperpile paths
+
+Accepting a file. Raise ValueError, writing nothing, when the text is not
+JSON, is not an object whose "format" is "lightkone-library", has no
+"papers" list, or a paper is not an object. Also raise ValueError when
+"version" is a number above 1: the file was saved by a newer lightkone,
+which may store things this one would drop. Any other version, or none, is
+read as 1.
+
+Folders. Each paper with no "folders" key gets one, from its "file" (a
+Paperpile Drive path, or several separated by ";"): for each path, trimmed,
+skipping empty ones, take its directories (every segment but the last); drop
+a leading "All Papers"; skip it when nothing is left, or when a single
+directory is left that is an author folder. Join the rest with "/". Keep the
+first of any repeats, in order. A paper with no file gets []. foldered
+counts the papers that gained a non-empty list. A paper that already has
+"folders", even [], keeps it.
+
+Author folders. Paperpile files a PDF under its first author's surname in
+capitals, as lightkone/pdf-filing names the folder; any of the paper's
+authors counts, since the author list may have changed since. Let N be the
+set of clean(surname(a)) upper-cased, for each author a, leaving out empty
+ones (clean and surname as lightkone/pdf-filing defines them; upper-casing
+is JavaScript's toUpperCase, so "ß" becomes "SS"). A directory is an author
+folder when it is "Other" or is in N. When N is empty there is nothing to
+compare, and a directory is an author folder when upper-casing leaves it
+unchanged and lower-casing changes it ("HINTON", but not "2019"). So a
+user's own "ML" folder is kept unless an author is called Ml.
+
+Writing. The saved file holds format "lightkone-library", version 1, papers,
+and bibSync when it is a non-empty list, then every other top-level key of
+the input with its value as read, in the input's order: lightkone keeps
+other tools' data. written is false only when that text equals the input exactly; then
+nothing is written and library is the input.
+
+The text is JavaScript's JSON.stringify with an indent of one space:
+  - objects and arrays one entry per line, indented one more space per
+    level; ": " after a key; empty ones written {} and []
+  - an object's keys keep their order, except keys that are array indices
+    ("0", "7", "10"; no sign, no leading zero, below 4294967295) come first,
+    in numeric order. A gained "folders" key comes after the existing ones.
+  - strings escape " \\ and control characters below U+0020 (\\b \\f \\n
+    \\r \\t, others \\u00xx in lower-case hex); nothing else is escaped
+  - numbers as JavaScript prints them: integral values below 1e21 as plain
+    integers (2017.0 is 2017, -0 is 0, 1e16 is 10000000000000000); others in
+    the shortest form that reads back the same, with an exponent written
+    e+21 or e-7 for magnitudes from 1e21 up or below 1e-6
+  - no newline at the end
+
+library.bib: each paper not in the trash, as lightkone/bibtex-export writes
+it (its fields in the order library.json lists them), joined by "\\n". A
+paper is in the trash when its "trashed" value is true in JavaScript: any
+value but a missing key, false, 0 and "" ([] and {} are in the trash,
+and so is "0"). No papers left gives "".
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

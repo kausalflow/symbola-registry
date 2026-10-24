@@ -1,0 +1,132 @@
+{
+  "format": 1,
+  "packs": [
+    {
+      "id": "kausalflow/lightkone",
+      "version": 1,
+      "title": "Lightkone core: search, BibTeX, keys, filing, merge, tidy and the library file",
+      "license": "Proprietary (kausalflow)",
+      "authors": [
+        "kausalflow"
+      ],
+      "digest": "sha256:075c30cc624fda7b44c574318d20224fc97184ed3505597bf0fe7616defdfd10",
+      "tarball_sha256": "960a0524f2cd224316cd197bc448f325070d9c0ea919c5b982eea983b44a98f1",
+      "summary": {
+        "obligations": 64,
+        "by_status": {
+          "decided": 64,
+          "default": 0,
+          "open": 0
+        },
+        "by_source": {
+          "extract": 29,
+          "replication": 7,
+          "oracle": 28
+        },
+        "by_exactness": {
+          "exact": 64,
+          "statistical": 0,
+          "free": 0
+        },
+        "assumptions": 4,
+        "monitored_assumptions": 4,
+        "components": 8,
+        "checks": 340,
+        "checks_tracing_to_an_obligation": 340
+      },
+      "summary_line": "64 obligations (64 decided, 0 default, 0 open) \u00b7 4 assumptions (4 monitored) \u00b7 340/340 checks trace to an obligation",
+      "files": [
+        "AGENTS.md",
+        "BRIEF.md",
+        "assumptions/bibtex-sources.toml",
+        "assumptions/iso-timestamps.toml",
+        "assumptions/personal-library.toml",
+        "assumptions/single-writer.toml",
+        "components/bibtex-export/versions/1/examples.jsonl",
+        "components/bibtex-export/versions/1/properties.py",
+        "components/bibtex-export/versions/1/schema.py",
+        "components/bibtex-export/versions/1/schema/input.json",
+        "components/bibtex-export/versions/1/schema/output.json",
+        "components/bibtex-export/versions/1/symbolon.toml",
+        "components/bibtex-import/versions/1/examples.jsonl",
+        "components/bibtex-import/versions/1/properties.py",
+        "components/bibtex-import/versions/1/schema.py",
+        "components/bibtex-import/versions/1/schema/input.json",
+        "components/bibtex-import/versions/1/schema/output.json",
+        "components/bibtex-import/versions/1/symbolon.toml",
+        "components/citation-key/versions/1/examples.jsonl",
+        "components/citation-key/versions/1/properties.py",
+        "components/citation-key/versions/1/schema.py",
+        "components/citation-key/versions/1/schema/input.json",
+        "components/citation-key/versions/1/schema/output.json",
+        "components/citation-key/versions/1/symbolon.toml",
+        "components/library-file/versions/1/examples.jsonl",
+        "components/library-file/versions/1/fixtures/paperpile-import.json",
+        "components/library-file/versions/1/fixtures/saved.json",
+        "components/library-file/versions/1/fixtures/shared.json",
+        "components/library-file/versions/1/properties.py",
+        "components/library-file/versions/1/schema.py",
+        "components/library-file/versions/1/schema/input.json",
+        "components/library-file/versions/1/schema/output.json",
+        "components/library-file/versions/1/symbolon.toml",
+        "components/library-merge/versions/1/examples.jsonl",
+        "components/library-merge/versions/1/fixtures/base.json",
+        "components/library-merge/versions/1/properties.py",
+        "components/library-merge/versions/1/schema.py",
+        "components/library-merge/versions/1/schema/input.json",
+        "components/library-merge/versions/1/schema/output.json",
+        "components/library-merge/versions/1/symbolon.toml",
+        "components/pdf-filing/versions/1/examples.jsonl",
+        "components/pdf-filing/versions/1/properties.py",
+        "components/pdf-filing/versions/1/schema.py",
+        "components/pdf-filing/versions/1/schema/input.json",
+        "components/pdf-filing/versions/1/schema/output.json",
+        "components/pdf-filing/versions/1/symbolon.toml",
+        "components/search-query/versions/1/examples.jsonl",
+        "components/search-query/versions/1/fixtures/library.json",
+        "components/search-query/versions/1/fixtures/titles.json",
+        "components/search-query/versions/1/properties.py",
+        "components/search-query/versions/1/schema.py",
+        "components/search-query/versions/1/schema/input.json",
+        "components/search-query/versions/1/schema/output.json",
+        "components/search-query/versions/1/symbolon.toml",
+        "components/tidy/versions/1/examples.jsonl",
+        "components/tidy/versions/1/properties.py",
+        "components/tidy/versions/1/schema.py",
+        "components/tidy/versions/1/schema/input.json",
+        "components/tidy/versions/1/schema/output.json",
+        "components/tidy/versions/1/symbolon.toml",
+        "obligations.toml",
+        "symbolon-pack.toml"
+      ],
+      "price": null,
+      "preview": "full",
+      "publisher": {
+        "name": "kausalflow",
+        "url": "https://github.com/kausalflow",
+        "support": []
+      },
+      "evidence": {
+        "attestations": 19,
+        "invalid": 0,
+        "on_latest": 16,
+        "components": 8,
+        "components_with_passing_build": 8,
+        "builds": [
+          "AI builder",
+          "go-1 rebuild",
+          "kausalflow/lightkone"
+        ],
+        "full_builds": [
+          "kausalflow/lightkone"
+        ],
+        "runners": [
+          "runner-a",
+          "runner-c"
+        ],
+        "newest": "2026-10-24T12:43:22Z"
+      },
+      "older": []
+    }
+  ]
+}

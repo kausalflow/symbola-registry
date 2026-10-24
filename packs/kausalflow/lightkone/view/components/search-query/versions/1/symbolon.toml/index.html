@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/search-query/versions/1/symbolon.toml · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/search-query/versions/1/symbolon.toml</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/search-query/versions/1/symbolon.toml">raw</a> </p> <pre>[contract]
+id = &quot;lightkone/search-query&quot;
+version = 1
+title = &quot;Search a paper library with lightkone&#39;s query language&quot;
+description = &quot;&quot;&quot;
+Filters and orders a list of papers by a query string, as lightkone&#39;s search
+box does. Returns the ids of the matching papers, in display order.
+
+Query terms are separated by whitespace. A term is one of:
+
+  field:value or field:&quot;quoted value&quot;   a filter (field names are ASCII
+                                         letters, digits and _, any case)
+  &quot;quoted phrase&quot;                        one word that may contain spaces
+  anything else                          one word
+
+Filters (all must hold, except year:, where only the last year: term that
+counts applies):
+  tag:T       some tag of the paper equals T after folding
+  author:A    A is a substring of the folded authors joined with &quot; ; &quot;
+  year:Y      year equals Y; year:A-B: A &lt;= year &lt;= B (missing year never matches).
+              The value is split at &quot;-&quot;: A is the first part, B the second,
+              later parts are ignored. When A is not a number, or is 0, the
+              term does not count (an earlier year: term stays in force).
+              When B is missing, empty, 0 or not a number, B is A. So
+              year:2017- means 2017 and year:-2017 does not count. A number
+              here is ASCII digits with an optional fraction; other
+              spellings are unspecified.
+  in:F        the paper is in folder F or a folder inside it (&quot;F/...&quot;),
+              compared after folding; trailing slashes on F are ignored
+  has:X / no:X  for X in pdf, abstract, arxiv, notes. has:pdf accepts either
+              pdf or file; no:pdf looks at pdf only. Unknown X is ignored.
+  is:starred, is:recent (has been opened), is:trash. Unknown values are ignored.
+Any other field:value term is an ordinary word, including the colon. So is a
+field with nothing after the colon (author: is the word author:), and an
+unknown field with a quoted value is one word, quotes included: o:&quot;a b&quot;.
+
+Trashed papers appear only with is:trash, and then only trashed papers appear.
+
+Words: every word must be a substring of the paper&#39;s folded title (5 points),
+folded author text (4 points) or folded rest (1 point): abstract, venue,
+tags joined by spaces, key, doi, arxiv and notes, the non-empty ones joined
+by single spaces. A paper&#39;s score is the sum over words; a paper where any
+word scores 0 is left out.
+
+Folding: Unicode NFKD, remove U+0300..U+036F, then lower case. Values of
+has:, no: and is: are only lower-cased. Empty strings, false, and missing
+fields are all &quot;absent&quot;.
+
+Order. sort=added: newest added first, except that a query with is:recent
+orders by opened, and otherwise a query with words orders by relevance.
+relevance: higher score first, then newest added. year: higher year first,
+missing as 0. title: ascending by the Unicode Collation Algorithm
+with the CLDR root collation at its default (tertiary) strength, which is
+what JavaScript&#39;s a.localeCompare(b) does with no locale or options: letters
+first, then accents, then case, lower case first (&quot;apple&quot; &lt; &quot;Apple&quot; &lt;
+&quot;Äpple&quot; &lt; &quot;banana&quot;); punctuation and spaces are not ignored and sort before
+digits, digits before letters. opened: latest opened first, never-opened
+last, then newest added. Papers that compare equal keep their input order.
+
+Full-text search is out of scope.
+&quot;&quot;&quot;
+regenerability = &quot;disposable&quot;
+license = &quot;Proprietary (kausalflow)&quot;
+authors = [&quot;kausalflow/lightkone&quot;]
+
+[entrypoint]
+function = &quot;run&quot;
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 150
+timeout_seconds = 300
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

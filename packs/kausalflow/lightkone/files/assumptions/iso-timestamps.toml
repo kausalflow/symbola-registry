@@ -1,0 +1,4 @@
+id = "K-iso-timestamps"
+statement = "Every added and opened timestamp was written by JavaScript's toISOString (UTC, milliseconds), so string order is time order."
+basis = "lightkone writes all timestamps itself; libraries are not edited by other tools."
+monitor = "On load, report papers whose timestamps do not match the schema pattern."

@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/library-merge/versions/1/properties.py · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/library-merge/versions/1/properties.py</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/library-merge/versions/1/properties.py">raw</a> </p> <pre>&quot;&quot;&quot;Behavioral properties for lightkone/library-merge.
+
+Libraries are generated as a base plus independent edits on each side, the
+way two devices diverge: fields changed or removed, tags and folders added or
+taken away, papers added or deleted.
+&quot;&quot;&quot;
+
+import copy
+import json
+
+from hypothesis import given, strategies as st
+
+from schema import Input, Library
+
+IDS = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;]
+TAGS = [&quot;ml&quot;, &quot;physics&quot;, &quot;to read&quot;, &quot;qft&quot;]
+FOLDERS = [&quot;ML&quot;, &quot;Physics&quot;, &quot;Physics/QFT&quot;]
+
+
+def same(x, y) -&gt; bool:
+    return json.dumps(x, sort_keys=True) == json.dumps(y, sort_keys=True)
+
+
+@st.composite
+def paper(draw, pid):
+    p = {&quot;id&quot;: pid, &quot;title&quot;: draw(st.sampled_from([&quot;Attention&quot;, &quot;Dropout&quot;, &quot;Gauge fields&quot;, &quot;Untitled&quot;])),
+         &quot;tags&quot;: draw(st.lists(st.sampled_from(TAGS), unique=True, max_size=3))}
+    if draw(st.booleans()):
+        p[&quot;year&quot;] = draw(st.integers(2000, 2024))
+    if draw(st.booleans()):
+        p[&quot;folders&quot;] = draw(st.lists(st.sampled_from(FOLDERS), unique=True, max_size=2))
+    if draw(st.booleans()):
+        p[&quot;notes&quot;] = draw(st.sampled_from([&quot;read twice&quot;, &quot;check eq. 3&quot;]))
+    return p
+
+
+@st.composite
+def library(draw):
+    ids = draw(st.lists(st.sampled_from(IDS), unique=True, max_size=4))
+    return {&quot;papers&quot;: [draw(paper(i)) for i in ids]}
+
+
+@st.composite
+def edited(draw, lib, fields=(&quot;title&quot;, &quot;year&quot;, &quot;notes&quot;, &quot;starred&quot;)):
+    &quot;&quot;&quot;A copy of lib after a few edits on one device.&quot;&quot;&quot;
+    out = copy.deepcopy(lib)
+    for _ in range(draw(st.integers(0, 3))):
+        op = draw(st.sampled_from([&quot;field&quot;, &quot;drop-field&quot;, &quot;tag&quot;, &quot;untag&quot;, &quot;add&quot;, &quot;remove&quot;]))
+        papers = out[&quot;papers&quot;]
+        if op == &quot;add&quot;:
+            free = [i for i in IDS if i not in {p[&quot;id&quot;] for p in papers}]
+            if free:
+                papers.append(draw(paper(draw(st.sampled_from(free)))))
+            continue
+        if not papers:
+            continue
+        p = draw(st.sampled_from(papers))
+        if op == &quot;remove&quot;:
+            papers.remove(p)
+        elif op == &quot;field&quot;:
+            k = draw(st.sampled_from(fields))
+            p[k] = {&quot;title&quot;: &quot;Edited title&quot;, &quot;year&quot;: 1999, &quot;notes&quot;: &quot;new note&quot;, &quot;starred&quot;: True}[k]
+        elif op == &quot;drop-field&quot;:
+            p.pop(draw(st.sampled_from([&quot;year&quot;, &quot;notes&quot;, &quot;starred&quot;])), None)
+        elif op == &quot;tag&quot;:
+            t = draw(st.sampled_from(TAGS))
+            if t not in p[&quot;tags&quot;]:
+                p[&quot;tags&quot;].append(t)
+        elif op == &quot;untag&quot; and p[&quot;tags&quot;]:
+            p[&quot;tags&quot;].remove(draw(st.sampled_from(p[&quot;tags&quot;])))
+    return out
+
+
+def merge(impl, base, ours, theirs):
+    out = impl(Input(base=None if base is None else Library(**base), ours=Library(**ours), theirs=Library(**theirs)))
+    return out.file.papers, out.fromThem
+
+
+def by_id(lib):
+    return {p[&quot;id&quot;]: p for p in lib[&quot;papers&quot;]}
+
+
+@given(lib=library())
+def test_nothing_changed_merges_to_itself(impl, lib):
+    assert merge(impl, lib, lib, lib) == (lib[&quot;papers&quot;], 0)
+
+
+@given(data=st.data(), base=library())
+def test_changes_made_only_elsewhere_are_taken_whole(impl, data, base):
+    theirs = data.draw(edited(base))
+    papers, from_them = merge(impl, base, base, theirs)
+    assert papers == theirs[&quot;papers&quot;]
+    ours, mine = by_id(base), by_id(theirs)
+    assert from_them == sum(not same(mine.get(i), ours.get(i)) for i in dict.fromkeys([*mine, *ours]))
+
+
+@given(data=st.data(), base=library())
+def test_changes_made_only_here_are_kept(impl, data, base):
+    ours = data.draw(edited(base))
+    papers, from_them = merge(impl, base, ours, base)
+    assert from_them == 0
+    kept = by_id(ours)
+    order = [i for i in by_id(base) if i in kept] + [i for i in kept if i not in by_id(base)]
+    assert [p[&quot;id&quot;] for p in papers] == order and all(same(p, kept[p[&quot;id&quot;]]) for p in papers)
+
+
+@given(base=library(), data=st.data())
+def test_edits_to_different_fields_both_survive(impl, base, data):
+    if not base[&quot;papers&quot;]:
+        return
+    target = data.draw(st.sampled_from(base[&quot;papers&quot;]))[&quot;id&quot;]
+    ours, theirs = copy.deepcopy(base), copy.deepcopy(base)
+    by_id(ours)[target][&quot;title&quot;] = &quot;Ours&quot;
+    by_id(theirs)[target][&quot;notes&quot;] = &quot;Theirs&quot;
+    got = by_id({&quot;papers&quot;: merge(impl, base, ours, theirs)[0]})[target]
+    assert got[&quot;title&quot;] == &quot;Ours&quot; and got[&quot;notes&quot;] == &quot;Theirs&quot;
+
+
+@given(base=library(), data=st.data())
+def test_the_same_field_changed_both_ways_keeps_ours(impl, base, data):
+    if not base[&quot;papers&quot;]:
+        return
+    target = data.draw(st.sampled_from(base[&quot;papers&quot;]))[&quot;id&quot;]
+    ours, theirs = copy.deepcopy(base), copy.deepcopy(base)
+    by_id(ours)[target][&quot;title&quot;], by_id(theirs)[target][&quot;title&quot;] = &quot;Ours&quot;, &quot;Theirs&quot;
+    by_id(theirs)[target][&quot;year&quot;] = 1900  # a second change there, so neither side equals the base
+    got = by_id({&quot;papers&quot;: merge(impl, base, ours, theirs)[0]})[target]
+    assert got[&quot;title&quot;] == &quot;Ours&quot; and got[&quot;year&quot;] == 1900
+
+
+@given(base=library(), data=st.data(), add_o=st.sampled_from(TAGS), add_t=st.sampled_from(TAGS))
+def test_tags_merge_as_sets(impl, base, data, add_o, add_t):
+    if not base[&quot;papers&quot;]:
+        return
+    target = data.draw(st.sampled_from(base[&quot;papers&quot;]))[&quot;id&quot;]
+    ours, theirs = copy.deepcopy(base), copy.deepcopy(base)
+    o, t, b = by_id(ours)[target], by_id(theirs)[target], by_id(base)[target]
+    removed = data.draw(st.sampled_from(b[&quot;tags&quot;])) if b[&quot;tags&quot;] else None
+    if removed:
+        o[&quot;tags&quot;].remove(removed)
+    o[&quot;tags&quot;] = list(dict.fromkeys(o[&quot;tags&quot;] + [add_o]))
+    t[&quot;tags&quot;] = list(dict.fromkeys(t[&quot;tags&quot;] + [add_t]))
+    t[&quot;title&quot;] = &quot;Theirs too&quot;
+    got = by_id({&quot;papers&quot;: merge(impl, base, ours, theirs)[0]})[target][&quot;tags&quot;]
+    gone = {x for x in b[&quot;tags&quot;] if x not in o[&quot;tags&quot;] or x not in t[&quot;tags&quot;]}
+    assert got == [x for x in dict.fromkeys(o[&quot;tags&quot;] + t[&quot;tags&quot;]) if x not in gone]
+
+
+@given(base=library(), data=st.data())
+def test_a_paper_deleted_here_but_changed_there_survives(impl, base, data):
+    if not base[&quot;papers&quot;]:
+        return
+    target = data.draw(st.sampled_from(base[&quot;papers&quot;]))[&quot;id&quot;]
+    ours, theirs = copy.deepcopy(base), copy.deepcopy(base)
+    ours[&quot;papers&quot;] = [p for p in ours[&quot;papers&quot;] if p[&quot;id&quot;] != target]
+    by_id(theirs)[target][&quot;notes&quot;] = &quot;edited elsewhere&quot;
+    assert target in by_id({&quot;papers&quot;: merge(impl, base, ours, theirs)[0]})
+
+
+@given(ours=library(), theirs=library())
+def test_without_a_base_every_paper_is_kept_and_ours_wins(impl, ours, theirs):
+    papers, _ = merge(impl, None, ours, theirs)
+    expected = {**by_id(theirs), **by_id(ours)}
+    assert by_id({&quot;papers&quot;: papers}) == expected
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

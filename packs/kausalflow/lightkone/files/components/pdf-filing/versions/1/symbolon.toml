@@ -1,0 +1,57 @@
+[contract]
+id = "lightkone/pdf-filing"
+version = 1
+title = "Name and place a paper's PDF the way Paperpile does"
+description = """
+Decides where a new PDF for a paper is stored. Lightkone files PDFs exactly
+as Paperpile files them in Google Drive, so a Paperpile "All Papers" folder
+can be copied into a library unchanged:
+
+  pdf  = "papers/" + file
+  file = "All Papers/<FOLDER>/<NAME>.pdf"      e.g.
+         All Papers/HINTON/Hinton et al. 2012 - Improving neural networks.pdf
+
+clean(s), in order: "---" -> "—" (em dash), "--" -> "–" (en dash); each of
+: / \\ ? * " < > | -> " - "; whitespace runs -> one space; runs of " - "
+-> one " - "; then remove leading and trailing spaces and hyphens.
+
+surname(a): the part of a before the first comma (all of a if none), trimmed.
+
+FOLDER: clean(surname(first author)) upper-cased; "Other" when there is no
+first author or that is empty.
+
+NAME:
+  title = clean(title), or "Untitled" if that is empty.
+  who   = from the authors' surnames, ignoring empty ones:
+          none -> title; one -> "A"; two -> "A and B"; more -> "A et al.".
+          If who is longer than 40, keep its first 37 and add "...".
+  head  = clean(who + " " + year), or clean(who) when there is no year.
+  NAME  = head + " - " + title. If NAME is longer than 146, it becomes its
+          first 72 with trailing whitespace removed, then " ... ", then its
+          last 69 with leading whitespace removed.
+Lengths count UTF-16 code units; v1 defines behaviour only for text without
+characters outside the Basic Multilingual Plane (no emoji).
+
+Upper-casing follows Unicode full case mapping (ß -> SS).
+
+Taken names: every OTHER paper in the library (other id) takes its pdf, and
+"papers/" + each part of its file split on ";" (trimmed). If papers/<file> is
+taken, try NAME + " (2).pdf", " (3).pdf", ... until one is free.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

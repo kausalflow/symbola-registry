@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/bibtex-import/versions/1/symbolon.toml · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/bibtex-import/versions/1/symbolon.toml</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/bibtex-import/versions/1/symbolon.toml">raw</a> </p> <pre>[contract]
+id = &quot;lightkone/bibtex-import&quot;
+version = 1
+title = &quot;Read BibTeX into lightkone paper drafts&quot;
+description = &quot;&quot;&quot;
+Reads BibTeX text, as exported by Paperpile, Zotero, JabRef or Google
+Scholar, into paper drafts the way lightkone&#39;s importer does. It never fails:
+malformed parts are skipped. Whitespace below means JavaScript&#39;s \\s: tab,
+LF, VT, FF, CR, space, U+00A0, U+1680, U+2000-U+200A, U+2028, U+2029,
+U+202F, U+205F, U+3000 and U+FEFF (and nothing else: not U+0085 or
+U+001C-U+001F). Trimming, collapsing and splitting all use this set.
+
+READING ENTRIES. Scan for &quot;@&quot;. Read the entry type (characters up to
+whitespace or one of , = { } ( ) &quot; #), lower-cased, then skip whitespace. If
+the next character is not &quot;{&quot; or &quot;(&quot;, skip that &quot;@&quot;. The entry closes with
+&quot;}&quot; or &quot;)&quot; to match.
+  @comment: skip only the &quot;@&quot;; scanning continues inside the comment.
+  @preamble: read one value and ignore it.
+  @string{name = value}: define a macro (name lower-cased).
+  Any other type: the key is everything up to the first &quot;,&quot; or the closing
+  character outside braces, trimmed (&quot;Erd\\H{o}s1959&quot; is one key). Then fields &quot;name = value&quot; separated by commas. A
+  field name is read like a type and lower-cased; a field without a name or
+  &quot;=&quot; is skipped up to the next &quot;,&quot; or the entry&#39;s closing character, whichever
+comes first; braced and quoted values in it are skipped whole, read as VALUES
+reads them. Reaching the closing character this way ends the entry. A later field
+  with the same name replaces the earlier one. An entry with no key and no
+  fields is dropped, and so is any entry whose title is missing or empty.
+VALUES are parts joined by &quot;#&quot;: {braced} text (nested braces, a backslash
+escapes the next character, braces are kept inside), &quot;quoted&quot; text (a quote
+inside braces does not end it), digits, or a bare word, which is replaced by
+a macro of that name (case-insensitive) or kept as written. Month macros
+jan..dec mean January..December. Unterminated values run to the end of the
+text. Whitespace runs in a value collapse to one space, and the value is
+trimmed.
+
+PLAIN TEXT. plain(v) applies these steps in order, each replacing every
+non-overlapping match from left to right:
+  1. optional &quot;{&quot;, then backslash and one of &quot; &#39; ` ^ ~ = .  (or one of
+     c v u H when followed by whitespace or &quot;{&quot;), optional whitespace,
+     optional &quot;{&quot;, one ASCII letter or \\i or \\j (the dotless letters, read as
+     i and j, when not followed by a letter, digit or &quot;_&quot;), optional &quot;}&quot;,
+     optional &quot;}&quot;  -&gt;  the
+     letter plus the combining mark (U+0308, U+0301, U+0300, U+0302, U+0303,
+     U+0304, U+0307, U+0327, U+030C, U+0306, U+030B in that order), NFC.
+  2. {\\ss} {\\o} {\\O} {\\ae} {\\AE} {\\l} {\\L} {\\i}, or the same without braces
+     when the next character is not an ASCII letter, digit or &quot;_&quot; (one
+     following space is consumed)  -&gt;  ß ø Ø æ Æ ł Ł ı.
+  3. \\emph{x} \\textit{x} \\textbf{x} \\mathrm{x} \\textrm{x}, x without braces  -&gt;  x.
+  4. backslash before one of &amp; % $ # _ { }  -&gt;  that character.
+  5. remove every { and } not directly after a backslash.
+  6. ~ -&gt; space; collapse whitespace runs to one space; trim.
+
+DRAFT FIELDS from an entry&#39;s fields (each one used is removed from
+&quot;fields&quot; unless stated):
+  key, type   from the entry.
+  title       plain(title).
+  authors     author, or editor if there is no author field. Split on
+              whitespace-&quot;and&quot;-whitespace (any case). For each part: plain
+              it and drop it if empty; keep it as is if it contains a comma,
+              is &quot;others&quot; (any case) or starts with &quot;{&quot; and ends with &quot;}&quot;;
+              otherwise move the last space-separated word to the front:
+              &quot;Ada King Lovelace&quot; -&gt; &quot;Lovelace, Ada King&quot;.
+  year        the first run of 4 ASCII digits in year, as a number.
+  venue       the first of plain(journal), plain(booktitle), plain(publisher)
+              that is not empty, so journal = {} does not hide a booktitle;
+              absent when all are empty or missing. journal always leaves
+              the fields; booktitle leaves them only when journal was empty;
+              publisher never does.
+  abstract    plain(abstract); empty means absent.
+  doi         with a leading http(s)://doi.org/ or dx.doi.org/ removed
+              (case-insensitive); empty means absent.
+  url, file   as written; an empty value stays &quot;&quot; rather than absent.
+  notes       annote, else note, as written.
+  arxiv       arxivid; else eprint when archiveprefix or eprinttype is
+              &quot;arxiv&quot; (any case); else the id in an arxiv.org/abs|pdf|html/
+              url (matched ignoring case, so a V3 version suffix and .PDF are removed
+              too); else eprint when it
+              starts with NNNN.NNNN. A leading &quot;arXiv:&quot; and a trailing vN are
+              removed. When an arxiv id is found, archiveprefix, eprinttype
+              and primaryclass are removed; otherwise eprint stays in fields.
+  tags        keywords split on &quot;;&quot; or &quot;,&quot;, each plained; empty ones and
+              ones starting with doi: url: arxiv: isbn: issn: pmid: pmc:
+              (any case) or containing http:// or https:// are dropped.
+  fields      every remaining field, raw (collapsed) values.
+&quot;&quot;&quot;
+regenerability = &quot;disposable&quot;
+license = &quot;Proprietary (kausalflow)&quot;
+authors = [&quot;kausalflow/lightkone&quot;]
+
+[entrypoint]
+function = &quot;run&quot;
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 150
+timeout_seconds = 300
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

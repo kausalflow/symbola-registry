@@ -1,0 +1,9 @@
+# Symbolon pack registry
+
+> Spec packs that AI coding agents can build from. Each pack holds a brief, assumptions, obligations and component contracts with tests.
+
+Catalog as JSON: https://kausalflow.github.io/symbolon-registry/index.json
+
+## Packs
+
+- [kausalflow/lightkone](https://kausalflow.github.io/symbolon-registry/packs/kausalflow/lightkone/llms.txt): Lightkone core: search, BibTeX, keys, filing, merge, tidy and the library file · 64 obligations (64 decided, 0 default, 0 open) · 4 assumptions (4 monitored) · 340/340 checks trace to an obligation

@@ -1,0 +1,488 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>obligations.toml · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>obligations.toml</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/obligations.toml">raw</a> </p> <pre># Obligations of the lightkone spec pack (format: docs/PACK_FORMAT.md).
+#
+# Each obligation is one decision a builder could get wrong, with the checks
+# that pin it down. status: decided (required), default (chosen; a fork may
+# change it with a note), open (deliberately undecided; builds may differ).
+# Checks are &quot;&lt;component&gt;#example:&lt;line in examples.jsonl&gt;&quot; or
+# &quot;&lt;component&gt;#&lt;property test name&gt;&quot;.
+#
+# This is a retrofit of the v1 pack, which was written before v0.5. Pruning
+# (dropping obligations that builders get right unprompted) comes with
+# `replicate` in step 4.
+
+# ── search-query ──────────────────────────────────────────────────────────
+
+[[obligation]]
+id = &quot;search.results-from-library&quot;
+statement = &quot;Results are distinct ids of papers in the input library.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_results_are_distinct_papers_from_the_library&quot;]
+
+[[obligation]]
+id = &quot;search.trash&quot;
+statement = &quot;Trashed papers appear only with is:trash, and then only trashed papers appear; an empty trashed field is not trashed.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_trash_shows_only_with_is_trash&quot;, &quot;search-query#example:25&quot;, &quot;search-query#example:61&quot;, &quot;search-query#example:62&quot;]
+
+[[obligation]]
+id = &quot;search.query-tokens&quot;
+statement = &quot;Terms split on whitespace; quotes make one word; an unknown field:value or unmatched quote is an ordinary word.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#example:8&quot;, &quot;search-query#example:9&quot;, &quot;search-query#example:21&quot;, &quot;search-query#example:22&quot;, &quot;search-query#example:23&quot;, &quot;search-query#example:27&quot;]
+
+[[obligation]]
+id = &quot;search.field-edge-cases&quot;
+statement = &quot;A field with nothing after the colon is an ordinary word; an unknown field with a quoted value is one word, quotes included.&quot;
+status = &quot;decided&quot;
+source = &quot;replication&quot;
+checks = [&quot;search-query#example:82&quot;, &quot;search-query#example:83&quot;, &quot;search-query#example:84&quot;]
+
+[[obligation]]
+id = &quot;search.terms-conjunctive&quot;
+statement = &quot;Every filter and every word must hold (except year:, see search.year-last-wins).&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_terms_are_conjunctive&quot;, &quot;search-query#example:7&quot;, &quot;search-query#example:31&quot;, &quot;search-query#example:36&quot;, &quot;search-query#example:47&quot;, &quot;search-query#example:52&quot;, &quot;search-query#example:63&quot;, &quot;search-query#example:71&quot;]
+
+[[obligation]]
+id = &quot;search.folding&quot;
+statement = &quot;Text and query compare after NFKD, removing combining marks, and lower-casing.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_case_and_accents_in_the_query_do_not_matter&quot;, &quot;search-query#example:12&quot;, &quot;search-query#example:13&quot;, &quot;search-query#example:14&quot;, &quot;search-query#example:15&quot;, &quot;search-query#example:16&quot;]
+
+[[obligation]]
+id = &quot;search.word-scoring&quot;
+statement = &quot;A word scores 5 in the title, 4 in authors joined by &#39; ; &#39;, 1 in the rest text; a paper with any zero-scoring word is left out.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_words_rank_title_over_author_over_rest&quot;, &quot;search-query#example:3&quot;, &quot;search-query#example:6&quot;, &quot;search-query#example:10&quot;, &quot;search-query#example:11&quot;, &quot;search-query#example:17&quot;, &quot;search-query#example:18&quot;, &quot;search-query#example:19&quot;, &quot;search-query#example:20&quot;, &quot;search-query#example:24&quot;, &quot;search-query#example:68&quot;, &quot;search-query#example:69&quot;]
+
+[[obligation]]
+id = &quot;search.filter-tag&quot;
+statement = &quot;tag:T matches a whole tag after folding, never a substring.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_each_filter_selects_what_it_says&quot;, &quot;search-query#example:26&quot;, &quot;search-query#example:28&quot;, &quot;search-query#example:29&quot;, &quot;search-query#example:30&quot;, &quot;search-query#example:32&quot;]
+
+[[obligation]]
+id = &quot;search.filter-author&quot;
+statement = &quot;author:A is a substring of the folded authors joined with &#39; ; &#39;.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_each_filter_selects_what_it_says&quot;, &quot;search-query#example:33&quot;, &quot;search-query#example:34&quot;, &quot;search-query#example:35&quot;]
+
+[[obligation]]
+id = &quot;search.filter-year&quot;
+statement = &quot;year:Y is an exact year and year:A-B an inclusive range; a missing year never matches.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_each_filter_selects_what_it_says&quot;, &quot;search-query#example:37&quot;, &quot;search-query#example:38&quot;, &quot;search-query#example:39&quot;]
+
+[[obligation]]
+id = &quot;search.year-last-wins&quot;
+statement = &quot;Only the last year: term that counts applies; a term whose value is not a number does not count.&quot;
+status = &quot;decided&quot;
+source = &quot;replication&quot;
+reason = &quot;The python-1 rebuild read repeated year: filters differently; lightkone keeps one year slot.&quot;
+checks = [&quot;search-query#test_only_the_last_year_filter_counts&quot;, &quot;search-query#example:40&quot;, &quot;search-query#example:41&quot;, &quot;search-query#example:42&quot;]
+
+[[obligation]]
+id = &quot;search.year-malformed&quot;
+statement = &quot;year:A-B parts: A not a number or 0 means the term does not count; B missing, empty, 0 or not a number means A; later parts are ignored. A typo such as year:20l7 filters nothing, by kausalflow&#39;s decision (2026-10-24): forgiving, low stakes.&quot;
+status = &quot;decided&quot;
+source = &quot;replication&quot;
+checks = [&quot;search-query#example:74&quot;, &quot;search-query#example:75&quot;, &quot;search-query#example:76&quot;, &quot;search-query#example:77&quot;, &quot;search-query#example:78&quot;, &quot;search-query#example:79&quot;, &quot;search-query#example:80&quot;, &quot;search-query#example:81&quot;]
+
+[[obligation]]
+id = &quot;search.filter-folder&quot;
+statement = &quot;in:F matches folder F and folders inside it, after folding, ignoring trailing slashes, never by name prefix.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_each_filter_selects_what_it_says&quot;, &quot;search-query#example:43&quot;, &quot;search-query#example:44&quot;, &quot;search-query#example:45&quot;, &quot;search-query#example:46&quot;]
+
+[[obligation]]
+id = &quot;search.filter-has-no&quot;
+statement = &quot;has:/no: test presence of pdf, abstract, arxiv and notes; empty counts as absent; has:pdf also accepts file; unknown values are ignored.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_each_filter_selects_what_it_says&quot;, &quot;search-query#example:48&quot;, &quot;search-query#example:49&quot;, &quot;search-query#example:50&quot;, &quot;search-query#example:51&quot;, &quot;search-query#example:53&quot;, &quot;search-query#example:54&quot;, &quot;search-query#example:55&quot;, &quot;search-query#example:56&quot;]
+
+[[obligation]]
+id = &quot;search.filter-is&quot;
+statement = &quot;is:starred and is:recent select starred and opened papers; unknown is: values are ignored.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_each_filter_selects_what_it_says&quot;, &quot;search-query#example:57&quot;, &quot;search-query#example:64&quot;]
+
+[[obligation]]
+id = &quot;search.default-order&quot;
+statement = &quot;The default sort is newest added first, relevance when there are words, opened with is:recent; ties keep input order, relevance ties fall back to newest added.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_empty_query_lists_the_library_newest_first&quot;, &quot;search-query#example:1&quot;, &quot;search-query#example:2&quot;, &quot;search-query#example:4&quot;, &quot;search-query#example:59&quot;, &quot;search-query#example:67&quot;, &quot;search-query#example:70&quot;]
+assumes = [&quot;K-iso-timestamps&quot;]
+
+[[obligation]]
+id = &quot;search.explicit-sorts&quot;
+statement = &quot;year: later first, missing as 0; opened: latest first, never-opened last; an explicit sort overrides the default.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_year_sort_puts_later_years_first&quot;, &quot;search-query#test_opened_order_and_is_recent&quot;, &quot;search-query#example:5&quot;, &quot;search-query#example:58&quot;, &quot;search-query#example:60&quot;, &quot;search-query#example:65&quot;, &quot;search-query#example:66&quot;]
+assumes = [&quot;K-iso-timestamps&quot;]
+
+[[obligation]]
+id = &quot;search.title-sort-ascii&quot;
+statement = &quot;title: sort is ascending and stable for titles of lowercase ASCII letters, digits and spaces.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;search-query#test_title_sort_is_ascending_and_stable&quot;]
+
+[[obligation]]
+id = &quot;search.title-sort-other&quot;
+statement = &quot;title: sort uses Unicode collation (CLDR root, tertiary), as JavaScript&#39;s localeCompare does: accents and case only break ties. Kept by kausalflow&#39;s decision (2026-10-24); builds need an ICU-grade collator.&quot;
+status = &quot;decided&quot;
+source = &quot;replication&quot;
+checks = [&quot;search-query#example:72&quot;, &quot;search-query#example:73&quot;]
+
+# ── bibtex-import ─────────────────────────────────────────────────────────
+
+[[obligation]]
+id = &quot;import.never-fails&quot;
+statement = &quot;Import never fails: malformed parts are skipped and the rest is read.&quot;
+status = &quot;decided&quot;
+kind = &quot;constraint&quot;
+source = &quot;extract&quot;
+reason = &quot;People import whole .bib files from other managers; one bad entry must not lose the file.&quot;
+checks = [&quot;bibtex-import#test_well_formed_entries_become_drafts&quot;, &quot;bibtex-import#example:24&quot;, &quot;bibtex-import#example:25&quot;, &quot;bibtex-import#example:26&quot;]
+assumes = [&quot;K-bibtex-sources&quot;]
+
+[[obligation]]
+id = &quot;import.entries&quot;
+statement = &quot;@type{key, fields} and @type(key, fields) become drafts; @comment, @preamble and untitled entries do not.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-import#test_entries_without_a_title_are_left_out&quot;, &quot;bibtex-import#test_comments_and_preambles_are_not_entries&quot;, &quot;bibtex-import#example:1&quot;, &quot;bibtex-import#example:2&quot;, &quot;bibtex-import#example:7&quot;, &quot;bibtex-import#example:9&quot;, &quot;bibtex-import#example:10&quot;, &quot;bibtex-import#example:11&quot;, &quot;bibtex-import#example:12&quot;]
+
+[[obligation]]
+id = &quot;import.malformed-field-skip&quot;
+statement = &quot;A field without a name or &#39;=&#39; is skipped to the next comma or the end of the entry, skipping its braced and quoted values whole; the fields after it are read.&quot;
+status = &quot;decided&quot;
+source = &quot;replication&quot;
+reason = &quot;Lost fields after a malformed one were a lightkone bug, fixed in kausalflow/lightkone#50.&quot;
+checks = [&quot;bibtex-import#example:18&quot;, &quot;bibtex-import#example:29&quot;, &quot;bibtex-import#example:30&quot;]
+
+[[obligation]]
+id = &quot;import.values&quot;
+statement = &quot;Values are braced, quoted, numeric or macro parts joined by #; @string and month macros expand; later fields replace earlier ones; whitespace collapses.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-import#test_string_macros_and_concatenation&quot;, &quot;bibtex-import#test_month_macros&quot;, &quot;bibtex-import#test_whitespace_in_values_collapses&quot;, &quot;bibtex-import#test_later_fields_replace_earlier_ones&quot;, &quot;bibtex-import#example:8&quot;, &quot;bibtex-import#example:17&quot;, &quot;bibtex-import#example:21&quot;, &quot;bibtex-import#example:22&quot;]
+
+[[obligation]]
+id = &quot;import.non-ascii-whitespace&quot;
+statement = &quot;Whitespace is JavaScript&#39;s \\s set (incl. no-break space, U+2028, U+3000, BOM), everywhere in import. Kept by kausalflow&#39;s decision (2026-10-24).&quot;
+status = &quot;decided&quot;
+checks = [&quot;bibtex-import#example:31&quot;, &quot;bibtex-import#example:32&quot;, &quot;bibtex-import#example:36&quot;]
+source = &quot;replication&quot;
+assumes = [&quot;K-bibtex-sources&quot;]
+
+[[obligation]]
+id = &quot;import.latex-to-plain&quot;
+statement = &quot;Title, venue, abstract, names and tags go through plain(): LaTeX accents and specials become Unicode, formatting commands unwrap, braces go.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-import#example:3&quot;, &quot;bibtex-import#example:6&quot;, &quot;bibtex-import#example:13&quot;, &quot;bibtex-import#example:14&quot;]
+
+[[obligation]]
+id = &quot;import.authors&quot;
+statement = &quot;Authors split on &#39;and&#39;; First Last flips to Last, First; comma names, &#39;others&#39; and {braced} names are kept; editor stands in only without an author field.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-import#test_braced_names_and_others_are_kept&quot;, &quot;bibtex-import#test_editors_stand_in_for_missing_authors&quot;, &quot;bibtex-import#example:5&quot;, &quot;bibtex-import#example:11&quot;, &quot;bibtex-import#example:19&quot;, &quot;bibtex-import#example:27&quot;]
+
+[[obligation]]
+id = &quot;import.identifiers&quot;
+statement = &quot;doi loses its resolver prefix; arxiv ids come from arxivid, arXiv eprints, arxiv.org URLs or new-style bare eprints, without version.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-import#test_doi_loses_its_resolver_prefix&quot;, &quot;bibtex-import#test_arxiv_ids_are_found&quot;, &quot;bibtex-import#test_other_eprints_stay_in_fields&quot;, &quot;bibtex-import#example:16&quot;, &quot;bibtex-import#example:28&quot;, &quot;bibtex-import#example:33&quot;, &quot;bibtex-import#example:34&quot;]
+
+[[obligation]]
+id = &quot;import.draft-fields&quot;
+statement = &quot;year is the first four digits; venue is journal, else booktitle, else publisher; notes is annote, else note; empty abstract, doi and venue are absent.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-import#example:4&quot;, &quot;bibtex-import#example:20&quot;, &quot;bibtex-import#example:23&quot;, &quot;bibtex-import#example:35&quot;, &quot;bibtex-import#example:37&quot;]
+
+[[obligation]]
+id = &quot;import.venue-empty-journal&quot;
+statement = &quot;The venue is the first of journal, booktitle, publisher that is not empty, so an empty journal does not hide a booktitle. Fixed in lightkone#53; until then an empty journal left the paper without a venue.&quot;
+status = &quot;decided&quot;
+source = &quot;replication&quot;
+checks = [&quot;bibtex-import#example:38&quot;, &quot;bibtex-import#example:39&quot;]
+
+[[obligation]]
+id = &quot;import.tags&quot;
+statement = &quot;keywords split on ; or , into tags, dropping identifiers and URLs.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-import#test_keywords_become_tags_without_identifiers&quot;, &quot;bibtex-import#example:15&quot;]
+
+# ── bibtex-export ─────────────────────────────────────────────────────────
+
+[[obligation]]
+id = &quot;export.byte-exact&quot;
+statement = &quot;Export writes the exact entry lightkone writes: frame, aligned names, field order.&quot;
+status = &quot;decided&quot;
+kind = &quot;constraint&quot;
+source = &quot;extract&quot;
+reason = &quot;library.bib is synced with Overleaf and git; any difference shows up as a spurious diff for every user.&quot;
+checks = [&quot;bibtex-export#test_entry_frame&quot;, &quot;bibtex-export#test_names_are_aligned&quot;, &quot;bibtex-export#test_fields_appear_in_order_when_present&quot;, &quot;bibtex-export#example:1&quot;, &quot;bibtex-export#example:11&quot;, &quot;bibtex-export#example:13&quot;]
+
+[[obligation]]
+id = &quot;export.values&quot;
+statement = &quot;Values are written as given, except that &amp; % # are escaped once in title, venue and abstract.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-export#test_values_are_written_as_given&quot;, &quot;bibtex-export#test_title_venue_and_abstract_are_escaped&quot;, &quot;bibtex-export#example:9&quot;, &quot;bibtex-export#example:14&quot;, &quot;bibtex-export#example:16&quot;, &quot;bibtex-export#example:19&quot;]
+
+[[obligation]]
+id = &quot;export.venue&quot;
+statement = &quot;The venue is written as journal, or booktitle for inproceedings and incollection, unless a non-empty journal field is already there.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-export#example:2&quot;, &quot;bibtex-export#example:3&quot;, &quot;bibtex-export#example:4&quot;, &quot;bibtex-export#example:5&quot;]
+
+[[obligation]]
+id = &quot;export.authors-and-keywords&quot;
+statement = &quot;Authors join with &#39; and &#39;, whole names braced; tags join with &#39;;&#39; as keywords.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-export#test_authors_and_keywords&quot;, &quot;bibtex-export#example:7&quot;, &quot;bibtex-export#example:8&quot;, &quot;bibtex-export#example:18&quot;]
+
+[[obligation]]
+id = &quot;export.empty-values&quot;
+statement = &quot;Empty values are left out, except title and year 0; an empty type becomes misc.&quot;
+status = &quot;decided&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-export#example:6&quot;, &quot;bibtex-export#example:12&quot;, &quot;bibtex-export#example:15&quot;, &quot;bibtex-export#example:17&quot;]
+
+[[obligation]]
+id = &quot;export.no-private-fields&quot;
+statement = &quot;Fields whose names start with lightkone- are private and never written to BibTeX.&quot;
+status = &quot;decided&quot;
+kind = &quot;security&quot;
+source = &quot;extract&quot;
+checks = [&quot;bibtex-export#example:10&quot;]
+
+
+# ── citation-key ──────────────────────────────────────────────────────
+
+[[obligation]]
+id = &quot;keys.format&quot;
+statement = &quot;A new key is surname (NFKD, ASCII letters, Anon if none) + year + &#39;-&#39; + first letters of the first two title words longer than 3 letters.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;citation-key#test_a_key_is_surname_year_and_two_title_letters&quot;, &quot;citation-key#example:1&quot;, &quot;citation-key#example:2&quot;, &quot;citation-key#example:3&quot;, &quot;citation-key#example:10&quot;, &quot;citation-key#example:11&quot;, &quot;citation-key#example:12&quot;, &quot;citation-key#example:13&quot;, &quot;citation-key#example:14&quot;, &quot;citation-key#example:15&quot;, &quot;citation-key#example:16&quot;, &quot;citation-key#example:17&quot;, &quot;citation-key#example:18&quot;]
+
+[[obligation]]
+id = &quot;keys.unique&quot;
+statement = &quot;Keys are unique in the library: a taken key counts up from 2, and keys given earlier in a batch are taken.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;citation-key#test_keys_are_unique_and_never_taken&quot;, &quot;citation-key#test_collisions_count_up_from_two&quot;, &quot;citation-key#test_identical_drafts_in_one_batch_get_distinct_keys&quot;, &quot;citation-key#example:4&quot;, &quot;citation-key#example:5&quot;, &quot;citation-key#example:6&quot;, &quot;citation-key#example:19&quot;]
+
+[[obligation]]
+id = &quot;keys.stable&quot;
+statement = &quot;A key a paper arrives with is kept when it is free, so keys from an imported .bib never change.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;citation-key#test_an_arriving_key_is_kept_when_free&quot;, &quot;citation-key#test_keys_look_like_keys&quot;, &quot;citation-key#example:7&quot;, &quot;citation-key#example:8&quot;, &quot;citation-key#example:9&quot;]
+
+# ── pdf-filing ────────────────────────────────────────────────────────
+
+[[obligation]]
+id = &quot;filing.paperpile-layout&quot;
+statement = &quot;PDFs are filed as papers/All Papers/&lt;SURNAME&gt;/&lt;Who Year - Title&gt;.pdf, Paperpile&#39;s own layout, so a Paperpile folder can be copied in unchanged.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;pdf-filing#test_pdf_is_the_file_under_papers&quot;, &quot;pdf-filing#test_folder_is_the_first_surname_in_capitals&quot;, &quot;pdf-filing#test_same_paper_same_place&quot;, &quot;pdf-filing#example:1&quot;, &quot;pdf-filing#example:2&quot;, &quot;pdf-filing#example:3&quot;, &quot;pdf-filing#example:7&quot;, &quot;pdf-filing#example:8&quot;, &quot;pdf-filing#example:9&quot;, &quot;pdf-filing#example:10&quot;, &quot;pdf-filing#example:16&quot;, &quot;pdf-filing#example:17&quot;]
+
+[[obligation]]
+id = &quot;filing.clean-names&quot;
+statement = &quot;File names hold no characters a file system or Drive rejects; they become &#39; - &#39;, and -- / --- become dashes.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;pdf-filing#test_names_hold_no_forbidden_characters&quot;, &quot;pdf-filing#example:4&quot;, &quot;pdf-filing#example:5&quot;, &quot;pdf-filing#example:6&quot;, &quot;pdf-filing#example:18&quot;, &quot;pdf-filing#example:19&quot;]
+
+[[obligation]]
+id = &quot;filing.length&quot;
+statement = &quot;Long author lists and names are shortened the way Paperpile shortens them.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;pdf-filing#test_long_names_are_shortened_around_an_ellipsis&quot;, &quot;pdf-filing#example:11&quot;, &quot;pdf-filing#example:12&quot;]
+
+[[obligation]]
+id = &quot;filing.no-overwrite&quot;
+statement = &quot;A new PDF never takes a name another paper uses; it gets (2), (3), ...&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;pdf-filing#test_taken_names_count_up_and_own_pdf_is_ignored&quot;, &quot;pdf-filing#example:13&quot;, &quot;pdf-filing#example:14&quot;, &quot;pdf-filing#example:15&quot;]
+
+# ── library-merge ─────────────────────────────────────────────────────
+
+[[obligation]]
+id = &quot;merge.no-lost-edits&quot;
+statement = &quot;A save never silently drops a change made elsewhere: one-sided changes are taken, different fields of one paper both survive.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-merge#test_nothing_changed_merges_to_itself&quot;, &quot;library-merge#test_changes_made_only_elsewhere_are_taken_whole&quot;, &quot;library-merge#test_changes_made_only_here_are_kept&quot;, &quot;library-merge#test_edits_to_different_fields_both_survive&quot;, &quot;library-merge#example:1&quot;, &quot;library-merge#example:2&quot;, &quot;library-merge#example:3&quot;, &quot;library-merge#example:4&quot;, &quot;library-merge#example:9&quot;]
+
+[[obligation]]
+id = &quot;merge.conflict-ours&quot;
+statement = &quot;When both sides change the same field differently, this device&#39;s edit wins.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-merge#test_the_same_field_changed_both_ways_keeps_ours&quot;, &quot;library-merge#example:5&quot;, &quot;library-merge#example:20&quot;]
+
+[[obligation]]
+id = &quot;merge.sets&quot;
+statement = &quot;tags and folders merge as sets: additions from either side are kept, removals from either side stick.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-merge#test_tags_merge_as_sets&quot;, &quot;library-merge#example:6&quot;, &quot;library-merge#example:7&quot;, &quot;library-merge#example:8&quot;, &quot;library-merge#example:21&quot;]
+
+[[obligation]]
+id = &quot;merge.deletes&quot;
+statement = &quot;A paper deleted on one side and unchanged on the other is gone; changed on the other, it survives.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-merge#test_a_paper_deleted_here_but_changed_there_survives&quot;, &quot;library-merge#example:10&quot;, &quot;library-merge#example:11&quot;, &quot;library-merge#example:12&quot;, &quot;library-merge#example:13&quot;, &quot;library-merge#example:14&quot;]
+
+[[obligation]]
+id = &quot;merge.order-and-count&quot;
+statement = &quot;Their order first, then papers only here; fromThem counts papers that took a change made elsewhere.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-merge#test_without_a_base_every_paper_is_kept_and_ours_wins&quot;, &quot;library-merge#example:15&quot;, &quot;library-merge#example:16&quot;, &quot;library-merge#example:17&quot;]
+
+[[obligation]]
+id = &quot;merge.bibsync&quot;
+statement = &quot;bibSync takes theirs unless changed here, and is written only when non-empty.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-merge#example:18&quot;, &quot;library-merge#example:19&quot;]
+
+# ── tidy ──────────────────────────────────────────────────────────────
+
+[[obligation]]
+id = &quot;tidy.match&quot;
+statement = &quot;Duplicates share a DOI, an arXiv id, a long title, or a short title and first author, after normalising; chains join.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;tidy#test_groups_are_exactly_the_papers_that_share_a_key&quot;, &quot;tidy#example:1&quot;, &quot;tidy#example:2&quot;, &quot;tidy#example:3&quot;, &quot;tidy#example:4&quot;, &quot;tidy#example:5&quot;, &quot;tidy#example:6&quot;, &quot;tidy#example:7&quot;, &quot;tidy#example:8&quot;, &quot;tidy#example:18&quot;, &quot;tidy#example:19&quot;, &quot;tidy#example:20&quot;, &quot;tidy#example:21&quot;]
+
+[[obligation]]
+id = &quot;tidy.trash-ignored&quot;
+statement = &quot;Papers in the trash are never grouped.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;tidy#test_trash_is_never_grouped&quot;, &quot;tidy#example:9&quot;]
+
+[[obligation]]
+id = &quot;tidy.keeper&quot;
+statement = &quot;The kept paper is the one with a PDF, then notes, then the oldest.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;tidy#test_the_keeper_has_a_pdf_then_notes_then_is_oldest&quot;, &quot;tidy#example:11&quot;, &quot;tidy#example:12&quot;, &quot;tidy#example:13&quot;, &quot;tidy#example:14&quot;]
+
+[[obligation]]
+id = &quot;tidy.nothing-lost&quot;
+statement = &quot;Merging keeps every tag, folder, note and star, and fills the keeper&#39;s missing fields from the others.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;tidy#test_the_keeper_gains_what_the_others_have&quot;, &quot;tidy#test_fields_prefer_the_keeper_then_earlier_papers&quot;, &quot;tidy#example:15&quot;, &quot;tidy#example:16&quot;, &quot;tidy#example:17&quot;]
+
+[[obligation]]
+id = &quot;tidy.blank-ids-ignored&quot;
+statement = &quot;A DOI or arXiv id that is empty once trimmed and stripped of its prefix gives no match key, so blank ones never make papers duplicates. Fixed in lightkone#52; until then whitespace-only DOIs matched each other.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;tidy#example:10&quot;, &quot;tidy#example:22&quot;, &quot;tidy#example:23&quot;, &quot;tidy#test_groups_are_exactly_the_papers_that_share_a_key&quot;]
+
+[[obligation]]
+id = &quot;file.refuse-foreign&quot;
+statement = &quot;A file that is not a lightkone library (not JSON, wrong format, no papers list, a paper that is not an object) is refused with an error and nothing is written.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#test_anything_else_is_refused&quot;, &quot;library-file#example:25&quot;, &quot;library-file#example:26&quot;, &quot;library-file#example:27&quot;, &quot;library-file#example:28&quot;, &quot;library-file#example:29&quot;, &quot;library-file#example:30&quot;, &quot;library-file#example:31&quot;, &quot;library-file#example:32&quot;, &quot;library-file#example:33&quot;, &quot;library-file#example:34&quot;, &quot;library-file#example:35&quot;, &quot;library-file#example:36&quot;, &quot;library-file#example:37&quot;, &quot;library-file#example:38&quot;, &quot;library-file#example:39&quot;]
+
+[[obligation]]
+id = &quot;file.keeps-papers&quot;
+statement = &quot;Opening and saving keeps every paper and every key of every paper, in order, plus bibSync when it has entries.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#test_saved_file_keeps_exactly_the_library&quot;, &quot;library-file#example:1&quot;, &quot;library-file#example:3&quot;, &quot;library-file#example:7&quot;, &quot;library-file#example:23&quot;]
+
+[[obligation]]
+id = &quot;file.keeps-unknown-keys&quot;
+statement = &quot;Top-level keys other than format, version, papers and bibSync are kept on save, after lightkone&#39;s own, in the file&#39;s order, so another tool&#39;s data at the top level survives. Fixed in lightkone#51; until then they were dropped.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#example:3&quot;, &quot;library-file#example:40&quot;, &quot;library-file#example:41&quot;, &quot;library-file#example:42&quot;, &quot;library-file#test_saved_file_keeps_exactly_the_library&quot;]
+
+[[obligation]]
+id = &quot;file.newer-version-refused&quot;
+statement = &quot;A library.json whose version is a number above 1 was saved by a newer lightkone and is refused, writing nothing; any other version, or none, is read and saved as 1. Fixed in lightkone#53; until then a newer file was read as version 1 and could lose data on save.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#example:8&quot;, &quot;library-file#example:50&quot;, &quot;library-file#example:51&quot;, &quot;library-file#example:52&quot;, &quot;library-file#example:53&quot;, &quot;library-file#example:54&quot;, &quot;library-file#test_anything_else_is_refused&quot;]
+
+[[obligation]]
+id = &quot;file.folders&quot;
+statement = &quot;Papers without folders take them once from Paperpile&#39;s Drive paths, skipping All Papers, author folders and Other.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#test_papers_gain_folders_from_paperpile_paths&quot;, &quot;library-file#example:1&quot;, &quot;library-file#example:10&quot;, &quot;library-file#example:11&quot;, &quot;library-file#example:13&quot;, &quot;library-file#example:14&quot;, &quot;library-file#example:15&quot;, &quot;library-file#example:16&quot;, &quot;library-file#example:17&quot;]
+
+[[obligation]]
+id = &quot;file.folders-author-only&quot;
+statement = &quot;A single directory is skipped as an author folder only when it is Other or one of the paper&#39;s authors&#39; surnames in capitals, so a user&#39;s own ML or 2019 folder is kept. With no authors to compare, a directory in capitals with a letter is still skipped. Fixed in lightkone#52; until then every single directory in capitals was skipped.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#example:12&quot;, &quot;library-file#example:46&quot;, &quot;library-file#example:47&quot;, &quot;library-file#example:48&quot;, &quot;library-file#example:49&quot;, &quot;library-file#test_papers_gain_folders_from_paperpile_paths&quot;]
+
+[[obligation]]
+id = &quot;file.exact-text&quot;
+statement = &quot;library.json is written byte for byte as lightkone writes it: JSON with a one-space indent, JavaScript&#39;s key order, escaping and number printing.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#test_layout_is_one_space_indented_json&quot;, &quot;library-file#example:4&quot;, &quot;library-file#example:9&quot;, &quot;library-file#example:18&quot;, &quot;library-file#example:19&quot;, &quot;library-file#example:20&quot;, &quot;library-file#example:24&quot;]
+
+[[obligation]]
+id = &quot;file.no-needless-write&quot;
+statement = &quot;Nothing is written when the file would not change, so opening a library on several devices does not cause sync churn.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#test_writes_only_when_the_text_changes&quot;, &quot;library-file#test_saving_again_writes_nothing&quot;, &quot;library-file#example:2&quot;, &quot;library-file#example:5&quot;, &quot;library-file#example:6&quot;]
+
+[[obligation]]
+id = &quot;file.bib-alongside&quot;
+statement = &quot;library.bib is written with every save: the BibTeX entry of each paper not in the trash, in library order.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#test_bib_has_one_entry_per_live_paper_in_order&quot;, &quot;library-file#example:21&quot;]
+
+[[obligation]]
+id = &quot;file.bib-leaves-out-trash&quot;
+statement = &quot;Papers in the trash are left out of library.bib, so Overleaf does not see deleted papers. A paper is in the trash when its trashed value is true in JavaScript. Fixed in lightkone#51; until then they were written.&quot;
+status = &quot;decided&quot;
+source = &quot;oracle&quot;
+checks = [&quot;library-file#example:22&quot;, &quot;library-file#example:43&quot;, &quot;library-file#example:44&quot;, &quot;library-file#example:45&quot;, &quot;library-file#test_bib_has_one_entry_per_live_paper_in_order&quot;]
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

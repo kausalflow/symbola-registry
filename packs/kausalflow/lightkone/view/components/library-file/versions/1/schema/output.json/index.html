@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/library-file/versions/1/schema/output.json · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/library-file/versions/1/schema/output.json</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/library-file/versions/1/schema/output.json">raw</a> </p> <pre>{
+  &quot;additionalProperties&quot;: false,
+  &quot;properties&quot;: {
+    &quot;bib&quot;: {
+      &quot;anyOf&quot;: [
+        {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        {
+          &quot;type&quot;: &quot;null&quot;
+        }
+      ],
+      &quot;description&quot;: &quot;The library.bib written with it; null when nothing is written.&quot;,
+      &quot;title&quot;: &quot;Bib&quot;
+    },
+    &quot;foldered&quot;: {
+      &quot;description&quot;: &quot;How many papers took their folders from Paperpile&#39;s file paths.&quot;,
+      &quot;minimum&quot;: 0,
+      &quot;title&quot;: &quot;Foldered&quot;,
+      &quot;type&quot;: &quot;integer&quot;
+    },
+    &quot;library&quot;: {
+      &quot;description&quot;: &quot;The text of library.json after the save.&quot;,
+      &quot;title&quot;: &quot;Library&quot;,
+      &quot;type&quot;: &quot;string&quot;
+    },
+    &quot;written&quot;: {
+      &quot;description&quot;: &quot;Whether saving writes anything: false when library.json would not change.&quot;,
+      &quot;title&quot;: &quot;Written&quot;,
+      &quot;type&quot;: &quot;boolean&quot;
+    }
+  },
+  &quot;required&quot;: [
+    &quot;written&quot;,
+    &quot;library&quot;,
+    &quot;bib&quot;,
+    &quot;foldered&quot;
+  ],
+  &quot;title&quot;: &quot;Output&quot;,
+  &quot;type&quot;: &quot;object&quot;
+}
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

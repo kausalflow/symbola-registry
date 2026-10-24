@@ -1,0 +1,57 @@
+[contract]
+id = "lightkone/library-merge"
+version = 1
+title = "Merge two edited copies of a lightkone library"
+description = """
+Before lightkone writes library.json it reads it again. If another device, or
+Claude through MCP, saved in the meantime, the two versions are merged
+against the version both started from, paper by paper and field by field,
+instead of the later save silently winning. Only when both sides changed the
+same field differently does this device's edit win.
+
+Inputs: base (what this device last read or wrote; null if none), ours (what
+this device holds now), theirs (what is in storage now).
+
+Equality is by value: two papers are the same when they have the same
+fields with equal values, in any key order.
+
+Per paper id, with b, o, t its version in base, ours and theirs:
+  no b:            o if present, else t
+  b, no o:         t if t is present and differs from b, else dropped
+  b, no t:         dropped if o equals b, else o
+  o equals b:      t
+  t equals b:      o
+  otherwise        a field-by-field merge of b, o and t:
+    tags, folders  (when o or t has the list) kept as sets: every item in o,
+                   then every item in t not already listed, minus any item of
+                   b that o or t removed
+    other fields   t's value if o's equals b's, else o's; a field absent from
+                   the chosen side is absent
+Order: theirs' ids in theirs' order, then ids only in ours, in ours' order.
+Ids only in base are gone.
+
+fromThem counts the ids in that order whose result (a paper, or nothing)
+differs from ours' version (a paper, or nothing).
+
+bibSync: theirs' list if ours' equals base's (a missing list counts as
+empty), else ours'. It is written only when non-empty.
+
+The result is a library file: format "lightkone-library", version 1.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

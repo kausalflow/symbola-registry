@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/library-file/versions/1/symbolon.toml · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/library-file/versions/1/symbolon.toml</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/library-file/versions/1/symbolon.toml">raw</a> </p> <pre>[contract]
+id = &quot;lightkone/library-file&quot;
+version = 1
+title = &quot;Read and rewrite lightkone&#39;s library.json&quot;
+description = &quot;&quot;&quot;
+lightkone/library.json is the library: lightkone&#39;s own data, and what other
+devices, Claude through MCP, and anyone&#39;s scripts read and write. This
+contract fixes what lightkone does when it opens that file and saves it
+again with nothing else changed (Library.load, then Library.save): which
+files it accepts, what it adds, and the exact text it writes.
+
+Input: the file&#39;s text. Output:
+  written    whether the save writes anything
+  library    library.json&#39;s text after the save
+  bib        lightkone/library.bib, written alongside; null when not written
+  foldered   how many papers took their folders from Paperpile paths
+
+Accepting a file. Raise ValueError, writing nothing, when the text is not
+JSON, is not an object whose &quot;format&quot; is &quot;lightkone-library&quot;, has no
+&quot;papers&quot; list, or a paper is not an object. Also raise ValueError when
+&quot;version&quot; is a number above 1: the file was saved by a newer lightkone,
+which may store things this one would drop. Any other version, or none, is
+read as 1.
+
+Folders. Each paper with no &quot;folders&quot; key gets one, from its &quot;file&quot; (a
+Paperpile Drive path, or several separated by &quot;;&quot;): for each path, trimmed,
+skipping empty ones, take its directories (every segment but the last); drop
+a leading &quot;All Papers&quot;; skip it when nothing is left, or when a single
+directory is left that is an author folder. Join the rest with &quot;/&quot;. Keep the
+first of any repeats, in order. A paper with no file gets []. foldered
+counts the papers that gained a non-empty list. A paper that already has
+&quot;folders&quot;, even [], keeps it.
+
+Author folders. Paperpile files a PDF under its first author&#39;s surname in
+capitals, as lightkone/pdf-filing names the folder; any of the paper&#39;s
+authors counts, since the author list may have changed since. Let N be the
+set of clean(surname(a)) upper-cased, for each author a, leaving out empty
+ones (clean and surname as lightkone/pdf-filing defines them; upper-casing
+is JavaScript&#39;s toUpperCase, so &quot;ß&quot; becomes &quot;SS&quot;). A directory is an author
+folder when it is &quot;Other&quot; or is in N. When N is empty there is nothing to
+compare, and a directory is an author folder when upper-casing leaves it
+unchanged and lower-casing changes it (&quot;HINTON&quot;, but not &quot;2019&quot;). So a
+user&#39;s own &quot;ML&quot; folder is kept unless an author is called Ml.
+
+Writing. The saved file holds format &quot;lightkone-library&quot;, version 1, papers,
+and bibSync when it is a non-empty list, then every other top-level key of
+the input with its value as read, in the input&#39;s order: lightkone keeps
+other tools&#39; data. written is false only when that text equals the input exactly; then
+nothing is written and library is the input.
+
+The text is JavaScript&#39;s JSON.stringify with an indent of one space:
+  - objects and arrays one entry per line, indented one more space per
+    level; &quot;: &quot; after a key; empty ones written {} and []
+  - an object&#39;s keys keep their order, except keys that are array indices
+    (&quot;0&quot;, &quot;7&quot;, &quot;10&quot;; no sign, no leading zero, below 4294967295) come first,
+    in numeric order. A gained &quot;folders&quot; key comes after the existing ones.
+  - strings escape &quot; \\ and control characters below U+0020 (\\b \\f \\n
+    \\r \\t, others \\u00xx in lower-case hex); nothing else is escaped
+  - numbers as JavaScript prints them: integral values below 1e21 as plain
+    integers (2017.0 is 2017, -0 is 0, 1e16 is 10000000000000000); others in
+    the shortest form that reads back the same, with an exponent written
+    e+21 or e-7 for magnitudes from 1e21 up or below 1e-6
+  - no newline at the end
+
+library.bib: each paper not in the trash, as lightkone/bibtex-export writes
+it (its fields in the order library.json lists them), joined by &quot;\\n&quot;. A
+paper is in the trash when its &quot;trashed&quot; value is true in JavaScript: any
+value but a missing key, false, 0 and &quot;&quot; ([] and {} are in the trash,
+and so is &quot;0&quot;). No papers left gives &quot;&quot;.
+&quot;&quot;&quot;
+regenerability = &quot;disposable&quot;
+license = &quot;Proprietary (kausalflow)&quot;
+authors = [&quot;kausalflow/lightkone&quot;]
+
+[entrypoint]
+function = &quot;run&quot;
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

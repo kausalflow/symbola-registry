@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AGENTS.md · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>AGENTS.md</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/AGENTS.md">raw</a> </p> <div><h1>AGENTS.md</h1>
+<p>This is a Symbolon spec pack for lightkone&#39;s core components. Build from it;
+do not look for lightkone&#39;s source.</p>
+<ol>
+<li>Read <code>BRIEF.md</code>: what the product is, its non-goals and priorities.</li>
+<li>Read <code>assumptions/</code>: what you may take as true about the world. Don&#39;t build for cases they rule out.</li>
+<li>Read <code>obligations.toml</code>: the decisions you must keep. Obligations marked <code>open</code> are yours to choose.</li>
+<li>Each component&#39;s full specification is <code>components/&lt;name&gt;/versions/1/</code>: <code>symbolon.toml</code>
+(the description), <code>schema.py</code>, <code>examples.jsonl</code> and <code>properties.py</code>. Where the
+description and an example seem to disagree, the example is what lightkone does.</li>
+</ol>
+<p><strong>Harness.</strong> An implementation is a directory with <code>symbolon-impl.toml</code>
+(<code>symbolon impl-init &lt;dir&gt; --contract components/&lt;name&gt;/versions/1</code>). In Python, define
+<code>run(input)</code> returning the contract&#39;s output; in any other language, a program
+that reads one JSON input per line on stdin and writes <code>{&quot;output&quot;: ...}</code> per
+line (<code>docs/ATTESTATION.md</code>, &quot;Implementations in other languages&quot;).</p>
+<p><strong>Done</strong> means <code>symbolon attest components/&lt;name&gt;/versions/1 &lt;impl-dir&gt;</code> reports PASSED
+for every component. Don&#39;t special-case the examples: the properties generate
+other inputs, and the publisher keeps a holdout. Write questions about unclear
+parts, and the reading you chose, in <code>NOTES.md</code> next to your build.</p>
+<p><strong>If the spec contradicts itself</strong> (an example disagrees with the description or
+with a property), don&#39;t code around it. Run
+<code>symbolon flag &lt;component&gt;#example:&lt;line&gt; &quot;&lt;what disagrees, and the reading you chose&gt;&quot; --dir &lt;impl-dir&gt;</code>,
+build the reading you think is right, and carry on. A flagged contradiction counts
+in your favour; matching an example the spec rules out does not.</p>
+</div><p style="margin-bottom: 48px"></p>  </main> </body></html>

@@ -1,0 +1,18 @@
+# Spec pack manifest. Pack tooling (symbolon pack validate/pull) comes later;
+# for now this records which contract versions make up the pack.
+[pack]
+id = "kausalflow/lightkone"
+version = 1
+title = "Lightkone core: search, BibTeX, keys, filing, merge, tidy and the library file"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow"]
+
+[components]
+"lightkone/search-query@1" = "sha256:3ee30369355a97d18b46e5c729a157c29c15834655f7dc1033c0404d2c714b46"
+"lightkone/bibtex-import@1" = "sha256:549f518845ebd601650bf502cd18bb372368a3fea4e44510d2e67a53ba8ee88a"
+"lightkone/bibtex-export@1" = "sha256:b2be7e43a14a1cdf9f5f65dcef181d159fe2afb95859dd1c6c836a6a89c3b97c"
+"lightkone/citation-key@1" = "sha256:69041cb4a2e57a7ab161892db71ac21b103afb7e9187624207c66bbac1e5db94"
+"lightkone/pdf-filing@1" = "sha256:583b0fa4549f4b8e1a6f6818a2d32d7f4062114e1cd74eba18c5f24786b5fff9"
+"lightkone/library-merge@1" = "sha256:70141d55339b28b0dd81d1b37e1426f04e8d1de9d0380cb90766666b7a8ed89b"
+"lightkone/tidy@1" = "sha256:b7513bd79d1c0b85eec6ff719f16f92dc9c4ec641b01fb6ab9a76fc7403f6e96"
+"lightkone/library-file@1" = "sha256:c51dba7de999b5fbcaee57007e3b55aea18ea538bc28e898f0f92c12696b1b51"

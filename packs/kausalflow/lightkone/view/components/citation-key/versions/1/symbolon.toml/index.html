@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/citation-key/versions/1/symbolon.toml · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/citation-key/versions/1/symbolon.toml</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/citation-key/versions/1/symbolon.toml">raw</a> </p> <pre>[contract]
+id = &quot;lightkone/citation-key&quot;
+version = 1
+title = &quot;Give new papers lightkone&#39;s citation keys&quot;
+description = &quot;&quot;&quot;
+Gives each new paper a BibTeX citation key the way lightkone does when papers
+are added, in Paperpile&#39;s style: Hinton2012-ip. Keys are unique within the
+library, and a key, once given, never changes, so LaTeX documents keep
+working.
+
+Drafts are handled in order. Each key given is taken for the drafts after it.
+
+  1. A draft that already has a key (non-empty) that is not taken keeps it.
+  2. Otherwise the key is BASE-SUFFIX:
+     BASE    the first author&#39;s surname (the part before the first comma),
+             decomposed with Unicode NFKD, keeping only the ASCII letters
+             A-Z and a-z; &quot;Anon&quot; when there is no first author or nothing is
+             left. Its first letter is upper-cased, the rest kept as is.
+             Then the year, if the draft has one.
+     SUFFIX  the title lower-cased, with every character other than a-z and
+             space removed (so accented letters disappear, they are not
+             decomposed), split on single spaces, keeping words longer than
+             3 letters. SUFFIX is the first letter of the first such word and
+             the first letter of the second, or of the first again when there
+             is only one. With none, &quot;xx&quot;.
+  3. If BASE-SUFFIX is taken, try BASE-SUFFIX2, BASE-SUFFIX3, ... and use the
+     first that is free.
+&quot;&quot;&quot;
+regenerability = &quot;disposable&quot;
+license = &quot;Proprietary (kausalflow)&quot;
+authors = [&quot;kausalflow/lightkone&quot;]
+
+[entrypoint]
+function = &quot;run&quot;
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>components/tidy/versions/1/properties.py · kausalflow/lightkone</title><meta name="description" content="Spec packs that AI coding agents can build from."><link rel="alternate" type="text/plain" title="llms.txt" href="/symbolon-registry/llms.txt"><style>:root{--bg: #fbfbf9;--fg: #1c1c1a;--muted: #6a6a64;--line: #e3e3dd;--card: #ffffff;--accent: #3456c4;--decided: #2f7d4f;--default: #9a6a12;--open: #6a6a64;--pagefind-ui-scale: .85;--pagefind-ui-primary: var(--accent);--pagefind-ui-text: var(--fg);--pagefind-ui-background: var(--card);--pagefind-ui-border: var(--line)}@media(prefers-color-scheme:dark){:root{--bg: #151614;--fg: #e8e8e3;--muted: #9a9a92;--line: #2e2f2b;--card: #1d1e1b;--accent: #8aa4ff;--decided: #6cc08f;--default: #d9a94a;--open: #9a9a92}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent)}main,header{max-width:980px;margin:0 auto;padding:0 16px}header{display:flex;gap:16px;align-items:baseline;padding-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}header .brand{font-weight:650;text-decoration:none;color:var(--fg)}header nav{margin-left:auto;display:flex;gap:14px;font-size:14px}h1{font-size:28px;line-height:1.25;margin:28px 0 8px}h2{font-size:20px;margin:32px 0 10px}.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor}.decided{color:var(--decided)}.default{color:var(--default)}.open{color:var(--open)}.brief h1{font-size:22px;margin-top:8px}.brief h2{font-size:18px}.brief h3{font-size:16px}.wrap{overflow-wrap:anywhere}
+</style></head> <body> <header> <a class="brand" href="/symbolon-registry/">Symbolon packs</a> <nav> <a href="/symbolon-registry/index.json">index.json</a> <a href="/symbolon-registry/llms.txt">llms.txt</a> <a href="https://kausalflow.github.io/symbolon/REGISTRY/">How it works</a> </nav> </header> <main>  <p style="margin-top: 24px" class="wrap"> <a href="/symbolon-registry/packs/kausalflow/lightkone/">kausalflow/lightkone</a> / <code>components/tidy/versions/1/properties.py</code>
+· <a href="/symbolon-registry/packs/kausalflow/lightkone/files/components/tidy/versions/1/properties.py">raw</a> </p> <pre>&quot;&quot;&quot;Behavioral properties for lightkone/tidy.
+
+Generated libraries reuse a small pool of DOIs, arXiv ids, titles and authors
+written in different ways, so duplicates appear by every route: same DOI,
+same arXiv id, same long title, same short title and first author, and
+chains of these.
+&quot;&quot;&quot;
+
+import re
+import unicodedata
+
+from hypothesis import given, strategies as st
+
+from schema import Input, Paper
+
+DOIS = [&quot;10.1000/ABC&quot;, &quot;https://doi.org/10.1000/abc&quot;, &quot; 10.1000/abc &quot;, &quot;10.2000/xyz&quot;, &quot;http://dx.doi.org/10.2000/XYZ&quot;, &quot;doi.org/10.2000/xyz&quot;, &quot; &quot;, &quot;  &quot;, &quot;https://doi.org/&quot;]
+ARXIV = [&quot;1207.0580&quot;, &quot;arXiv:1207.0580v2&quot;, &quot;1706.03762&quot;, &quot;ARXIV:1706.03762V1&quot;, &quot;1706.03762v3&quot;, &quot; &quot;, &quot;\t&quot;]
+TITLES = [&quot;Improving neural networks by preventing co-adaptation&quot;, &quot;Improving Neural Networks by Preventing Co-Adaptation!&quot;,
+          &quot;Attention is all you need&quot;, &quot;Attention Is All You Need&quot;, &quot;Über Sätze&quot;, &quot;Uber Satze&quot;, &quot;Deep learning&quot;, &quot;Nets&quot;, &quot;A&quot;]
+AUTHORS = [&quot;Hinton, Geoffrey&quot;, &quot;Vaswani, Ashish&quot;, &quot;Gödel, Kurt&quot;, &quot;Godel, K.&quot;, &quot;LeCun, Yann&quot;]
+TIMES = [f&quot;2024-0{m}-0{d}T10:00:00.000Z&quot; for m in (1, 2) for d in (1, 2, 3)]
+
+
+def opt(s):
+    return st.none() | s
+
+
+@st.composite
+def library(draw, max_size=7):
+    n = draw(st.integers(0, max_size))
+    return [Paper(
+        id=f&quot;p{i}&quot;,
+        title=draw(st.sampled_from(TITLES)),
+        authors=draw(st.lists(st.sampled_from(AUTHORS), max_size=2)),
+        added=draw(st.sampled_from(TIMES)),
+        tags=draw(st.lists(st.sampled_from([&quot;ml&quot;, &quot;to read&quot;, &quot;classics&quot;]), unique=True, max_size=2)),
+        folders=draw(opt(st.lists(st.sampled_from([&quot;ML&quot;, &quot;Physics&quot;]), unique=True, max_size=2))),
+        doi=draw(opt(st.sampled_from(DOIS))),
+        arxiv=draw(opt(st.sampled_from(ARXIV))),
+        pdf=draw(opt(st.sampled_from([&quot;&quot;, &quot;papers/a.pdf&quot;, &quot;papers/b.pdf&quot;]))),
+        notes=draw(opt(st.sampled_from([&quot;&quot;, &quot; read &quot;, &quot;read&quot;, &quot;check eq. 3&quot;]))),
+        starred=draw(opt(st.booleans())),
+        venue=draw(opt(st.sampled_from([&quot;&quot;, &quot;NeurIPS&quot;]))),
+        year=draw(opt(st.integers(2010, 2020))),
+        trashed=draw(opt(st.sampled_from([&quot;&quot;, &quot;2024-06-01T00:00:00.000Z&quot;]))),
+        fields=draw(st.dictionaries(st.sampled_from([&quot;pages&quot;, &quot;volume&quot;]), st.sampled_from([&quot;1&quot;, &quot;2&quot;]), max_size=2)),
+    ) for i in range(n)]
+
+
+def norm_doi(d):
+    d = re.sub(r&quot;^https?://(dx\.)?doi\.org/&quot;, &quot;&quot;, d.strip().lower())
+    return d
+
+
+def norm_arxiv(a):
+    a = re.sub(r&quot;v\d+$&quot;, &quot;&quot;, re.sub(r&quot;^arxiv:&quot;, &quot;&quot;, a.strip().lower()))
+    return a
+
+
+def keys(p: Paper) -&gt; list[str]:
+    out = []
+    if p.doi and norm_doi(p.doi):
+        out.append(&quot;doi:&quot; + norm_doi(p.doi))
+    if p.arxiv and norm_arxiv(p.arxiv):
+        out.append(&quot;arxiv:&quot; + norm_arxiv(p.arxiv))
+    t = re.sub(r&quot;[^a-z0-9]+&quot;, &quot;&quot;, unicodedata.normalize(&quot;NFKD&quot;, p.title).lower())
+    if len(t) &gt; 20:
+        out.append(&quot;title:&quot; + t)
+    elif len(t) &gt; 3:
+        first = (p.authors[0] if p.authors else &quot;&quot;).split(&quot;,&quot;)[0]
+        out.append(f&quot;title:{t}:&quot; + re.sub(r&quot;[^a-z]&quot;, &quot;&quot;, unicodedata.normalize(&quot;NFKD&quot;, first).lower()))
+    return out
+
+
+def expected_groups(papers):
+    live = [p for p in papers if not p.trashed]
+    group = {p.id: {p.id} for p in live}
+    owner = {}
+    for p in live:
+        for k in keys(p):
+            if k in owner and group[owner[k]] is not group[p.id]:
+                merged = group[owner[k]] | group[p.id]
+                for i in merged:
+                    group[i] = merged
+            owner.setdefault(k, p.id)
+    seen, out = set(), []
+    for p in live:
+        g = frozenset(group[p.id])
+        if len(g) &gt; 1 and g not in seen:
+            seen.add(g)
+            out.append([q.id for q in live if q.id in g])
+    return out
+
+
+def tidy(impl, papers):
+    return impl(Input(papers=papers)).groups
+
+
+@given(papers=library())
+def test_groups_are_exactly_the_papers_that_share_a_key(impl, papers):
+    assert [g.ids for g in tidy(impl, papers)] == expected_groups(papers)
+
+
+@given(papers=library())
+def test_the_keeper_has_a_pdf_then_notes_then_is_oldest(impl, papers):
+    by_id = {p.id: p for p in papers}
+    for g in tidy(impl, papers):
+        group = [by_id[i] for i in g.ids]
+        best = min(group, key=lambda p: (not p.pdf, not p.notes, p.added, g.ids.index(p.id)))
+        assert g.keep == best.id
+
+
+@given(papers=library())
+def test_the_keeper_gains_what_the_others_have(impl, papers):
+    by_id = {p.id: p for p in papers}
+    for g in tidy(impl, papers):
+        keep = by_id[g.keep]
+        others = [by_id[i] for i in g.ids if i != g.keep]
+        everyone = [keep, *others]
+        assert g.patch.tags == list(dict.fromkeys(t for p in everyone for t in p.tags))
+        assert g.patch.folders == list(dict.fromkeys(f for p in everyone for f in p.folders or []))
+        notes = list(dict.fromkeys(n.strip() for p in everyone if p.notes and p.notes.strip() for n in [p.notes]))
+        assert g.patch.notes == (&quot;\n\n&quot;.join(notes) or None)
+        assert g.patch.starred == (True if any(p.starred for p in everyone) else None)
+        assert g.patch.added == min(p.added for p in everyone)
+        for k in (&quot;venue&quot;, &quot;year&quot;, &quot;pdf&quot;, &quot;doi&quot;, &quot;arxiv&quot;):
+            want = None if getattr(keep, k) else next((getattr(p, k) for p in others if getattr(p, k)), None)
+            assert getattr(g.patch, k) == want, k
+
+
+@given(papers=library())
+def test_fields_prefer_the_keeper_then_earlier_papers(impl, papers):
+    by_id = {p.id: p for p in papers}
+    for g in tidy(impl, papers):
+        order = [by_id[g.keep]] + [by_id[i] for i in g.ids if i != g.keep]
+        want = {}
+        for p in reversed(order):
+            want.update(p.fields)
+        assert g.patch.fields == want
+
+
+@given(papers=library())
+def test_trash_is_never_grouped(impl, papers):
+    trashed = {p.id for p in papers if p.trashed}
+    assert not trashed &amp; {i for g in tidy(impl, papers) for i in g.ids}
+</pre><p style="margin-bottom: 48px"></p>  </main> </body></html>

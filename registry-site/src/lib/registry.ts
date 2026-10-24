@@ -24,10 +24,24 @@ export interface Pack {
     checks: number;
   };
   files: string[];
+  price: { amount: number; currency: string } | null;
+}
+
+function index(): { packs: Pack[]; store?: string } {
+  return JSON.parse(fs.readFileSync(path.join(ROOT, "index.json"), "utf8"));
 }
 
 export function packs(): Pack[] {
-  return JSON.parse(fs.readFileSync(path.join(ROOT, "index.json"), "utf8")).packs;
+  return index().packs;
+}
+
+/** The store Worker that sells priced packs, if the registry has one. */
+export function store(): string | undefined {
+  return index().store;
+}
+
+export function formatPrice(price: Pack["price"]): string {
+  return price ? `${(price.amount / 100).toFixed(2)} ${price.currency.toUpperCase()}` : "Free";
 }
 
 export function readFile(pack: Pack, rel: string): string {

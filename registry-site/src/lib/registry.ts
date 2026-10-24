@@ -13,7 +13,6 @@ export interface Pack {
   authors: string[];
   digest: string;
   tarball_sha256: string;
-  signed: boolean;
   summary_line: string;
   summary: {
     obligations: number;

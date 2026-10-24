@@ -6,8 +6,8 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 | --- | --- | --- |
 | `versions/1/` | The pack, version 1: BRIEF, AGENTS, assumptions, obligations, and eight component contracts | yes |
 | `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester | no |
-| `rebuilds/python-1/` | Milestone 1: an AI build in Python of the first three contracts, made from `versions/1/` alone | no |
-| `rebuilds/go-1/` | Milestone 2: a second AI's build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md | no |
+| `rebuilds/python-1/` | Milestone 1: an AI build in Python (Claude Opus 5.5 in Claude Code) of the first three contracts, made from `versions/1/` alone | no |
+| `rebuilds/go-1/` | Milestone 2: a second AI build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md | no |
 | `attestations/` | Signed evidence for both builds, plus the runner keys | yes, as evidence |
 
 ## Results (milestone 1)
@@ -48,7 +48,7 @@ Five more contracts: `citation-key`, `pdf-filing`, `library-merge`, `tidy`, and 
 
 How it went:
 
-1. **Second builder, second language.** A different AI model got only `versions/1/` and built all eight components in Go (standard library only), with lightkone, the oracle and the Python rebuild moved off the machine. It passed all eight contracts and all eight holdouts.
+1. **Second build, second language.** A fresh Claude Code session (Claude Opus 5.5, the same model as the Python build, with no access to it) got only `versions/1/` and built all eight components in Go (standard library only), with lightkone, the oracle and the Python rebuild moved off the machine. It passed all eight contracts and all eight holdouts.
 2. **Passing is not agreeing.** `oracle/differential.py` sends the same generated inputs to lightkone and the Go build and reports every disagreement on inputs the contract accepts. On about 5,000 inputs, six contracts agreed completely. `bibtex-import` and `search-query` showed five real gaps that both the spec and the holdout had missed:
    - a malformed BibTeX field skipped to a `}` ends the entry, but one skipped to a comma does not (the contract said the rest was always lost);
    - "whitespace" means JavaScript's `\s`, including no-break space and U+2028;

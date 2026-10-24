@@ -34,6 +34,13 @@ source = "extract"
 checks = ["search-query#example:8", "search-query#example:9", "search-query#example:21", "search-query#example:22", "search-query#example:23", "search-query#example:27"]
 
 [[obligation]]
+id = "search.field-edge-cases"
+statement = "A field with nothing after the colon is an ordinary word; an unknown field with a quoted value is one word, quotes included."
+status = "decided"
+source = "replication"
+checks = ["search-query#example:82", "search-query#example:83", "search-query#example:84"]
+
+[[obligation]]
 id = "search.terms-conjunctive"
 statement = "Every filter and every word must hold (except year:, see search.year-last-wins)."
 status = "decided"

@@ -79,3 +79,6 @@
 {"input": {"papers": {"$fixture": "library.json"}, "sort": "added", "query": "year:1990-2020-1900"}, "output": {"ids": ["vaswani17", "hinton12", "emptytrash"]}, "note": "parts after the second are ignored"}
 {"input": {"papers": {"$fixture": "library.json"}, "sort": "added", "query": "year:2020-1990"}, "output": {"ids": []}, "note": "a reversed range matches nothing"}
 {"input": {"papers": {"$fixture": "library.json"}, "sort": "added", "query": "year:1990-x"}, "output": {"ids": []}, "note": "a second part that is not a number means the first year only"}
+{"input": {"papers": {"$fixture": "library.json"}, "sort": "added", "query": "author:"}, "output": {"ids": []}, "note": "a filter with nothing after the colon is an ordinary word, which matches nothing here"}
+{"input": {"papers": {"$fixture": "library.json"}, "sort": "added", "query": "tag:"}, "output": {"ids": []}, "note": "the same for any field: tag: is the word tag:"}
+{"input": {"papers": [{"id": "a", "title": "bar baz", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "o:\"bar baz\"", "added": "2024-01-02T00:00:00.000Z"}], "sort": "added", "query": "o:\"bar baz\""}, "output": {"ids": ["b"]}, "note": "an unknown field with a quoted value is one word, quotes included"}

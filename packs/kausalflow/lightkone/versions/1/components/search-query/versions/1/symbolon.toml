@@ -30,7 +30,9 @@ counts applies):
   has:X / no:X  for X in pdf, abstract, arxiv, notes. has:pdf accepts either
               pdf or file; no:pdf looks at pdf only. Unknown X is ignored.
   is:starred, is:recent (has been opened), is:trash. Unknown values are ignored.
-Any other field:value term is an ordinary word, including the colon.
+Any other field:value term is an ordinary word, including the colon. So is a
+field with nothing after the colon (author: is the word author:), and an
+unknown field with a quoted value is one word, quotes included: o:"a b".
 
 Trashed papers appear only with is:trash, and then only trashed papers appear.
 

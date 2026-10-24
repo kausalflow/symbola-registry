@@ -79,3 +79,6 @@
 {"query": "year:1990-2020-1900", "note": "parts after the second are ignored"}
 {"query": "year:2020-1990", "note": "a reversed range matches nothing"}
 {"query": "year:1990-x", "note": "a second part that is not a number means the first year only"}
+{"query": "author:", "note": "a filter with nothing after the colon is an ordinary word, which matches nothing here"}
+{"query": "tag:", "note": "the same for any field: tag: is the word tag:"}
+{"papers": [{"id": "a", "title": "bar baz", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "o:\"bar baz\"", "added": "2024-01-02T00:00:00.000Z"}], "query": "o:\"bar baz\"", "note": "an unknown field with a quoted value is one word, quotes included"}

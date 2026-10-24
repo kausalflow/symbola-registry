@@ -1,7 +1,7 @@
 ---
 import { marked } from "marked";
 import Base from "../../../../layouts/Base.astro";
-import { assumptions, formatPrice, obligations, packs, readFile, store, url, type Pack } from "../../../../lib/registry";
+import { assumptions, evidence, evidenceLine, formatPrice, obligations, packs, readFile, store, url, type Pack } from "../../../../lib/registry";
 
 export function getStaticPaths() {
   return packs().map((pack) => {
@@ -17,6 +17,16 @@ const obs = obligations(pack);
 const ks = assumptions(pack);
 const s = pack.summary;
 const shop = store();
+const atts = evidence(pack);
+const byComponent = new Map<string, typeof atts>();
+for (const a of atts) {
+  const k = a.component ?? a.contract ?? a.file;
+  byComponent.set(k, [...(byComponent.get(k) ?? []), a]);
+}
+const order = { latest: 0, older: 1, unpublished: 2 };
+for (const rows of byComponent.values()) rows.sort((x, y) => order[x.covers ?? "unpublished"] - order[y.covers ?? "unpublished"]);
+const covers = (a: (typeof atts)[number]) =>
+  a.covers === "latest" ? "this version" : a.covers === "older" ? `version ${a.pack_version}` : "an unpublished draft";
 const dirs = new Map<string, string[]>();
 for (const f of pack.files) {
   const d = f.includes("/") ? f.slice(0, f.lastIndexOf("/")) : "";
@@ -48,12 +58,39 @@ for (const f of pack.files) {
       <div style="font-size: 14px; display: flex; gap: 14px; flex-wrap: wrap">
         {!pack.price && <a href={url(base + "latest.tar.gz")}>latest.tar.gz</a>}
         <a href={url(base + "latest.sha256")}>sha256</a>
-        {pack.signed && <a href={url(base + "latest.sig.json")}>signature</a>}
         <a href={url(base + "pack.md")}>pack.md (for agents: brief and obligations, links to each component)</a>
         <a href={url(base + "llms.txt")}>llms.txt</a>
       </div>
       <div class="muted wrap" style="font-size: 13px">Digest <code>{pack.digest}</code></div>
     </div>
+
+    <h2>Evidence</h2>
+    <p class="muted" style="margin-top: 0">{evidenceLine(pack.evidence)}. Every signature and digest below was checked when this site was built;
+      re-check one with <code>symbolon verify</code> on the linked file.</p>
+    {atts.length > 0 && (
+      <div style="overflow-x: auto"><table data-pagefind-ignore>
+        <tr><th>Component</th><th>Build</th><th>Result</th><th>Contract</th><th>Runner</th></tr>
+        {[...byComponent.entries()].map(([c, rows]) => rows.map((a, i) => (
+          <tr>
+            <td>{i === 0 ? <code>{c}</code> : ""}</td>
+            <td>{a.build ?? "?"}</td>
+            <td>
+              {!a.valid ? <span class="open" title={a.problems.join("; ")}>invalid</span>
+                : a.result === "PASSED" ? <span class="decided">passed {a.passed}</span>
+                : <span class="open" title={(a.failed ?? []).join(", ")}>failed {(a.failed ?? []).length}</span>}
+              {" "}<a href={url(base + a.file)} class="muted" style="font-size: 13px">json</a>
+            </td>
+            <td class="muted">
+              {covers(a)}
+              {a.covers === "older" && pack.older?.find((o) => o.version === a.pack_version) && (
+                <> · <a href={url(base + pack.older!.find((o) => o.version === a.pack_version)!.path)}>tar.gz</a></>
+              )}
+            </td>
+            <td class="muted">{a.runner}</td>
+          </tr>
+        )))}
+      </table></div>
+    )}
 
     <h2>Brief</h2>
     <div class="brief" set:html={brief} />
@@ -78,6 +115,10 @@ for (const f of pack.files) {
   </div>
 
   <h2>Files</h2>
+  {pack.preview === "brief" && (
+    <p class="muted">This is a priced pack, so the preview shows the brief, assumptions and obligations.
+      The component contracts, schemas and tests come with the purchase.</p>
+  )}
   {[...dirs.entries()].map(([d, fs]) => (
     <details open={d === "" || d === "assumptions"}>
       <summary><code>{d || "/"}</code> <span class="muted">({fs.length})</span></summary>

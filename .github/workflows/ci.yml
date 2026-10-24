@@ -17,7 +17,14 @@ jobs:
       - run: pip install "git+https://github.com/kausalflow/symbolon@$(cat .symbolon-version)"
       # The checks every pack submission must pass.
       - run: symbolon site check packs
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - run: registry-site/build.sh /tmp/site https://kausalflow.github.io /symbolon-registry
+  # Rebuild the website (spikinglabs/symbolon-store, on Cloudflare Pages) after a merge.
+  deploy:
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "No CLOUDFLARE_DEPLOY_HOOK secret yet; skipping."; exit 0; fi
+          curl -fsS -X POST "$HOOK"

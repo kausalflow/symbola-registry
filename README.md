@@ -9,9 +9,27 @@ website that serves them is built from this repository by
 | --- | --- |
 | `packs/<owner>/<name>/versions/<n>/` | Each pack, one folder per released version. Only the latest is offered. |
 | `packs/<owner>/<name>/attestations/` | Signed evidence for builds of the pack, shown on its page. |
+| `publishers/<owner>.toml` | Publisher profiles edited on symbola.sh; they win over `[publisher]` in manifests. |
+| `.github/workflows/publish.yml` | Publishes from symbola.sh (see below). |
 | `.symbolon-version` | The Symbolon CLI commit that CI checks packs with. Move it to pick up CLI changes. |
 
-## Adding or updating a pack
+## Publishing from symbola.sh
+
+Publishers sign in at <https://symbola.sh/publish/> with GitHub (or run
+`symbolon login` and `symbolon publish spec`). The site checks that the pack's
+owner is the publisher's GitHub login or one of their organisations, then starts
+`publish.yml` here. Its `build` job downloads the upload and runs `symbolon release`
+and `site check` with no secrets, because validation runs the pack's own checks.
+Its `propose` job, which holds the Symbola app's token and runs no pack code,
+checks that the result is exactly one new version of that pack, and opens a pull
+request as the app. New versions of an existing pack get auto-merge; a namespace's
+first pack, and removals, wait for a moderator. Profile edits land the same way.
+
+Setup (once): the Symbola GitHub App installed on this repository; secrets
+`SYMBOLA_APP_ID`, `SYMBOLA_APP_PRIVATE_KEY` and `SYMBOLA_API_SECRET`; "Allow
+auto-merge" on, and `main` protected with the `check` status required.
+
+## Adding or updating a pack by pull request
 
 ```
 pip install "git+https://github.com/kausalflow/symbolon@$(cat .symbolon-version)"

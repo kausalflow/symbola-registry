@@ -1,0 +1,176 @@
+# Publishes from symbola.sh: a new pack version, a publisher profile, or a removal request.
+# Started only by the Symbola GitHub app (from the site's API, after it checked that the
+# publisher owns the namespace). Every change lands as a pull request from the app.
+#
+#   build    downloads the upload, runs `symbolon release` and `site check`. It runs the pack's
+#            own checks, so it gets no secrets and a read-only token.
+#   propose  holds the app token; it never runs pack code. It checks what build produced,
+#            opens the PR, and turns on auto-merge, except for a namespace's first pack and
+#            for removals, which wait for a moderator.
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      request: { description: "symbola.sh request id", required: true }
+      kind: { description: "publish, profile or remove", required: true }
+      pack: { description: "owner/name (owner for a profile)", required: true }
+      publisher: { description: "GitHub login of the publisher", required: true }
+      upload_url: { description: "where to fetch the pack (publish)", required: false, default: "" }
+      content: { description: "base64: the profile TOML (profile) or the reason (remove)", required: false, default: "" }
+
+concurrency:
+  group: publish-${{ inputs.pack }}
+
+permissions:
+  contents: read
+
+env:
+  API: ${{ vars.SYMBOLA_URL || 'https://symbola.sh' }}
+
+jobs:
+  build:
+    if: inputs.kind == 'publish'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "git+https://github.com/kausalflow/symbolon@$(cat .symbolon-version)"
+      - name: Release the upload into packs/
+        env:
+          UPLOAD_URL: ${{ inputs.upload_url }}
+          PACK: ${{ inputs.pack }}
+        run: python3 .github/scripts/publish.py build "$UPLOAD_URL" "$PACK" built
+      - name: Check the registry
+        run: symbolon site check packs 2>&1 | tee check.log || { cp check.log publish-error.txt; exit 1; }
+        shell: bash -o pipefail {0}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: built
+          path: built/
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error
+          path: publish-error.txt
+          if-no-files-found: ignore
+
+  propose:
+    needs: build
+    if: always() && (inputs.kind != 'publish' || needs.build.result != 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - id: app
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SYMBOLA_APP_ID }}
+          private-key: ${{ secrets.SYMBOLA_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app.outputs.token }}
+      - name: Report helper
+        env:
+          SECRET: ${{ secrets.SYMBOLA_API_SECRET }}
+          REQUEST: ${{ inputs.request }}
+        run: |
+          cat > "$RUNNER_TEMP/report" <<SH
+          #!/usr/bin/env bash
+          # report STATE MESSAGE [PR] [VERSION]
+          jq -n --arg state "\$1" --arg message "\$2" --arg pr "\${3:-}" --arg version "\${4:-}" \
+            --arg run "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            '{state: \$state, message: \$message, run: \$run} + (if \$pr != "" then {pr: \$pr} else {} end)
+             + (if \$version != "" then {version: (\$version | tonumber)} else {} end)' |
+          curl -fsS -X POST "$API/api/requests/$REQUEST/status" -H "authorization: Bearer $SECRET" \
+            -H "content-type: application/json" --data @- >/dev/null || echo "could not report to $API"
+          touch "$RUNNER_TEMP/reported"
+          SH
+          chmod +x "$RUNNER_TEMP/report"
+      - name: Build failed
+        if: inputs.kind == 'publish' && needs.build.result != 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: error
+          path: error
+        continue-on-error: true
+      - if: inputs.kind == 'publish' && needs.build.result != 'success'
+        run: |
+          msg=$(cat error/publish-error.txt 2>/dev/null || echo "The build failed; see the workflow run.")
+          "$RUNNER_TEMP/report" failed "$msg"
+          exit 1
+      - if: inputs.kind == 'publish'
+        uses: actions/download-artifact@v4
+        with:
+          name: built
+          path: built
+      - name: Make the change
+        id: change
+        env:
+          KIND: ${{ inputs.kind }}
+          PACK: ${{ inputs.pack }}
+          PUBLISHER: ${{ inputs.publisher }}
+          CONTENT: ${{ inputs.content }}
+          REQUEST: ${{ inputs.request }}
+        run: |
+          set -euo pipefail
+          trap '[ -f publish-error.txt ] && "$RUNNER_TEMP/report" failed "$(cat publish-error.txt)"' ERR
+          case "$KIND" in
+            publish)
+              python3 .github/scripts/publish.py place built "$PACK"
+              version=$(jq -r .version place.out); new=$(jq -r .new_pack place.out)
+              rm -rf built place.out
+              title="Publish $PACK version $version"
+              auto=true
+              if [ "$new" = true ]; then title="New pack: $PACK"; auto=false; fi
+              ;;
+            profile)
+              python3 .github/scripts/publish.py profile "$PACK" "$CONTENT"
+              version=""; title="Update the profile of $PACK"; auto=true
+              ;;
+            remove)
+              [ -d "packs/$PACK" ] || { echo "$PACK is not in the registry" > publish-error.txt; false; }
+              git rm -rq "packs/$PACK"
+              version=""; title="Remove $PACK"; auto=false
+              ;;
+            *) echo "unknown kind $KIND" > publish-error.txt; false ;;
+          esac
+          reason=$(printf %s "$CONTENT" | base64 -d 2>/dev/null || true)
+          {
+            echo "$title, requested on symbola.sh by [$PUBLISHER](https://github.com/$PUBLISHER) (request \`$REQUEST\`)."
+            echo
+            [ "$KIND" = remove ] && [ -n "$reason" ] && { echo "Reason: $reason"; echo; }
+            [ "$auto" = true ] && echo "Merges automatically when CI passes." \
+              || echo "Waits for a moderator: a namespace's first pack and removals are reviewed by hand."
+          } > "$RUNNER_TEMP/body.md"
+          branch="symbola/$REQUEST"
+          git config user.name "symbola[bot]"
+          git config user.email "symbola[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -A
+          git commit -qm "$title" -m "Requested on symbola.sh by $PUBLISHER (request $REQUEST)."
+          git push -q origin "$branch"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "title=$title" >> "$GITHUB_OUTPUT"
+          echo "auto=$auto" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          BRANCH: ${{ steps.change.outputs.branch }}
+          TITLE: ${{ steps.change.outputs.title }}
+          AUTO: ${{ steps.change.outputs.auto }}
+          VERSION: ${{ steps.change.outputs.version }}
+        run: |
+          set -euo pipefail
+          pr=$(gh pr create --base main --head "$BRANCH" --title "$TITLE" --body-file "$RUNNER_TEMP/body.md")
+          if [ "$AUTO" = true ] && gh pr merge "$pr" --auto --squash --delete-branch; then
+            "$RUNNER_TEMP/report" merging "Pull request open; it merges when CI passes." "$pr" "$VERSION"
+          else
+            "$RUNNER_TEMP/report" review "Pull request open; waiting for a moderator to merge it." "$pr" "$VERSION"
+          fi
+      - if: failure()
+        run: |
+          [ -f "$RUNNER_TEMP/reported" ] || "$RUNNER_TEMP/report" failed "The publish workflow failed; see the run for details."

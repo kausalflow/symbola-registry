@@ -31,7 +31,7 @@ The library's files, in whatever storage the owner chose:
 | --- | --- | --- |
 | `lightkone/library.json` | Every paper; the source of truth | `library-file`, `library-merge` |
 | `lightkone/library.bib` | The whole library outside the trash, rewritten on every save | `library-file`, `bibtex-export` |
-| `papers/All Papers/<AUTHOR>/<name>.pdf` | PDFs, filed as Paperpile files them | `pdf-filing` |
+| `papers/All Papers/<AUTHOR or Other>/<name>.pdf` | PDFs, filed as Paperpile files them | `pdf-filing` |
 | `lightkone/annotations/<paper id>.json` | Highlights and their notes on one paper's PDF | |
 | `lightkone/text/<paper id>.txt` | A paper's text, for search inside PDFs, Ask and MCP | |
 

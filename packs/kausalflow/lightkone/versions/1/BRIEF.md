@@ -40,8 +40,11 @@ way lightkone does, so its users' libraries and habits carry over.
 
 ## Non-goals
 
-- Full-text search inside PDFs. Search covers metadata and notes only.
-- Collaboration. A library belongs to one person; there are no shared libraries, roles or permissions.
+- Semantic search. Search matches words in a paper's record (`search-query`) and,
+  once a PDF's text has been read, in that text (`PRODUCT.md`, flow 6); nothing ranks by meaning.
+- Accounts, roles or permissions. A library belongs to one person. A shared library
+  (a later tier in `PRODUCT.md`) is a separate library whose storage decides who may
+  read or write it.
 - Being a general BibTeX validator. Import reads what the common managers export and skips the rest.
 - Pixel-level UI. `PRODUCT.md` specifies screens and flows, not layout or styling.
 

@@ -82,3 +82,13 @@
 {"query": "author:", "note": "a filter with nothing after the colon is an ordinary word, which matches nothing here"}
 {"query": "tag:", "note": "the same for any field: tag: is the word tag:"}
 {"papers": [{"id": "a", "title": "bar baz", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "o:\"bar baz\"", "added": "2024-01-02T00:00:00.000Z"}], "query": "o:\"bar baz\"", "note": "an unknown field with a quoted value is one word, quotes included"}
+{"query": "year:2017a", "note": "a year: value with anything after its digits is not a number, so the term does not count"}
+{"papers": [{"id": "a", "title": "Deep nets", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "", "added": "2024-01-02T00:00:00.000Z"}], "query": "deep", "note": "papers may leave out every optional field: missing authors, tags and the rest are absent, not an error"}
+{"papers": [{"id": "a", "title": "Deep nets", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "", "added": "2024-01-02T00:00:00.000Z"}], "query": "author:smith tag:x", "note": "filters on missing authors and tags match nothing"}
+{"papers": [{"id": "a", "title": "Deep nets", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "", "added": "2024-01-02T00:00:00.000Z"}], "query": "no:pdf no:notes no:abstract no:arxiv", "note": "missing fields count as absent for no:"}
+{"papers": [{"id": "a", "title": "Deep nets", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "", "added": "2024-01-02T00:00:00.000Z"}], "query": "'", "note": "a word that is in no field of a paper with missing fields leaves it out"}
+{"papers": [{"id": "a", "title": "Deep nets", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "", "added": "2024-01-02T00:00:00.000Z"}], "query": "", "sort": "title", "note": "title sort with an empty title and missing fields"}
+{"papers": [{"id": "a", "title": "Deep nets", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "", "added": "2024-01-02T00:00:00.000Z"}], "query": "", "sort": "year", "note": "year sort with missing years: they count as 0"}
+{"query": "﻿", "note": "whitespace is JavaScript's \\s set, so a query of only a BOM is the empty query"}
+{"query": "neural year:2012", "note": "a no-break space separates terms too"}
+{"query": "neural　hinton", "note": "so does an ideographic space"}

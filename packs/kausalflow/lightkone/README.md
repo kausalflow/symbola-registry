@@ -62,6 +62,21 @@ The pack now has 63 obligations, all decided. Four defaults that were lightkone 
 
 Two Symbolon bugs turned up and are fixed: examples containing U+2028 were split into two lines, and the container sandbox removed the execute bit, so no compiled implementation could run.
 
+## Shorter descriptions (2026-10-24)
+
+The `search-query` and `tidy` descriptions restated, close to pseudocode, rules that `obligations.toml` and the examples already pin down. An ablation run with `symbolon replicate` (one Sonnet 5.5 and one Opus 5.5 build per variant, lightkone as the reference, the holdout on) tested which parts of that prose builders needed:
+
+| Variant | search-query distance to lightkone (Sonnet, Opus) | tidy distance (both) |
+| --- | --- | --- |
+| Full pack | 0.055, 0.000 | 0.117 |
+| Descriptions cut to their purpose | 0.100, 0.008 | 0.112 |
+| Cut, and the 24 search and tidy obligations removed | 0.041, 0.108 | 0.228 |
+| This version: cut, with the facts only the prose carried recorded as examples | 0.099, 0.151 (see below) | 0.092 |
+
+Every build passed every check and the holdout. Most of the tidy distance is lightkone crashing on a blank DOI or arXiv id (kausalflow/lightkone#54). Tidy's description added nothing measurable, so it is now its purpose paragraph. Cutting the search-query description lost two facts that no example pinned down: a paper can leave out its optional fields, and `year:2017a` is not a number. Both are now recorded from lightkone, under the new obligation `search.absent-fields` and under `search.year-malformed`. The description's "other spellings are unspecified" is now an open obligation, `search.year-number-spelling`, so a build that reads `year:+2` as 2 is allowed.
+
+On this version, the remaining search-query distance comes from three things. One is the open `year:+2` and `year:1e3` spellings. Another is collation of a rare Arabic letter. The third is a query of only a BOM, a gap the full pack had too. That gap is now the obligation `search.whitespace` (JavaScript's `\s`), with three examples. The Opus build fails one of them, so the gap is now caught. Lightkone is re-attested on both new digests with a new runner key, `attestations/runner-d.pub`. The Go and Python attestations for these two contracts stay as they are; they are for the earlier digests.
+
 ## Re-running
 
 ```bash

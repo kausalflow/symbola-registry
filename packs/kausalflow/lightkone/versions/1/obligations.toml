@@ -6,9 +6,10 @@
 # Checks are "<component>#example:<line in examples.jsonl>" or
 # "<component>#<property test name>".
 #
-# This is a retrofit of the v1 pack, which was written before v0.5. Pruning
-# (dropping obligations that builders get right unprompted) comes with
-# `replicate` in step 4.
+# This is a retrofit of the v1 pack, which was written before v0.5. The
+# search-query and tidy descriptions were cut to their purpose after an
+# ablation run (2026-10-24): every rule they stated is an obligation here,
+# and the facts only the prose carried became examples.
 
 # ── search-query ──────────────────────────────────────────────────────────
 
@@ -32,6 +33,13 @@ statement = "Terms split on whitespace; quotes make one word; an unknown field:v
 status = "decided"
 source = "extract"
 checks = ["search-query#example:8", "search-query#example:9", "search-query#example:21", "search-query#example:22", "search-query#example:23", "search-query#example:27"]
+
+[[obligation]]
+id = "search.whitespace"
+statement = "Whitespace in a query is JavaScript's \\s set, which includes the no-break space, U+3000 and the BOM."
+status = "decided"
+source = "replication"
+checks = ["search-query#example:92", "search-query#example:93", "search-query#example:94"]
 
 [[obligation]]
 id = "search.field-edge-cases"
@@ -95,7 +103,20 @@ id = "search.year-malformed"
 statement = "year:A-B parts: A not a number or 0 means the term does not count; B missing, empty, 0 or not a number means A; later parts are ignored. A typo such as year:20l7 filters nothing, by kausalflow's decision (2026-10-24): forgiving, low stakes."
 status = "decided"
 source = "replication"
-checks = ["search-query#example:74", "search-query#example:75", "search-query#example:76", "search-query#example:77", "search-query#example:78", "search-query#example:79", "search-query#example:80", "search-query#example:81"]
+checks = ["search-query#example:74", "search-query#example:75", "search-query#example:76", "search-query#example:77", "search-query#example:78", "search-query#example:79", "search-query#example:80", "search-query#example:81", "search-query#example:85"]
+
+[[obligation]]
+id = "search.year-number-spelling"
+statement = "A year: number is ASCII digits with an optional fraction. Other spellings that JavaScript would read as a number, such as +2 or 1e3, are not decided."
+status = "open"
+source = "extract"
+
+[[obligation]]
+id = "search.absent-fields"
+statement = "Papers may leave out any field but id, title and added. Missing fields, empty strings and false are all absent: a missing author list or tag list is empty, never an error."
+status = "decided"
+source = "replication"
+checks = ["search-query#example:86", "search-query#example:87", "search-query#example:88", "search-query#example:89", "search-query#example:90", "search-query#example:91"]
 
 [[obligation]]
 id = "search.filter-folder"

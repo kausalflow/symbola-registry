@@ -1,6 +1,6 @@
 [implementation]
-contract = "sha256:bfb1de63e3f0dbceb8394bee59d41bd291ab9f5bc6c07f012fabc67f47c792e9"
-entrypoint = "impl.py"
-language = "python"
+contract = "sha256:564043f8ccedfc164c42b9d78331be4f280ef9f43388724a1c1a14485d85f3bb"
+language = "command"
+command = ["homeostat"]
 license = "Apache-2.0"
 authors = ["you@example.com"]

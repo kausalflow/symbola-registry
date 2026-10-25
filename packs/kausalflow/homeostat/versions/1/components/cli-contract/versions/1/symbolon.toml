@@ -36,6 +36,7 @@ authors = ["kausalflow"]
 
 [entrypoint]
 function = "run"
+driver = "cli"
 
 [requires]
 network = []

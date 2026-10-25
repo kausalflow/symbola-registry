@@ -4,19 +4,70 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Once a week, check every pack, in case something outside a pack's folder broke one.
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
       # The CLI is pinned in .symbolon-version, so a CLI change reaches the registry only when the pin moves.
       - run: pip install "git+https://github.com/kausalflow/symbolon@$(cat .symbolon-version)"
-      # The checks every pack submission must pass.
-      - run: symbolon site check packs
+      # The checks every pack submission must pass, on the packs this change touches.
+      - name: Check the changed packs
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ "$EVENT" = schedule ] || [ "$EVENT" = workflow_dispatch ] || [ -z "$BASE" ] \
+             || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            .github/scripts/check-packs.sh --all
+          else
+            .github/scripts/check-packs.sh --since "$(git merge-base "$BASE" HEAD)"
+          fi
+  # Builds kept as source (packs/*/*/rebuilds/*/check.sh) must still rebuild to the binaries their
+  # attestations signed. Runs only when a rebuild or attestation changes.
+  rebuilds:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: changed
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "$BASE" ] && git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            dirs=$(git diff --name-only "$(git merge-base "$BASE" HEAD)" HEAD \
+              | sed -nE 's#^(packs/[^/]+/[^/]+)/(rebuilds|attestations)/.*#\1#p' | sort -u)
+          else
+            dirs=$(ls -d packs/*/*)
+          fi
+          scripts=$(for d in $dirs; do ls "$d"/rebuilds/*/check.sh 2>/dev/null || true; done)
+          echo "scripts<<EOF" >> "$GITHUB_OUTPUT"; echo "$scripts" >> "$GITHUB_OUTPUT"; echo "EOF" >> "$GITHUB_OUTPUT"
+      - if: steps.changed.outputs.scripts != ''
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.7"
+      - if: steps.changed.outputs.scripts != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - if: steps.changed.outputs.scripts != ''
+        run: pip install "git+https://github.com/kausalflow/symbolon@$(cat .symbolon-version)"
+      - if: steps.changed.outputs.scripts != ''
+        env:
+          SCRIPTS: ${{ steps.changed.outputs.scripts }}
+        run: for s in $SCRIPTS; do echo "== $s"; "$s"; done
   # Rebuild the website (spikinglabs/symbolon-store, on Cloudflare Pages) after a merge.
   deploy:
     needs: check

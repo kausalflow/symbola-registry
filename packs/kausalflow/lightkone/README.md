@@ -7,7 +7,7 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 | `versions/1/` | The pack, version 1: BRIEF, AGENTS, assumptions, obligations, and eight component contracts | yes |
 | `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester | no |
 | `rebuilds/python-1/` | Milestone 1: an AI build in Python (Claude Opus 5.5 in Claude Code) of the first three contracts, made from `versions/1/` alone | no |
-| `rebuilds/go-1/` | Milestone 2: a second AI build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md | no |
+| `rebuilds/go-1/` | Milestone 2: a second AI build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md. Source only: `build.sh` makes the binaries byte for byte, and `check.sh` checks them against the attestations | no |
 | `attestations/` | Signed evidence for both builds, plus the runner keys | yes, as evidence |
 
 ## Results (milestone 1)
@@ -82,6 +82,7 @@ On this version, the remaining search-query distance comes from three things. On
 ```bash
 LIGHTKONE=/path/to/lightkone oracle/build.sh        # needs npm ci in lightkone
 python3 oracle/record-examples.py search-query     # re-record golden examples
+rebuilds/go-1/check.sh                             # build the Go binaries, check them against the attestations (needs Go)
 oracle/holdout.sh search-query rebuilds/go-1/search-query
 python3 oracle/mutate.py bibtex-import 2000 9 > /tmp/cases.jsonl  # inputs for a differential run
 python3 oracle/differential.py bibtex-import /tmp/cases.jsonl rebuilds/go-1

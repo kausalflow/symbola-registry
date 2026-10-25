@@ -48,3 +48,12 @@ permissions = []
 seed = 0
 max_examples = 30
 timeout_seconds = 600
+
+[spec.statistical.test_noise_sources_start_from_their_stationary_distribution]
+at_least = 0.7
+at_most = 0.9
+samples = 200
+
+[spec.statistical.test_ou_spread_is_the_stated_std_at_any_dt]
+at_least = 0.97
+at_most = 1.03

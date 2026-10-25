@@ -1,10 +1,14 @@
 """Behavioural properties for kausalflow/run-series.
 
-Each test_* function takes `impl` first; `impl(Input)` returns an Output. Statistical checks
-use tolerances of five standard errors or more, so they hold for every seed.
+Each test_* function takes `impl` first; `impl(Input)` returns an Output. The @given checks of
+noise use tolerances of five standard errors or more, so they hold for every seed. The checks
+listed under [spec.statistical] in symbolon.toml take (impl, seed) and return one number per run;
+symbola runs them over many seeds and tests the mean, which can check what no single run shows,
+such as where a run starts.
 """
 
 import math
+import random
 
 import numpy as np
 from hypothesis import given, strategies as st
@@ -165,3 +169,21 @@ def test_two_operators_with_the_same_parameters_have_unrelated_noise(impl, seed)
     x = series(impl, {"duration": 20000, "dt": 5, "seed": seed, "custom": ops}, ["a", "b"])[1]
     assert not np.array_equal(x["a"], x["b"])
     assert abs(float(np.corrcoef(x["a"][0], x["b"][0])[0, 1])) < 0.3
+
+
+def test_noise_sources_start_from_their_stationary_distribution(impl, seed):
+    """Over seeds, the first value of an OU or AR source is a draw from N(mean, std):
+    the mean distance from the mean, in standard deviations, is sqrt(2/pi) = 0.798."""
+    custom = [{"id": "d", "op": "ou", "mean": 2, "std": 1.5, "tau": 40},
+              {"id": "a", "op": "ar", "coef": [0.5], "mean": -1, "std": 0.5}]
+    first = series(impl, {"duration": 20, "dt": 5, "seed": seed, "custom": custom}, ["d", "a"])[1]
+    return (abs(first["d"][0][0] - 2) / 1.5 + abs(first["a"][0][0] + 1) / 0.5) / 2
+
+
+def test_ou_spread_is_the_stated_std_at_any_dt(impl, seed):
+    """The stationary spread over a run, for parameters drawn from the seed."""
+    rng = random.Random(seed)
+    std, tau, dt = rng.uniform(0.2, 5), rng.uniform(5, 20), rng.choice([1, 2, 5])
+    scenario = {"duration": 4000 * dt, "dt": dt, "seed": seed,
+                "custom": [{"id": "d", "op": "ou", "mean": rng.uniform(-10, 10), "std": std, "tau": tau}]}
+    return float(series(impl, scenario, ["d"])[1]["d"][0].std() / std)

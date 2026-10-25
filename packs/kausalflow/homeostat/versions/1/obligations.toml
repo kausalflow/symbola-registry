@@ -383,15 +383,17 @@ statement = "An OU source is parametrized by its stationary mean and standard de
 status = "decided"
 source = "extract"
 kind = "behaviour"
-checks = ["run-series#test_ou_has_the_stated_stationary_mean_std_and_autocorrelation_at_any_dt"]
+exactness = "statistical"
+checks = ["run-series#test_ou_has_the_stated_stationary_mean_std_and_autocorrelation_at_any_dt", "run-series#test_ou_spread_is_the_stated_std_at_any_dt", "run-series#test_noise_sources_start_from_their_stationary_distribution"]
 
 [[obligation]]
 id = "series.ar-parametrization"
-statement = "An AR source is parametrized by its stationary standard deviation (not the innovation's) and mean, with coefficients per base step; for one coefficient the lag-1 autocorrelation is that coefficient."
+statement = "An AR source is parametrized by its stationary standard deviation (not the innovation's) and mean, with coefficients per base step; for one coefficient the lag-1 autocorrelation is that coefficient; it starts from its stationary distribution."
 status = "decided"
 source = "extract"
 kind = "behaviour"
-checks = ["run-series#test_ar1_has_the_stated_mean_std_and_autocorrelation"]
+exactness = "statistical"
+checks = ["run-series#test_ar1_has_the_stated_mean_std_and_autocorrelation", "run-series#test_noise_sources_start_from_their_stationary_distribution"]
 
 [[obligation]]
 id = "cli.exit-codes"

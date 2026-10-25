@@ -1,0 +1,3 @@
+# Made by build.sh; check.sh proves they match the attested ones.
+/vendor/
+/*/impl

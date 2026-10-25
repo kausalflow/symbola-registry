@@ -2,7 +2,7 @@
 # Started only by the Symbola GitHub app (from the site's API, after it checked that the
 # publisher owns the namespace). Every change lands as a pull request from the app.
 #
-#   build    downloads the upload, runs `symbolon release` and `site check`. It runs the pack's
+#   build    downloads the upload, runs `symbolon release` and `site check` on that pack. It runs the pack's
 #            own checks, so it gets no secrets and a read-only token.
 #   propose  holds the app token; it never runs pack code. It checks what build produced,
 #            opens the PR, and turns on auto-merge, except for a namespace's first pack and
@@ -45,8 +45,10 @@ jobs:
           UPLOAD_URL: ${{ inputs.upload_url }}
           PACK: ${{ inputs.pack }}
         run: python3 .github/scripts/publish.py build "$UPLOAD_URL" "$PACK" built
-      - name: Check the registry
-        run: symbolon site check packs 2>&1 | tee check.log || { cp check.log publish-error.txt; exit 1; }
+      - name: Check the pack
+        env:
+          PACK: ${{ inputs.pack }}
+        run: .github/scripts/check-packs.sh "$PACK" 2>&1 | tee check.log || { cp check.log publish-error.txt; exit 1; }
         shell: bash -o pipefail {0}
       - uses: actions/upload-artifact@v4
         with:

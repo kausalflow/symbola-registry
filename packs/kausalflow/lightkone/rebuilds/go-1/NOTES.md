@@ -248,8 +248,9 @@ library-file 46.
 
 Changes:
 * **Dependency.** `golang.org/x/text` v0.21.0 is used only by search-query (`collate`, `language.Und` =
-  CLDR root, default tertiary strength) for `title:` sort. It is vendored (`vendor/`), so `build.sh`
-  works offline; everything else is still stdlib.
+  CLDR root, default tertiary strength) for `title:` sort. `build.sh` vendors it from the module
+  proxy (checked against `go.sum`); everything else is still stdlib. The vendored copy and the binaries
+  are no longer kept in git: `check.sh` rebuilds them and confirms each binary matches its attestation.
 * **search-query year:** a `year:` term now counts only if its first part is a number other than 0; the
   value is split at `-`, the second part is B only when it is a nonzero number (else B = A), further
   parts ignored. Non-counting terms do not replace an earlier year term. "Number" implemented as ASCII

@@ -38,7 +38,11 @@ symbolon site check packs
 ```
 
 Then open a pull request. CI runs the same `site check` (every latest version
-validates, no released version was edited). After a merge, CI asks Cloudflare
+validates, no released version was edited) on the packs the pull request changes,
+through `.github/scripts/check-packs.sh`; a change to `.symbolon-version` or CI
+checks every pack, and so does a weekly run. A pack that keeps a build as source
+(`rebuilds/<build>/check.sh`) has it rebuilt and checked against its attestations
+when the build or its attestations change. After a merge, CI asks Cloudflare
 to rebuild the website through the `CLOUDFLARE_DEPLOY_HOOK` secret. See the
 [registry guide](https://kausalflow.github.io/symbolon/REGISTRY/) for the pack
 format, publisher and support links, and evidence.

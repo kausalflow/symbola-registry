@@ -1,5 +1,5 @@
 # How symbola.sh lists this pack in the shop. Lives outside versions/, so editing it never
 # changes the pack's digest.
-name = "Lightkone core"
+name = "Lightkone"
 category = "research"
-summary = "A paper library you own: search, BibTeX import and export, citation keys, PDF filing, merging and duplicate finding."
+summary = "A research-paper library you own, as a static web app: add, search, read and highlight papers, with BibTeX, PDF filing, sync and duplicate finding specified exactly."

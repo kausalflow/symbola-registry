@@ -11,10 +11,11 @@ them again with a small query language, file them in folders, tag them, read
 and highlight PDFs, and keep `.bib` files in sync with their manuscripts on
 Overleaf.
 
-## What this version of the pack covers
+## What the pack covers
 
-Version 1 covers the pure components everything else leans on, and the
-library file they all share:
+`PRODUCT.md` describes the whole app a build delivers: its shape, screens, flows
+and interfaces. The eight components below are its core, the parts whose
+behaviour must come out exactly, and each has checks:
 
 | Component | What it does |
 | --- | --- |
@@ -27,11 +28,12 @@ library file they all share:
 | `lightkone/tidy@1` | Finding duplicate papers and how to merge each group |
 | `lightkone/library-file@1` | Reading `library.json` and writing it back, with `library.bib`, byte for byte |
 
-Later versions add the MCP server's tools and UI acceptance scenarios.
+The app around them (`PRODUCT.md`) is specified in prose; a few of its
+decisions are obligations that no check covers yet.
 
 ## Who it is for
 
-Builders who want lightkone's behavior in their own stack: a different
+Builders who want lightkone in their own stack: the app rebuilt, a different
 language, a server instead of a static app, or a fork with their own features.
 A build that passes these contracts reads the same queries and BibTeX the same
 way lightkone does, so its users' libraries and habits carry over.
@@ -41,7 +43,7 @@ way lightkone does, so its users' libraries and habits carry over.
 - Full-text search inside PDFs. Search covers metadata and notes only.
 - Collaboration. A library belongs to one person; there are no shared libraries, roles or permissions.
 - Being a general BibTeX validator. Import reads what the common managers export and skips the rest.
-- Pixel-level UI. Later versions specify user flows, not layout or styling.
+- Pixel-level UI. `PRODUCT.md` specifies screens and flows, not layout or styling.
 
 ## Priorities
 

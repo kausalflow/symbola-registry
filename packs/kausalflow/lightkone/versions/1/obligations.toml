@@ -511,3 +511,43 @@ statement = "Papers in the trash are left out of library.bib, so Overleaf does n
 status = "decided"
 source = "oracle"
 checks = ["library-file#example:22", "library-file#example:43", "library-file#example:44", "library-file#example:45", "library-file#test_bib_has_one_entry_per_live_paper_in_order"]
+
+# The app around the components (PRODUCT.md). No check covers these yet.
+
+[[obligation]]
+id = "app.static-no-server"
+statement = "Lightkone is a static web app. The browser reads and writes the owner's storage and calls public metadata APIs itself; server code is only stateless pass-throughs for APIs browsers cannot call, and the optional MCP endpoint. There are no accounts."
+status = "decided"
+kind = "constraint"
+reason = "Hosting stays free for one person or a small team, and the owner's data never passes through a lightkone server."
+source = "extract"
+unchecked = "a deployment check: the built site is static files plus the named /api/ and /mcp/ functions, none of which store data"
+
+[[obligation]]
+id = "app.files-are-the-library"
+statement = "The library is the plain files in the owner's chosen storage, at the paths PRODUCT.md lists: library.json is the source of truth, written by library-file, and library.bib is rewritten with it on every save. There is no other database of papers."
+status = "decided"
+source = "extract"
+unchecked = "an end-to-end check: add, edit and trash papers in the app, then compare the stored files with library-file's output for the same library"
+
+[[obligation]]
+id = "app.save-merges"
+statement = "Every save reads library.json again and merges with library-merge (base = what this device last read, ours = this device's library, theirs = what is stored now) before writing, so another device or an MCP client is never overwritten."
+status = "decided"
+source = "extract"
+unchecked = "a two-client check: two sessions on one storage edit different papers and the same paper, then both saves are compared with library-merge's output"
+
+[[obligation]]
+id = "app.add-skips-duplicates"
+statement = "Adding papers skips a draft that duplicates a paper in the library by the rule in PRODUCT.md (flow 3), and fills only the existing paper's missing fields, tags and folders; a key already given never changes."
+status = "decided"
+source = "extract"
+unchecked = "an end-to-end check: import a .bib twice, and one whose entries match existing papers by DOI, arXiv id, key or long title"
+
+[[obligation]]
+id = "app.credentials-stay-local"
+statement = "Settings, storage credentials and API keys are kept in the browser that uses them and are never written into the library or sent to the site; the only exception is the MCP address, which carries the storage settings encrypted with a key only the site holds."
+status = "decided"
+kind = "security"
+source = "extract"
+unchecked = "a network and storage audit of a session: no credential appears in stored files or in requests to the site, except inside an MCP address"

@@ -5,7 +5,7 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |
 | `versions/1/` | The pack, version 1: BRIEF, PRODUCT (the app), AGENTS, assumptions, obligations, and eight component contracts | yes |
-| `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester | no |
+| `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester, fact mutants | no |
 | `rebuilds/python-1/` | Milestone 1: an AI build in Python (Claude Opus 5.5 in Claude Code) of the first three contracts, made from `versions/1/` alone | no |
 | `rebuilds/go-1/` | Milestone 2: a second AI build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md. Source only: `build.sh` makes the binaries byte for byte, and `check.sh` checks them against the attestations | no |
 | `attestations/` | Signed evidence for both builds, plus the runner keys | yes, as evidence |
@@ -107,11 +107,42 @@ called full-text search a non-goal; the formats of annotation files, saved
 pages and `.bib` sync targets were unstated; the example papers were unnamed;
 and the MCP address is sealed on the site, not in the browser.
 
+## Shorter descriptions, the other six (2026-10-25)
+
+The same rule applied to the other six components, done cheaply. Before any agent run, `oracle/fact-mutants/` checked every rule the six descriptions stated: each mutant is lightkone's own bundled code with one rule broken, and `symbola mutants` shows whether any example or property notices. That takes no agent tokens, only a few minutes of CPU.
+
+| Component | Rules checked | Pinned already | Prose only | No visible effect |
+| --- | --- | --- | --- | --- |
+| bibtex-export | 19 | 19 | 0 | 0 |
+| citation-key | 16 | 16 | 0 | 0 |
+| pdf-filing | 26 | 23 | 2 | 1 |
+| library-merge | 21 | 18 | 3 | 0 |
+| bibtex-import | 59 | 47 | 10 | 2 |
+| library-file | 31 | 31 | 0 | 0 |
+
+Each prose-only rule is now an example recorded from lightkone (15 in all). The three rules with no visible effect stay as documented survivors: collapsing runs of " - " in a file name can never fire after whitespace is collapsed, and in import an entry with no key and no fields has no title anyway, and a one-word author is never reordered.
+
+Then the six descriptions were cut to their purpose, and one Sonnet 5.5 build was made from the cut pack with `symbola replicate` (lightkone as the reference, the holdout on). It took 10 minutes and about $1.80. The existing Go build, made from the full descriptions, was the baseline, at no cost.
+
+| Component | Go build, full prose | Sonnet build, cut prose | Kept |
+| --- | --- | --- | --- |
+| citation-key | 0.000 | 0.000 | cut |
+| library-file | 0.000 | 0.000 | cut |
+| bibtex-export | 0.000 | 0.359 (see below) | cut |
+| pdf-filing | 0.000 | 0.141 | full |
+| library-merge | 0.000 | 0.127 | full |
+| bibtex-import | 0.050 | 0.129, and 1 holdout example failed | full |
+
+All of the bibtex-export distance is one split: inputs the builder probed with that leave out `tags` or `fields`, where lightkone's adapter crashes because it does not fill in the schema's defaults. The full description says nothing about that either, so it is not a trimming loss. The other three drifted in ways the cut prose described: a paper new on both sides takes ours whole (library-merge), an author of only "-" still counts as an author (pdf-filing), and unterminated values and odd type names in BibTeX (bibtex-import). Every mutant was killed, so each rule had a check, but one build from examples alone still read them differently. Those three keep their full descriptions, plus five more examples recorded from the drifts.
+
+So passing mutants is a good cheap screen for prose that can go, but not proof. Dense rule sets (a parser, a three-way merge, a naming scheme) need their prose; short output formats don't. Lightkone is re-attested on the six new digests with a new runner key, `attestations/runner-f.pub`.
+
 ## Re-running
 
 ```bash
 LIGHTKONE=/path/to/lightkone oracle/build.sh        # needs npm ci in lightkone
 python3 oracle/record-examples.py search-query     # re-record golden examples
+python3 oracle/fact-mutants/make.py pdf-filing      # which described rules no check pins (no agent needed)
 rebuilds/go-1/check.sh                             # build the Go binaries, check them against the attestations (needs Go)
 oracle/holdout.sh search-query rebuilds/go-1/search-query
 python3 oracle/mutate.py bibtex-import 2000 9 > /tmp/cases.jsonl  # inputs for a differential run

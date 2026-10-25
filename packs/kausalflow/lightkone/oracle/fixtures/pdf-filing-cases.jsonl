@@ -19,3 +19,6 @@
 {"paper": {"id": "new", "title": "Trailing slash/", "authors": ["Back\\slash, A"], "year": 2000}, "note": "backslash and slash at the edges"}
 {"paper": {"id": "n", "title": "﻿Attention﻿", "authors": ["﻿"], "year": 2017}, "library": [], "note": "U+FEFF is whitespace (JavaScript's \\s): a title padded with it is trimmed, and an author of only U+FEFF is no author"}
 {"paper": {"id": "n", "title": "﻿", "authors": ["﻿Vaswani, Ashish"], "year": 2017}, "library": [], "note": "a title of only U+FEFF is Untitled"}
+{"paper": {"id": "n", "title": "Deep learning for﻿galaxies", "authors": ["Lecun, Yann"], "year": 2015}, "library": [], "note": "whitespace inside a title (no-break space, em space, U+FEFF) becomes one plain space"}
+{"paper": {"id": "n", "title": "Abcdefghij klmnopqrst uvwxyzabcd efghijklmn opqrstuvwx yzabcdefgh ijklmnopqr stuvwxyzab cdefghijkl mnopqrstuv wxyzabcdef ghijklmnop qrstuvwxyz", "authors": ["Hinton, Geoffrey"], "year": 2012}, "library": [], "note": "a long name keeps exactly its first 72 and last 69 characters around ' ... '"}
+{"paper": {"id": "n", "title": "", "authors": ["-"]}, "library": [], "note": "an author of only '-' is not empty, so who is '-'; head is cleaned to nothing, giving ' - Untitled'"}

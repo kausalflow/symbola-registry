@@ -1,0 +1,22 @@
+FACTS = [
+    ("no-padding", "field names are padded to the longest name", [("k.padEnd(width)", "k")]),
+    ("no-commas", "field lines are joined by a comma and newline", [('.join(",\\n")', '.join("\\n")')]),
+    ("no-final-newline", "the entry ends with a newline", [("\\n${body}\\n}\\n`", "\\n${body}\\n}`")]),
+    ("no-misc", "an empty type is written misc", [('p.type || "misc"', "p.type")]),
+    ("title-single-braces", "the title is wrapped in an extra pair of braces", [("`{${escape(p.title)}}`", "escape(p.title)")]),
+    ("comma-author-braced", "an author containing a comma is written as is", [('a.includes(",") || a === "others" ?', 'a === "others" ?')]),
+    ("others-braced", "the author 'others' is written as is", [(' || a === "others" ?', " ?")]),
+    ("incollection-journal", "incollection takes its venue as booktitle", [('p.type === "inproceedings" || p.type === "incollection"', 'p.type === "inproceedings"')]),
+    ("venue-not-hidden", "a non-empty field of the venue's name stops the venue being written", [(" && !p.fields[venueField]", "")]),
+    ("no-archiveprefix", "an arxiv id also writes archiveprefix = arXiv", [('add("archiveprefix", "arXiv");', "")]),
+    ("abstract-unescaped", "the abstract is escaped too", [("p.abstract && escape(p.abstract)", "p.abstract")]),
+    ("venue-unescaped", "the venue is escaped too", [("add(venueField, escape(p.venue))", "add(venueField, p.venue)")]),
+    ("double-escape", "an already escaped & % # is not escaped again", [("/\\\\?([&%#])/g", "/([&%#])/g")]),
+    ("keywords-spaced", "tags are joined by ';' with no space", [('p.tags.join(";")', 'p.tags.join("; ")')]),
+    ("private-written", "fields starting with lightkone- are not written", [('if (!k.startsWith("lightkone-")) ', "")]),
+    ("doi-after-url", "doi comes before eprint and url", [('add("doi", p.doi);', ""), ('add("url", p.url);', 'add("url", p.url);\n\tadd("doi", p.doi);')]),
+    ("empties-written", "empty values are left out", [(' && value !== ""', "")]),
+    ("year-zero-dropped", "year 0 is written", [('add("year", p.year)', 'add("year", p.year || void 0)')]),
+]
+FACTS.append(("fields-deduplicated", "names in fields are not deduplicated against written fields",
+              [("if (!k.startsWith(\"lightkone-\")) add(k, v);", "if (!k.startsWith(\"lightkone-\") && !lines.some(([n]) => n === k)) add(k, v);")]))

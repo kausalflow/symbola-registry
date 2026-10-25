@@ -1,0 +1,18 @@
+FACTS = [
+    ("keeps-taken-key", "a draft keeps its key only when it is not taken", [("d.key && !keys.has(d.key) ? d.key", "d.key ? d.key")]),
+    ("keys-not-reserved", "each key given is taken for the drafts after it", [("keys.add(key);", "")]),
+    ("library-keys-ignored", "keys already in the library are taken", [("new Set(taken)", "new Set()")]),
+    ("given-name", "the surname is the part before the first comma", [('.split(",")[0]', '.split(",").pop()')]),
+    ("no-nfkd", "the surname is NFKD-decomposed so accented letters keep their base letter", [('.normalize("NFKD").replace(/[^A-Za-z]/g, "")', '.replace(/[^A-Za-z]/g, "")')]),
+    ("empty-not-anon", "a surname with no ASCII letters left becomes Anon", [('.replace(/[^A-Za-z]/g, "") || "Anon"', '.replace(/[^A-Za-z]/g, "") || "Unknown"')]),
+    ("no-author-not-anon", "no first author gives Anon", [('(d.authors?.[0] ?? "Anon")', '(d.authors?.[0] ?? "Nobody")')]),
+    ("first-not-upper", "the surname's first letter is upper-cased", [("last[0].toUpperCase()", "last[0]")]),
+    ("rest-lowered", "the rest of the surname is kept as is", [("${last.slice(1)}", "${last.slice(1).toLowerCase()}")]),
+    ("year-zero-filled", "the year is added only when the draft has one", [('d.year ?? ""', 'd.year ?? "0000"')]),
+    ("title-decomposed", "accented letters in the title disappear rather than being decomposed", [("d.title.toLowerCase()", 'd.title.normalize("NFKD").toLowerCase()')]),
+    ("three-letter-words", "only words longer than 3 letters count", [("w.length > 3", "w.length >= 3")]),
+    ("one-word-x", "with one long word its first letter is used twice", [('(words[1] ?? words[0] ?? "xx")', '(words[1] ?? "x")')]),
+    ("no-words-zz", "with no long words the suffix is xx", [('((words[0] ?? "xx")', '((words[0] ?? "zz")')]),
+    ("count-from-1", "collisions try 2, 3, ...", [("let i = 2", "let i = 1")]),
+    ("dash-count", "the counter is appended straight after the suffix", [("${base}-${suffix}${i}", "${base}-${suffix}-${i}")]),
+]

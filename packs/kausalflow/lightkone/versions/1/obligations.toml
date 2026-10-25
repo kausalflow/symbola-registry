@@ -436,6 +436,13 @@ source = "oracle"
 checks = ["tidy#example:10", "tidy#example:22", "tidy#example:23", "tidy#test_groups_are_exactly_the_papers_that_share_a_key"]
 
 [[obligation]]
+id = "tidy.missing-lists"
+statement = "A paper with no authors or tags key is treated as having empty lists: it can match on a short title with no first author, and merging adds no tags for it. Fixed in lightkone#54; until then a paper with no authors key crashed the duplicate finder."
+status = "decided"
+source = "oracle"
+checks = ["tidy#example:24", "tidy#example:25"]
+
+[[obligation]]
 id = "file.refuse-foreign"
 statement = "A file that is not a lightkone library (not JSON, wrong format, no papers list, a paper that is not an object) is refused with an error and nothing is written."
 status = "decided"

@@ -5,7 +5,7 @@ Go standard library only. Layout: `src/lk` (shared helpers), `src/<component>/ma
 directory holding only `impl` and `symbolon-impl.toml` (`language = "command"`, `command = ["./impl"]`;
 that form was accepted as is).
 
-Result of `symbolon test` for every component: PASS (search-query 82 checks, bibtex-import 41,
+Result of `symbola test` for every component: PASS (search-query 82 checks, bibtex-import 41,
 bibtex-export 25, citation-key 25, pdf-filing 25, library-merge 29, tidy 26, library-file 46).
 
 ## Cross-cutting gaps
@@ -242,7 +242,7 @@ Gaps:
 
 ## Revision 1 (after the contract tightening)
 
-Manifests re-created with `symbolon impl-init` (pinned to the new digests), all 8 pass: search-query 92,
+Manifests re-created with `symbola impl-init` (pinned to the new digests), all 8 pass: search-query 92,
 bibtex-import 49, bibtex-export 25, citation-key 25, pdf-filing 25, library-merge 29, tidy 26,
 library-file 46.
 
@@ -277,7 +277,7 @@ Still ambiguous in the new text:
 
 ## Revision 2 (importer bug fixes)
 
-Only bibtex-import changed; its manifest digest was set from `symbolon digest` (sha256:2d877ecf...) and
+Only bibtex-import changed; its manifest digest was set from `symbola digest` (sha256:2d877ecf...) and
 checked. All 8 pass: search-query 92, bibtex-import 50, bibtex-export 25, citation-key 25, pdf-filing 25,
 library-merge 29, tidy 26, library-file 46.
 

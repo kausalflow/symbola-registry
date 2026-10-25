@@ -10,7 +10,7 @@ The second spec pack built from a real product, and the first that is not a set 
 
 ## How it went
 
-1. **Extract.** A blind `symbolon extract` with a hint to specify at surfaces drafted the pack. Randomness is specified through statistical properties that hold across seeds, and the command line through an adapter that runs it in a scratch directory.
+1. **Extract.** A blind `symbola extract` with a hint to specify at surfaces drafted the pack. Randomness is specified through statistical properties that hold across seeds, and the command line through an adapter that runs it in a scratch directory.
 2. **Replication 1** (three Go builds, one of them prose-only, i.e. without examples or properties). The full builds passed all four components. The prose-only build passed only `run-series`, and that exposed four wrong or missing rules in the descriptions. The descriptions are fixed, and the inputs where builds split from homeostat are now recorded as examples.
 3. **Replication 2** (one full Go build, one prose-only). The full build passes all four components. The prose-only build passes `run-series` and 130 of 131 `scenario-issues` checks. That run found one more missing rule (an `exogenous` source's `tau` takes a duration), which is now fixed. Its remaining failures are malformed-input edge cases that only the examples carry.
 

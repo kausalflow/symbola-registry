@@ -64,7 +64,7 @@ Two Symbolon bugs turned up and are fixed: examples containing U+2028 were split
 
 ## Shorter descriptions (2026-10-24)
 
-The `search-query` and `tidy` descriptions restated, close to pseudocode, rules that `obligations.toml` and the examples already pin down. An ablation run with `symbolon replicate` (one Sonnet 5.5 and one Opus 5.5 build per variant, lightkone as the reference, the holdout on) tested which parts of that prose builders needed:
+The `search-query` and `tidy` descriptions restated, close to pseudocode, rules that `obligations.toml` and the examples already pin down. An ablation run with `symbola replicate` (one Sonnet 5.5 and one Opus 5.5 build per variant, lightkone as the reference, the holdout on) tested which parts of that prose builders needed:
 
 | Variant | search-query distance to lightkone (Sonnet, Opus) | tidy distance (both) |
 | --- | --- | --- |
@@ -86,6 +86,6 @@ rebuilds/go-1/check.sh                             # build the Go binaries, chec
 oracle/holdout.sh search-query rebuilds/go-1/search-query
 python3 oracle/mutate.py bibtex-import 2000 9 > /tmp/cases.jsonl  # inputs for a differential run
 python3 oracle/differential.py bibtex-import /tmp/cases.jsonl rebuilds/go-1
-symbolon verify attestations/search-query.python-1.json --trust attestations/runner-a.pub \
+symbola verify attestations/search-query.python-1.json --trust attestations/runner-a.pub \
   --contract versions/1/components/search-query/versions/1 --impl rebuilds/python-1/search-query --rerun
 ```

@@ -19,4 +19,4 @@ s = re.sub(r"^seed = \d+$", "seed = 20261021", s, flags=re.M)
 s = re.sub(r"^max_examples = (\d+)$", lambda m: f"max_examples = {int(m.group(1)) * 5}", s, flags=re.M)
 open(p, "w").write(s)
 PY
-symbolon test "$work/contract" "$impl"
+symbola test "$work/contract" "$impl"

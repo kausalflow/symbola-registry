@@ -77,6 +77,8 @@ Every build passed every check and the holdout. Most of the tidy distance is lig
 
 On this version, the remaining search-query distance comes from three things. One is the open `year:+2` and `year:1e3` spellings. Another is collation of a rare Arabic letter. The third is a query of only a BOM, a gap the full pack had too. That gap is now the obligation `search.whitespace` (JavaScript's `\s`), with three examples. The Opus build fails one of them, so the gap is now caught. Lightkone is re-attested on both new digests with a new runner key, `attestations/runner-d.pub`. The Go and Python attestations for these two contracts stay as they are; they are for the earlier digests.
 
+The replication runs also showed tidy crashing on a paper with no `authors` key, which its input schema allows; every rebuild returned no groups. That is fixed in kausalflow/lightkone#54, along with merged `tags` coming out as `[null]` when papers had no `tags` key. The new obligation `tidy.missing-lists` pins both with two examples recorded from the fixed lightkone, and the tidy oracle is rebuilt from it. Lightkone is re-attested on the new tidy digest with runner key `attestations/runner-e.pub`. The Go build passes the new contract unchanged; its tidy attestation stays on the earlier digest.
+
 ## Re-running
 
 ```bash

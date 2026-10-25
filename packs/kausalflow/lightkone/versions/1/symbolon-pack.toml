@@ -1,4 +1,4 @@
-# Spec pack manifest. Pack tooling (symbolon pack validate/pull) comes later;
+# Spec pack manifest. Pack tooling (symbola pack validate/pull) comes later;
 # for now this records which contract versions make up the pack.
 [pack]
 id = "kausalflow/lightkone"

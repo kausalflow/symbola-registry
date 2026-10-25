@@ -1,7 +1,7 @@
 """Generate inputs for differential.py by mutating the string leaves of a
 contract's example inputs: python3 mutate.py <name> <count> [seed]."""
 import json, random, sys, copy
-from symbolon.spec import load_examples
+from symbola.spec import load_examples
 name=sys.argv[1]; n=int(sys.argv[2]); random.seed(int(sys.argv[3]) if len(sys.argv)>3 else 1)
 base=str(__import__("pathlib").Path(__file__).resolve().parent.parent)
 ex=[e["input"] for e in load_examples(f"{base}/versions/1/components/{name}/versions/1/examples.jsonl")]

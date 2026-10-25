@@ -1,0 +1,24 @@
+{
+  "additionalProperties": false,
+  "description": "A scenario as a JSON value (`scenario`), or as YAML/JSON document text (`text`, which wins when present).",
+  "properties": {
+    "scenario": {
+      "default": null,
+      "title": "Scenario"
+    },
+    "text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Text"
+    }
+  },
+  "title": "Input",
+  "type": "object"
+}

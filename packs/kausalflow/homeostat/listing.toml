@@ -1,0 +1,5 @@
+# How symbola.sh lists this pack in the shop. Lives outside versions/, so editing it never
+# changes the pack's digest.
+name = "Homeostat"
+category = "research"
+summary = "Process-plant time series with full ground truth from a declarative scenario: validation with actionable errors, exact discretization, reproducible random streams, a scriptable CLI."

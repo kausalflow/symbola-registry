@@ -1,0 +1,4 @@
+# Written by make.py from facts/<component>.py
+*/
+!facts/
+__pycache__/

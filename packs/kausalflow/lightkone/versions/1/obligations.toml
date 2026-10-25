@@ -6,10 +6,14 @@
 # Checks are "<component>#example:<line in examples.jsonl>" or
 # "<component>#<property test name>".
 #
-# This is a retrofit of the v1 pack, which was written before v0.5. The
-# search-query and tidy descriptions were cut to their purpose after an
-# ablation run (2026-10-24): every rule they stated is an obligation here,
-# and the facts only the prose carried became examples.
+# This is a retrofit of the v1 pack, which was written before v0.5. Five
+# descriptions are cut to their purpose; the rules they stated are
+# obligations here, and each fact only their prose carried became an example.
+# search-query and tidy were cut after an ablation run (2026-10-24);
+# bibtex-export, citation-key and library-file after oracle/fact-mutants/
+# showed which rules no check pinned and a build from the cut pack matched
+# lightkone (2026-10-25). bibtex-import, pdf-filing and library-merge keep
+# their full descriptions: the same build drifted from lightkone without them.
 
 # ── search-query ──────────────────────────────────────────────────────────
 
@@ -186,7 +190,7 @@ id = "import.entries"
 statement = "@type{key, fields} and @type(key, fields) become drafts; @comment, @preamble and untitled entries do not."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#test_entries_without_a_title_are_left_out", "bibtex-import#test_comments_and_preambles_are_not_entries", "bibtex-import#example:1", "bibtex-import#example:2", "bibtex-import#example:7", "bibtex-import#example:9", "bibtex-import#example:10", "bibtex-import#example:11", "bibtex-import#example:12"]
+checks = ["bibtex-import#test_entries_without_a_title_are_left_out", "bibtex-import#test_comments_and_preambles_are_not_entries", "bibtex-import#example:1", "bibtex-import#example:2", "bibtex-import#example:7", "bibtex-import#example:9", "bibtex-import#example:10", "bibtex-import#example:11", "bibtex-import#example:12", "bibtex-import#example:45", "bibtex-import#example:48"]
 
 [[obligation]]
 id = "import.malformed-field-skip"
@@ -201,7 +205,7 @@ id = "import.values"
 statement = "Values are braced, quoted, numeric or macro parts joined by #; @string and month macros expand; later fields replace earlier ones; whitespace collapses."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#test_string_macros_and_concatenation", "bibtex-import#test_month_macros", "bibtex-import#test_whitespace_in_values_collapses", "bibtex-import#test_later_fields_replace_earlier_ones", "bibtex-import#example:8", "bibtex-import#example:17", "bibtex-import#example:21", "bibtex-import#example:22"]
+checks = ["bibtex-import#test_string_macros_and_concatenation", "bibtex-import#test_month_macros", "bibtex-import#test_whitespace_in_values_collapses", "bibtex-import#test_later_fields_replace_earlier_ones", "bibtex-import#example:8", "bibtex-import#example:17", "bibtex-import#example:21", "bibtex-import#example:22", "bibtex-import#example:42", "bibtex-import#example:44", "bibtex-import#example:52", "bibtex-import#example:53"]
 
 [[obligation]]
 id = "import.non-ascii-whitespace"
@@ -216,14 +220,14 @@ id = "import.latex-to-plain"
 statement = "Title, venue, abstract, names and tags go through plain(): LaTeX accents and specials become Unicode, formatting commands unwrap, braces go."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#example:3", "bibtex-import#example:6", "bibtex-import#example:13", "bibtex-import#example:14"]
+checks = ["bibtex-import#example:3", "bibtex-import#example:6", "bibtex-import#example:13", "bibtex-import#example:14", "bibtex-import#example:46", "bibtex-import#example:47", "bibtex-import#example:50", "bibtex-import#example:51", "bibtex-import#example:54"]
 
 [[obligation]]
 id = "import.authors"
 statement = "Authors split on 'and'; First Last flips to Last, First; comma names, 'others' and {braced} names are kept; editor stands in only without an author field."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#test_braced_names_and_others_are_kept", "bibtex-import#test_editors_stand_in_for_missing_authors", "bibtex-import#example:5", "bibtex-import#example:11", "bibtex-import#example:19", "bibtex-import#example:27"]
+checks = ["bibtex-import#test_braced_names_and_others_are_kept", "bibtex-import#test_editors_stand_in_for_missing_authors", "bibtex-import#example:5", "bibtex-import#example:11", "bibtex-import#example:19", "bibtex-import#example:27", "bibtex-import#example:43"]
 
 [[obligation]]
 id = "import.identifiers"
@@ -251,7 +255,7 @@ id = "import.tags"
 statement = "keywords split on ; or , into tags, dropping identifiers and URLs."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#test_keywords_become_tags_without_identifiers", "bibtex-import#example:15"]
+checks = ["bibtex-import#test_keywords_become_tags_without_identifiers", "bibtex-import#example:15", "bibtex-import#example:49"]
 
 # ── bibtex-export ─────────────────────────────────────────────────────────
 
@@ -331,21 +335,21 @@ id = "filing.paperpile-layout"
 statement = "PDFs are filed as papers/All Papers/<SURNAME>/<Who Year - Title>.pdf, Paperpile's own layout, so a Paperpile folder can be copied in unchanged."
 status = "decided"
 source = "oracle"
-checks = ["pdf-filing#test_pdf_is_the_file_under_papers", "pdf-filing#test_folder_is_the_first_surname_in_capitals", "pdf-filing#test_same_paper_same_place", "pdf-filing#example:1", "pdf-filing#example:2", "pdf-filing#example:3", "pdf-filing#example:7", "pdf-filing#example:8", "pdf-filing#example:9", "pdf-filing#example:10", "pdf-filing#example:16", "pdf-filing#example:17", "pdf-filing#example:20", "pdf-filing#example:21"]
+checks = ["pdf-filing#test_pdf_is_the_file_under_papers", "pdf-filing#test_folder_is_the_first_surname_in_capitals", "pdf-filing#test_same_paper_same_place", "pdf-filing#example:1", "pdf-filing#example:2", "pdf-filing#example:3", "pdf-filing#example:7", "pdf-filing#example:8", "pdf-filing#example:9", "pdf-filing#example:10", "pdf-filing#example:16", "pdf-filing#example:17", "pdf-filing#example:20", "pdf-filing#example:21", "pdf-filing#example:24"]
 
 [[obligation]]
 id = "filing.clean-names"
 statement = "File names hold no characters a file system or Drive rejects; they become ' - ', and -- / --- become dashes."
 status = "decided"
 source = "oracle"
-checks = ["pdf-filing#test_names_hold_no_forbidden_characters", "pdf-filing#example:4", "pdf-filing#example:5", "pdf-filing#example:6", "pdf-filing#example:18", "pdf-filing#example:19"]
+checks = ["pdf-filing#test_names_hold_no_forbidden_characters", "pdf-filing#example:4", "pdf-filing#example:5", "pdf-filing#example:6", "pdf-filing#example:18", "pdf-filing#example:19", "pdf-filing#example:22"]
 
 [[obligation]]
 id = "filing.length"
 statement = "Long author lists and names are shortened the way Paperpile shortens them."
 status = "decided"
 source = "oracle"
-checks = ["pdf-filing#test_long_names_are_shortened_around_an_ellipsis", "pdf-filing#example:11", "pdf-filing#example:12"]
+checks = ["pdf-filing#test_long_names_are_shortened_around_an_ellipsis", "pdf-filing#example:11", "pdf-filing#example:12", "pdf-filing#example:23"]
 
 [[obligation]]
 id = "filing.no-overwrite"
@@ -361,7 +365,7 @@ id = "merge.no-lost-edits"
 statement = "A save never silently drops a change made elsewhere: one-sided changes are taken, different fields of one paper both survive."
 status = "decided"
 source = "oracle"
-checks = ["library-merge#test_nothing_changed_merges_to_itself", "library-merge#test_changes_made_only_elsewhere_are_taken_whole", "library-merge#test_changes_made_only_here_are_kept", "library-merge#test_edits_to_different_fields_both_survive", "library-merge#example:1", "library-merge#example:2", "library-merge#example:3", "library-merge#example:4", "library-merge#example:9"]
+checks = ["library-merge#test_nothing_changed_merges_to_itself", "library-merge#test_changes_made_only_elsewhere_are_taken_whole", "library-merge#test_changes_made_only_here_are_kept", "library-merge#test_edits_to_different_fields_both_survive", "library-merge#example:1", "library-merge#example:2", "library-merge#example:3", "library-merge#example:4", "library-merge#example:9", "library-merge#example:27"]
 
 [[obligation]]
 id = "merge.conflict-ours"
@@ -379,10 +383,10 @@ checks = ["library-merge#test_tags_merge_as_sets", "library-merge#example:6", "l
 
 [[obligation]]
 id = "merge.deletes"
-statement = "A paper deleted on one side and unchanged on the other is gone; changed on the other, it survives."
+statement = "A paper deleted on one side and unchanged on the other is gone; changed on the other, it survives. Papers compare by value, in any key order."
 status = "decided"
 source = "oracle"
-checks = ["library-merge#test_a_paper_deleted_here_but_changed_there_survives", "library-merge#example:10", "library-merge#example:11", "library-merge#example:12", "library-merge#example:13", "library-merge#example:14"]
+checks = ["library-merge#test_a_paper_deleted_here_but_changed_there_survives", "library-merge#example:10", "library-merge#example:11", "library-merge#example:12", "library-merge#example:13", "library-merge#example:14", "library-merge#example:26"]
 
 [[obligation]]
 id = "merge.order-and-count"
@@ -396,7 +400,7 @@ id = "merge.bibsync"
 statement = "bibSync takes theirs unless changed here, and is written only when non-empty."
 status = "decided"
 source = "oracle"
-checks = ["library-merge#example:18", "library-merge#example:19"]
+checks = ["library-merge#example:18", "library-merge#example:19", "library-merge#example:24", "library-merge#example:25"]
 
 # ── tidy ──────────────────────────────────────────────────────────────
 

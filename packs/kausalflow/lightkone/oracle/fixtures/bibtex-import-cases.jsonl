@@ -39,3 +39,16 @@
 {"text": "@book{c, title={C}, journal={}, booktitle={  }, publisher={MIT Press}}\n@article{d, title={D}, journal={JMLR}, booktitle={NeurIPS}}\n@misc{e, title={E}, journal={}, booktitle={}}", "note": "empty journal and booktitle fall through to the publisher, which stays in the fields; a booktitle not used as the venue stays too; all empty means no venue"}
 {"text": "@article{k, title={T}, doi={10.1000/xyz/}, pages={12a--15b}}\n@article{l, title={U}, doi={https://doi.org/10.1000/xyz/}}", "note": "a DOI keeps a trailing slash, with or without the resolver prefix; pages are kept as written, letters included"}
 {"text": "@misc{k, title={T}, annote={From annote}, note={From note}}\n@misc{l, title={U}, note={From note}, annote={From annote}}\n@misc{m, title={V}, annote={}, note={From note}}", "note": "notes is annote whenever the entry has one, even empty and in any order; note then stays in the fields"}
+{"text": "@string{1 = \"one\"}\n@article{k, title={T}, volume = 1}", "note": "a bare number is kept as written even when a macro has that name"}
+{"text": "@article{k, title={T}, author = {{} and Smith, Jo and \\relax{}}}", "note": "an author of only {} is empty once plained and is dropped; an unknown command stays"}
+{"text": "@article{k, title = {Sets \\} and \\{ braces}}", "note": "a backslash escapes the next character in a braced value, so \\} does not close it (plain then drops both braces)"}
+{"text": "@article{k1 , title={T}}", "note": "the key is trimmed"}
+{"text": "@article{k, title = {The \\vec{x} operator and \\c{c}a}}", "note": "c v u H are accents only before whitespace or {: \\vec stays, \\c{c} is ç"}
+{"text": "@article{k, title = {Stra\\ss e and \\o re}}", "note": "one space after a bare letter command is consumed"}
+{"text": "@preamble{\"a, title = {Fake}\"}\n@article{k, title={Real}}", "note": "a @preamble's value is read and ignored, even when it looks like fields"}
+{"text": "@article{k, title={T}, keywords = {ml; pmid:123; PMC:PMC9; isbn:1; issn:2; deep learning}}", "note": "identifier keywords (any case) are dropped"}
+{"text": "@article{k, title = {\\textbf{Bold}, \\textit{it}, \\mathrm{rm} and \\textrm{tr} claims}}", "note": "\\textbf \\textit \\mathrm \\textrm lose the command and keep the text"}
+{"text": "@article{k, title = {Fig.~1 and~2}}", "note": "~ is a space"}
+{"text": "@misc-{Ru, title = {J", "note": "an unterminated value runs to the end of the text; the type is everything up to whitespace or , = { } ( ) \" #"}
+{"text": "@ARTI\\CLE{0,TITLE=\"0", "note": "a backslash can be part of the type; an unterminated quoted value runs to the end"}
+{"text": "@article{k, title = {Turkh \\i stul\\ss and \\j}}", "note": "a bare \\j is not a letter command: only \\i is (it reads as ı)"}

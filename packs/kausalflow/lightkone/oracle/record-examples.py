@@ -22,7 +22,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from symbolon.spec import resolve_fixtures
+from symbola.spec import resolve_fixtures
 
 here = Path(__file__).resolve().parent
 name = sys.argv[1]

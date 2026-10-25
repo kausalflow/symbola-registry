@@ -5,7 +5,7 @@ title = "Homeostat: process-industry time series with full ground truth, from a 
 license = "Apache-2.0"
 authors = ["kausalflow"]
 
-# Recomputed by `symbolon extract` from components/; no need to edit by hand.
+# Recomputed by `symbola extract` from components/; no need to edit by hand.
 [components]
 "kausalflow/cli-contract@1" = "sha256:bfb1de63e3f0dbceb8394bee59d41bd291ab9f5bc6c07f012fabc67f47c792e9"
 "kausalflow/run-series@1" = "sha256:62275f99879cd9339130a8fe8a8627b1406576d9f03f9666e8eecf92b99ed201"

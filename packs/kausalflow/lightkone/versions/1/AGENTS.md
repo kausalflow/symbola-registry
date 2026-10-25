@@ -11,18 +11,18 @@ do not look for lightkone's source.
    description and an example seem to disagree, the example is what lightkone does.
 
 **Harness.** An implementation is a directory with `symbolon-impl.toml`
-(`symbolon impl-init <dir> --contract components/<name>/versions/1`). In Python, define
+(`symbola impl-init <dir> --contract components/<name>/versions/1`). In Python, define
 `run(input)` returning the contract's output; in any other language, a program
 that reads one JSON input per line on stdin and writes `{"output": ...}` per
 line (`docs/ATTESTATION.md`, "Implementations in other languages").
 
-**Done** means `symbolon attest components/<name>/versions/1 <impl-dir>` reports PASSED
+**Done** means `symbola attest components/<name>/versions/1 <impl-dir>` reports PASSED
 for every component. Don't special-case the examples: the properties generate
 other inputs, and the publisher keeps a holdout. Write questions about unclear
 parts, and the reading you chose, in `NOTES.md` next to your build.
 
 **If the spec contradicts itself** (an example disagrees with the description or
 with a property), don't code around it. Run
-`symbolon flag <component>#example:<line> "<what disagrees, and the reading you chose>" --dir <impl-dir>`,
+`symbola flag <component>#example:<line> "<what disagrees, and the reading you chose>" --dir <impl-dir>`,
 build the reading you think is right, and carry on. A flagged contradiction counts
 in your favour; matching an example the spec rules out does not.

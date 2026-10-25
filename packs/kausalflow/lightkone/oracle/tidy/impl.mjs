@@ -8,7 +8,7 @@ const normArxiv = (a) => a?.trim().toLowerCase().replace(/^arxiv:/, "").replace(
 //#endregion
 //#region src/core/tidy.ts
 const normTitle = (t) => t.normalize("NFKD").toLowerCase().replace(/[^a-z0-9]+/g, "");
-const firstAuthor = (p) => (p.authors[0] ?? "").split(",")[0].normalize("NFKD").toLowerCase().replace(/[^a-z]/g, "");
+const firstAuthor = (p) => ((p.authors ?? [])[0] ?? "").split(",")[0].normalize("NFKD").toLowerCase().replace(/[^a-z]/g, "");
 /**
 * Groups of papers that are probably the same: same DOI, same arXiv id, or the
 * same title (short titles also need the same first author). Trash is ignored.
@@ -49,7 +49,7 @@ function pickKeeper(group) {
 function mergeInto(keep, others) {
 	const all = [keep, ...others];
 	const patch = {
-		tags: [...new Set(all.flatMap((p) => p.tags))],
+		tags: [...new Set(all.flatMap((p) => p.tags ?? []))],
 		folders: [...new Set(all.flatMap((p) => p.folders ?? []))],
 		notes: [...new Set(all.map((p) => p.notes?.trim()).filter(Boolean))].join("\n\n") || void 0,
 		starred: all.some((p) => p.starred) || void 0,
@@ -74,7 +74,7 @@ function mergeInto(keep, others) {
 }
 
 //#endregion
-//#region ../symbolon/packs/kausalflow/lightkone/oracle/adapters/serve.ts
+//#region ../symbolon-registry/packs/kausalflow/lightkone/oracle/adapters/serve.ts
 /** Thrown by an adapter when the contract says the input is invalid. */
 var ValueError = class extends Error {};
 /** JSON null means "absent"; lightkone's types use undefined for that. */
@@ -100,7 +100,7 @@ async function serve(run) {
 }
 
 //#endregion
-//#region ../symbolon/packs/kausalflow/lightkone/oracle/adapters/tidy.ts
+//#region ../symbolon-registry/packs/kausalflow/lightkone/oracle/adapters/tidy.ts
 serve(({ papers }) => ({ groups: findDuplicates(papers).map((group) => {
 	const keep = pickKeeper(group);
 	return {

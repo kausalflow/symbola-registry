@@ -14,5 +14,5 @@ authors = ["kausalflow"]
 "lightkone/citation-key@1" = "sha256:69041cb4a2e57a7ab161892db71ac21b103afb7e9187624207c66bbac1e5db94"
 "lightkone/pdf-filing@1" = "sha256:dd2d64a6e1ab19840db5b5df1780bcc92937fdaf8a43eec0ed13767e8a56d22e"
 "lightkone/library-merge@1" = "sha256:a8fb977d8b4131e7283dd44ed55ba3d9981daf43218771d596906a6ce2abdd5f"
-"lightkone/tidy@1" = "sha256:1b3520fba550f20be9b9b881cdfbfa7bc187e77cf9396355e69307106a44f96b"
+"lightkone/tidy@1" = "sha256:a804df85db33b00171a9e2fef6f63c9567b4c36a5c0401a5a64b6bf5c949bd08"
 "lightkone/library-file@1" = "sha256:e83caa9f5cd7d5b4ad73ed065a0793db3e788606522132041a7e1709a7c1453c"

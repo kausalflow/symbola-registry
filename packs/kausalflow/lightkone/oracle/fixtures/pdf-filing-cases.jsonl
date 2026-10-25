@@ -17,3 +17,5 @@
 {"paper": {"id": "new", "title": "Empty first", "authors": ["", "Second, B"], "year": 2000}, "note": "an empty first author means folder Other, but the name uses the rest"}
 {"paper": {"id": "new", "title": "-Leading and trailing-", "authors": ["-Dash-, A"], "year": 2000}, "note": "leading and trailing hyphens are removed by clean"}
 {"paper": {"id": "new", "title": "Trailing slash/", "authors": ["Back\\slash, A"], "year": 2000}, "note": "backslash and slash at the edges"}
+{"paper": {"id": "n", "title": "﻿Attention﻿", "authors": ["﻿"], "year": 2017}, "library": [], "note": "U+FEFF is whitespace (JavaScript's \\s): a title padded with it is trimmed, and an author of only U+FEFF is no author"}
+{"paper": {"id": "n", "title": "﻿", "authors": ["﻿Vaswani, Ashish"], "year": 2017}, "library": [], "note": "a title of only U+FEFF is Untitled"}

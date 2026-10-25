@@ -29,10 +29,10 @@ checks = ["search-query#test_trash_shows_only_with_is_trash", "search-query#exam
 
 [[obligation]]
 id = "search.query-tokens"
-statement = "Terms split on whitespace; quotes make one word; an unknown field:value or unmatched quote is an ordinary word."
+statement = "Terms split on whitespace; quotes make one word, which ends at the closing quote; an unknown field:value or unmatched quote is an ordinary word."
 status = "decided"
 source = "extract"
-checks = ["search-query#example:8", "search-query#example:9", "search-query#example:21", "search-query#example:22", "search-query#example:23", "search-query#example:27"]
+checks = ["search-query#example:8", "search-query#example:9", "search-query#example:21", "search-query#example:22", "search-query#example:23", "search-query#example:27", "search-query#example:95"]
 
 [[obligation]]
 id = "search.whitespace"
@@ -227,17 +227,17 @@ checks = ["bibtex-import#test_braced_names_and_others_are_kept", "bibtex-import#
 
 [[obligation]]
 id = "import.identifiers"
-statement = "doi loses its resolver prefix; arxiv ids come from arxivid, arXiv eprints, arxiv.org URLs or new-style bare eprints, without version."
+statement = "doi loses its resolver prefix and nothing else (a trailing slash stays); arxiv ids come from arxivid, arXiv eprints, arxiv.org URLs or new-style bare eprints, without version."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#test_doi_loses_its_resolver_prefix", "bibtex-import#test_arxiv_ids_are_found", "bibtex-import#test_other_eprints_stay_in_fields", "bibtex-import#example:16", "bibtex-import#example:28", "bibtex-import#example:33", "bibtex-import#example:34"]
+checks = ["bibtex-import#test_doi_loses_its_resolver_prefix", "bibtex-import#test_arxiv_ids_are_found", "bibtex-import#test_other_eprints_stay_in_fields", "bibtex-import#example:16", "bibtex-import#example:28", "bibtex-import#example:33", "bibtex-import#example:34", "bibtex-import#example:40"]
 
 [[obligation]]
 id = "import.draft-fields"
-statement = "year is the first four digits; venue is journal, else booktitle, else publisher; notes is annote, else note; empty abstract, doi and venue are absent."
+statement = "year is the first four digits; venue is journal, else booktitle, else publisher; notes is annote when the entry has one (even empty), else note; empty abstract, doi and venue are absent."
 status = "decided"
 source = "extract"
-checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#example:23", "bibtex-import#example:35", "bibtex-import#example:37"]
+checks = ["bibtex-import#example:4", "bibtex-import#example:20", "bibtex-import#example:23", "bibtex-import#example:35", "bibtex-import#example:37", "bibtex-import#example:41"]
 
 [[obligation]]
 id = "import.venue-empty-journal"
@@ -331,7 +331,7 @@ id = "filing.paperpile-layout"
 statement = "PDFs are filed as papers/All Papers/<SURNAME>/<Who Year - Title>.pdf, Paperpile's own layout, so a Paperpile folder can be copied in unchanged."
 status = "decided"
 source = "oracle"
-checks = ["pdf-filing#test_pdf_is_the_file_under_papers", "pdf-filing#test_folder_is_the_first_surname_in_capitals", "pdf-filing#test_same_paper_same_place", "pdf-filing#example:1", "pdf-filing#example:2", "pdf-filing#example:3", "pdf-filing#example:7", "pdf-filing#example:8", "pdf-filing#example:9", "pdf-filing#example:10", "pdf-filing#example:16", "pdf-filing#example:17"]
+checks = ["pdf-filing#test_pdf_is_the_file_under_papers", "pdf-filing#test_folder_is_the_first_surname_in_capitals", "pdf-filing#test_same_paper_same_place", "pdf-filing#example:1", "pdf-filing#example:2", "pdf-filing#example:3", "pdf-filing#example:7", "pdf-filing#example:8", "pdf-filing#example:9", "pdf-filing#example:10", "pdf-filing#example:16", "pdf-filing#example:17", "pdf-filing#example:20", "pdf-filing#example:21"]
 
 [[obligation]]
 id = "filing.clean-names"
@@ -375,7 +375,7 @@ id = "merge.sets"
 statement = "tags and folders merge as sets: additions from either side are kept, removals from either side stick."
 status = "decided"
 source = "oracle"
-checks = ["library-merge#test_tags_merge_as_sets", "library-merge#example:6", "library-merge#example:7", "library-merge#example:8", "library-merge#example:21"]
+checks = ["library-merge#test_tags_merge_as_sets", "library-merge#example:6", "library-merge#example:7", "library-merge#example:8", "library-merge#example:21", "library-merge#example:22", "library-merge#example:23"]
 
 [[obligation]]
 id = "merge.deletes"
@@ -482,7 +482,7 @@ id = "file.exact-text"
 statement = "library.json is written byte for byte as lightkone writes it: JSON with a one-space indent, JavaScript's key order, escaping and number printing."
 status = "decided"
 source = "oracle"
-checks = ["library-file#test_layout_is_one_space_indented_json", "library-file#example:4", "library-file#example:9", "library-file#example:18", "library-file#example:19", "library-file#example:20", "library-file#example:24"]
+checks = ["library-file#test_layout_is_one_space_indented_json", "library-file#example:4", "library-file#example:9", "library-file#example:18", "library-file#example:19", "library-file#example:20", "library-file#example:24", "library-file#example:55"]
 
 [[obligation]]
 id = "file.no-needless-write"

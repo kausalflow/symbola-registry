@@ -12,7 +12,8 @@ can be copied into a library unchanged:
          All Papers/HINTON/Hinton et al. 2012 - Improving neural networks.pdf
 
 clean(s), in order: "---" -> "—" (em dash), "--" -> "–" (en dash); each of
-: / \\ ? * " < > | -> " - "; whitespace runs -> one space; runs of " - "
+: / \\ ? * " < > | -> " - "; whitespace runs (JavaScript's \\s, which
+includes U+FEFF) -> one space; runs of " - "
 -> one " - "; then remove leading and trailing spaces and hyphens.
 
 surname(a): the part of a before the first comma (all of a if none), trimmed.

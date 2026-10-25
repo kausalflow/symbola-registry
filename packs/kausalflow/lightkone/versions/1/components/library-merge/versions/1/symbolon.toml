@@ -22,7 +22,7 @@ Per paper id, with b, o, t its version in base, ours and theirs:
   o equals b:      t
   t equals b:      o
   otherwise        a field-by-field merge of b, o and t:
-    tags, folders  (when o or t has the list) kept as sets: every item in o,
+    tags, folders  (when o or t has the list) kept as sets, each item once: every item in o,
                    then every item in t not already listed, minus any item of
                    b that o or t removed
     other fields   t's value if o's equals b's, else o's; a field absent from

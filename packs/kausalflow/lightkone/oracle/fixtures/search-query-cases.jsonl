@@ -92,3 +92,4 @@
 {"query": "﻿", "note": "whitespace is JavaScript's \\s set, so a query of only a BOM is the empty query"}
 {"query": "neural year:2012", "note": "a no-break space separates terms too"}
 {"query": "neural　hinton", "note": "so does an ideographic space"}
+{"papers": [{"id": "a", "title": "a b yc", "added": "2024-01-01T00:00:00.000Z"}, {"id": "b", "title": "c then a b", "added": "2024-01-02T00:00:00.000Z"}, {"id": "c", "title": "a b", "added": "2024-01-03T00:00:00.000Z"}, {"id": "d", "title": "a bc", "added": "2024-01-04T00:00:00.000Z"}], "query": "\"a b\"c", "note": "a quoted phrase ends at its closing quote; text right after it is the next term"}

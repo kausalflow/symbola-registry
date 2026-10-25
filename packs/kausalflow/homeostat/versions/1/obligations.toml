@@ -457,3 +457,36 @@ statement = "The layout of text output other than the first line of validate (ru
 status = "open"
 source = "extract"
 kind = "behaviour"
+
+[[obligation]]
+id = "product.library-compiles-to-core"
+statement = "The `process` library is a plugin found by entry point: every template, fault, degradation and maintenance task expands into core operators and ordinary events, with the names, ports, ISA tags and signals PRODUCT.md lists, so the components' rules (single writer, roles, event log, exact discretization, keyed noise) hold for scenarios that use it."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "The core stays pure math and other domains can be added as libraries; the ground truth is exact for library plants only because they are plain core graphs."
+unchecked = "an end-to-end check: validate, explain and run the five shipped examples and the eval tasks' reference scenarios, and compare signals, loops, roles and events with the original"
+
+[[obligation]]
+id = "product.vocabulary-from-metadata"
+statement = "`describe`, `schema`, `catalog()` and validation read the same library metadata, so a name that `describe` lists validates and a misspelt one gets a suggestion from it; all of it works offline."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+unchecked = "a check that every name in `describe --json` validates in a minimal scenario, run with the network off"
+
+[[obligation]]
+id = "product.faults-and-tasks-are-labelled-events"
+statement = "A fault or a maintenance task is recorded in the event log as the events it expands to, labelled `fault:<name>` (origin `fault:<name>@<unit>`) or `maintenance:<task>` (origin `plan.maintenance[<i>]@<unit>`); generated plans, faults and draws are recorded in `meta[\"trace\"]` with their address, value, distribution and log-probability, and keyed by address so one generator never changes another's draws."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+unchecked = "a scenario-truth version 2 with library scenarios"
+
+[[obligation]]
+id = "product.python-api"
+statement = "`homeostat.simulate(source)` accepts a path, YAML text, a dict or a scenario and returns a Run whose truth, measured and observed are pandas DataFrames (one column per signal, `(lane, signal)` columns with several lanes) and whose meta holds the ground truth `scenario-truth` describes; `family()` runs plants that share a structure as lanes of one batch, and a plant in a family gives the same data as that plant run alone with the same noise key."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+unchecked = "a Python-API driver; the components check the same rules through adapters"

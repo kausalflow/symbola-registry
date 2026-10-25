@@ -3,7 +3,7 @@
 [pack]
 id = "kausalflow/lightkone"
 version = 1
-title = "Lightkone core: search, BibTeX, keys, filing, merge, tidy and the library file"
+title = "Lightkone: a research-paper library web app you own, with its core components"
 license = "Proprietary (kausalflow)"
 authors = ["kausalflow"]
 

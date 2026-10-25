@@ -4,7 +4,7 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |
-| `versions/1/` | The pack, version 1: BRIEF, AGENTS, assumptions, obligations, and eight component contracts | yes |
+| `versions/1/` | The pack, version 1: BRIEF, PRODUCT (the app), AGENTS, assumptions, obligations, and eight component contracts | yes |
 | `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester | no |
 | `rebuilds/python-1/` | Milestone 1: an AI build in Python (Claude Opus 5.5 in Claude Code) of the first three contracts, made from `versions/1/` alone | no |
 | `rebuilds/go-1/` | Milestone 2: a second AI build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md. Source only: `build.sh` makes the binaries byte for byte, and `check.sh` checks them against the attestations | no |
@@ -78,6 +78,34 @@ Every build passed every check and the holdout. Most of the tidy distance is lig
 On this version, the remaining search-query distance comes from three things. One is the open `year:+2` and `year:1e3` spellings. Another is collation of a rare Arabic letter. The third is a query of only a BOM, a gap the full pack had too. That gap is now the obligation `search.whitespace` (JavaScript's `\s`), with three examples. The Opus build fails one of them, so the gap is now caught. Lightkone is re-attested on both new digests with a new runner key, `attestations/runner-d.pub`. The Go and Python attestations for these two contracts stay as they are; they are for the earlier digests.
 
 The replication runs also showed tidy crashing on a paper with no `authors` key, which its input schema allows; every rebuild returned no groups. That is fixed in kausalflow/lightkone#54, along with merged `tags` coming out as `[null]` when papers had no `tags` key. The new obligation `tidy.missing-lists` pins both with two examples recorded from the fixed lightkone, and the tidy oracle is rebuilt from it. Lightkone is re-attested on the new tidy digest with runner key `attestations/runner-e.pub`. The Go build passes the new contract unchanged; its tidy attestation stays on the earlier digest.
+
+## The app, not just its core (2026-10-25)
+
+A field test asked a coding agent to build lightkone from this pack, the way a
+user would, and got a page that runs the eight components and nothing like the
+app. The components themselves came out right. Nothing in the pack said what
+lightkone is beyond one paragraph of BRIEF.md, which also said that later
+versions would add the rest, so the agent made up an app. Earlier rebuilds
+passed because they were asked to build the components only.
+
+`versions/1/PRODUCT.md` now describes the app a build delivers: a static web
+app with no server, its files, screens and flows, the storage and plugin
+interfaces, and the order to build in. It is written from lightkone's README and
+`docs/`, and it names the component each step must use. Two rules the app keeps
+outside the components are stated exactly: the duplicate check when adding papers
+(a different rule from tidy's) and how full-text matches join search results. Five
+`app.*` obligations record the app's decisions that no check covers yet. Component
+digests did not change, so every attestation still applies.
+
+A rebuild from this version (Claude Code with Opus 5.5 in
+TypeScript, given only the pack and the build steps from its page, 59 minutes)
+built the app: flows 1 to 13 and tiers 1 and 2 of PRODUCT.md's Order, Explain,
+Summarize and Ask from tier 3, all eight components attested PASSED, and an
+end-to-end browser test of every flow against mocked outside services. Its
+first screen has lightkone's layout. It found four gaps, now closed: BRIEF still
+called full-text search a non-goal; the formats of annotation files, saved
+pages and `.bib` sync targets were unstated; the example papers were unnamed;
+and the MCP address is sealed on the site, not in the browser.
 
 ## Re-running
 

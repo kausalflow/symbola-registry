@@ -8,11 +8,11 @@ license = "Proprietary (kausalflow)"
 authors = ["kausalflow"]
 
 [components]
-"lightkone/search-query@1" = "sha256:cf9b40c62dd815d4fc05bd0efd03f3798cc0d8e164305303ae4b60267fbba268"
-"lightkone/bibtex-import@1" = "sha256:549f518845ebd601650bf502cd18bb372368a3fea4e44510d2e67a53ba8ee88a"
+"lightkone/search-query@1" = "sha256:b592ff2a74f19589759beb9b21eb29baa389f3ef6e768bac99c22054ba986c94"
+"lightkone/bibtex-import@1" = "sha256:c1f3f9b85c75a007185f220b92f1dbf4cefdefcc63c57c569b38a318252e4508"
 "lightkone/bibtex-export@1" = "sha256:b2be7e43a14a1cdf9f5f65dcef181d159fe2afb95859dd1c6c836a6a89c3b97c"
 "lightkone/citation-key@1" = "sha256:69041cb4a2e57a7ab161892db71ac21b103afb7e9187624207c66bbac1e5db94"
-"lightkone/pdf-filing@1" = "sha256:583b0fa4549f4b8e1a6f6818a2d32d7f4062114e1cd74eba18c5f24786b5fff9"
-"lightkone/library-merge@1" = "sha256:70141d55339b28b0dd81d1b37e1426f04e8d1de9d0380cb90766666b7a8ed89b"
+"lightkone/pdf-filing@1" = "sha256:dd2d64a6e1ab19840db5b5df1780bcc92937fdaf8a43eec0ed13767e8a56d22e"
+"lightkone/library-merge@1" = "sha256:a8fb977d8b4131e7283dd44ed55ba3d9981daf43218771d596906a6ce2abdd5f"
 "lightkone/tidy@1" = "sha256:1b3520fba550f20be9b9b881cdfbfa7bc187e77cf9396355e69307106a44f96b"
-"lightkone/library-file@1" = "sha256:c51dba7de999b5fbcaee57007e3b55aea18ea538bc28e898f0f92c12696b1b51"
+"lightkone/library-file@1" = "sha256:e83caa9f5cd7d5b4ad73ed065a0793db3e788606522132041a7e1709a7c1453c"

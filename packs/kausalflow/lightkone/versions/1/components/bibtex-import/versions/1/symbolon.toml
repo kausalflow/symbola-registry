@@ -70,7 +70,7 @@ DRAFT FIELDS from an entry's fields (each one used is removed from
   doi         with a leading http(s)://doi.org/ or dx.doi.org/ removed
               (case-insensitive); empty means absent.
   url, file   as written; an empty value stays "" rather than absent.
-  notes       annote, else note, as written.
+  notes       annote when the entry has one (even empty), else note, as written.
   arxiv       arxivid; else eprint when archiveprefix or eprinttype is
               "arxiv" (any case); else the id in an arxiv.org/abs|pdf|html/
               url (matched ignoring case, so a V3 version suffix and .PDF are removed

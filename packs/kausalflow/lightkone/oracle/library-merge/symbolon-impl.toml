@@ -1,6 +1,6 @@
 # Lightkone's own code, bundled from kausalflow/lightkone@46f86da2a44881f38433aeed6ead5292f543ec43 by oracle/build.sh.
 [implementation]
-contract = "sha256:70141d55339b28b0dd81d1b37e1426f04e8d1de9d0380cb90766666b7a8ed89b"
+contract = "sha256:a8fb977d8b4131e7283dd44ed55ba3d9981daf43218771d596906a6ce2abdd5f"
 language = "command"
 command = ["node", "impl.mjs"]
 license = "Proprietary (kausalflow)"

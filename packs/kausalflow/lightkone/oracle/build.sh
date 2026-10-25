@@ -29,7 +29,7 @@ export default {
 CFG
   (cd "$lk" && npx --no-install rolldown -c "$here/.rolldown.config.mjs" > /dev/null)
   rm "$here/.rolldown.config.mjs"
-  digest=$(symbolon digest "$contracts/$name/versions/1")
+  digest=$(symbola digest "$contracts/$name/versions/1")
   cat > "$out/symbolon-impl.toml" <<TOML
 # Lightkone's own code, bundled from kausalflow/lightkone@$commit by oracle/build.sh.
 [implementation]

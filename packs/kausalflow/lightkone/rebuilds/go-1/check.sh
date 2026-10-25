@@ -8,7 +8,7 @@ sh "$here/build.sh"
 for toml in "$here"/*/symbolon-impl.toml; do
   dir="$(dirname "$toml")"; c="$(basename "$dir")"
   printf '%s: ' "$c"
-  symbolon verify "$att/$c.go-1.json" --impl "$dir" > "$here/.verify.log" || { cat "$here/.verify.log"; exit 1; }
+  symbola verify "$att/$c.go-1.json" --impl "$dir" > "$here/.verify.log" || { cat "$here/.verify.log"; exit 1; }
   grep -q "digests match local copies" "$here/.verify.log" && echo "implementation digest matches"
 done
 rm -f "$here/.verify.log"

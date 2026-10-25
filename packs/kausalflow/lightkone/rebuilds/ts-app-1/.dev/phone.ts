@@ -1,0 +1,21 @@
+import { spawn } from "node:child_process";
+import { chromium } from "playwright";
+const server = spawn("node_modules/.bin/vite", ["preview", "--port", "4180", "--strictPort"], { stdio: "ignore" });
+for (;;) { if (await fetch("http://localhost:4180/").then(r => r.ok, () => false)) break; await new Promise(r => setTimeout(r, 200)); }
+const b = await chromium.launch({ executablePath: "/tmp/chromium", args: ["--no-sandbox"] });
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+const p = await ctx.newPage();
+await p.goto("http://localhost:4180/app/");
+await p.locator("li.paper").first().waitFor();
+await p.screenshot({ path: ".dev/shots/phone-list.png" });
+await p.getByRole("button", { name: "Menu" }).click();
+await p.waitForTimeout(400);
+await p.screenshot({ path: ".dev/shots/phone-menu.png" });
+await p.setViewportSize({ width: 1400, height: 900 });
+await p.keyboard.press("Escape");
+await p.locator(".scrim").click({ force: true }).catch(() => {});
+await p.locator("li.paper").first().click();
+await p.screenshot({ path: ".dev/shots/desktop-details.png" });
+await p.locator(".topbar button[title=Settings]").click();
+await p.screenshot({ path: ".dev/shots/settings.png" });
+await b.close(); server.kill();

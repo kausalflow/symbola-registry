@@ -1,6 +1,0 @@
-[implementation]
-contract = "sha256:dd2d64a6e1ab19840db5b5df1780bcc92937fdaf8a43eec0ed13767e8a56d22e"
-command = ["node", "main.mjs"]
-language = "command"
-license = "Apache-2.0"
-authors = ["kausalflow-rebuild"]

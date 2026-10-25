@@ -8,7 +8,6 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 | `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester | no |
 | `rebuilds/python-1/` | Milestone 1: an AI build in Python (Claude Opus 5.5 in Claude Code) of the first three contracts, made from `versions/1/` alone | no |
 | `rebuilds/go-1/` | Milestone 2: a second AI build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md. Source only: `build.sh` makes the binaries byte for byte, and `check.sh` checks them against the attestations | no |
-| `rebuilds/ts-app-1/` | The first build of the whole app, in TypeScript, from `versions/1/` with PRODUCT.md, with its NOTES.md | no |
 | `attestations/` | Signed evidence for both builds, plus the runner keys | yes, as evidence |
 
 ## Results (milestone 1)
@@ -98,7 +97,7 @@ outside the components are stated exactly: the duplicate check when adding paper
 `app.*` obligations record the app's decisions that no check covers yet. Component
 digests did not change, so every attestation still applies.
 
-A rebuild from this version (`rebuilds/ts-app-1/`, Claude Code with Opus 5.5 in
+A rebuild from this version (Claude Code with Opus 5.5 in
 TypeScript, given only the pack and the build steps from its page, 59 minutes)
 built the app: flows 1 to 13 and tiers 1 and 2 of PRODUCT.md's Order, Explain,
 Summarize and Ask from tier 3, all eight components attested PASSED, and an

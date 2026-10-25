@@ -1,0 +1,17 @@
+# Homeostat pilot
+
+The second spec pack built from a real product, and the first that is not a set of pure functions: [kausalflow/homeostat](https://github.com/kausalflow/homeostat) at 3938464 (0.1.0a3), a Python library and command line that turns a declarative scenario into simulated plant data with its ground truth.
+
+| Path | What it is | Ships to buyers |
+| --- | --- | --- |
+| `versions/1/` | The pack: BRIEF, AGENTS, assumptions, 56 obligations, four components at the product's surfaces (scenario in, issues / ground truth / series out, and the command line) | yes |
+| `oracle/` | Adapters that run homeostat itself for each component | no |
+| `REVIEW.md` | Questions for kausalflow: priorities, the 8 `default` obligations, suspected homeostat bugs | no |
+
+## How it went
+
+1. **Extract.** A blind `symbolon extract` with a hint to specify at surfaces drafted the pack. Randomness is specified through statistical properties that hold across seeds, and the command line through an adapter that runs it in a scratch directory.
+2. **Replication 1** (three Go builds, one of them prose-only, i.e. without examples or properties). The full builds passed all four components. The prose-only build passed only `run-series`, and that exposed four wrong or missing rules in the descriptions. The descriptions are fixed, and the inputs where builds split from homeostat are now recorded as examples.
+3. **Replication 2** (one full Go build, one prose-only). The full build passes all four components. The prose-only build passes `run-series` and 130 of 131 `scenario-issues` checks. That run found one more missing rule (an `exogenous` source's `tau` takes a duration), which is now fixed. Its remaining failures are malformed-input edge cases that only the examples carry.
+
+`seed: -1` passes validation but crashes the run; it is listed in `REVIEW.md` and not pinned.

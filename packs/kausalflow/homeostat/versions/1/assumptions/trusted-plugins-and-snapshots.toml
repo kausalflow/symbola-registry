@@ -1,0 +1,4 @@
+id = "K-trusted-plugins-and-snapshots"
+statement = "Everything the engine loads is trusted: domain libraries found through the 'homeostat.libraries' entry point group run arbitrary code when a scenario names them, and Engine.restore() unpickles its input, so it runs arbitrary code for a snapshot from anyone else."
+basis = "load_library() calls entry_points(group='homeostat.libraries') and loads the named one without a check; snapshot() and restore() use pickle, and the docstring says to restore only your own snapshots. Scenario files themselves are read with yaml.safe_load and are data only."
+monitor = "none"

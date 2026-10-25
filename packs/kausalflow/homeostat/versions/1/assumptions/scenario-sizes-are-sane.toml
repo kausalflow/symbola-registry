@@ -1,0 +1,4 @@
+id = "K-scenario-sizes-are-sane"
+statement = "A scenario asks for a run that fits in memory and finishes in reasonable time: validation does not bound duration/dt, lanes, or the number of operators, and a run keeps every recorded row of every signal in memory. Times are float seconds, so durations and steps are assumed small enough that 1e-9 dt tolerances still separate whole steps (years at millisecond steps are not assumed to work)."
+basis = "Nothing in the loader or the engine caps steps, lanes or recorded rows; the eval harness has its own cap (a run over 5 million steps is not run) and the planned MCP server is to add resource caps. Event times and durations are compared to the grid with a tolerance of 1e-9 * dt."
+monitor = "The 'steps' count in `homeostat validate --json` summary (duration / dt x lanes) before running."

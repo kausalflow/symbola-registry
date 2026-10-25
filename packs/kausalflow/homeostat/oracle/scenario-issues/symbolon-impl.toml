@@ -1,0 +1,6 @@
+[implementation]
+contract = "sha256:458d56862981568ef2beaad21d3ccd5297e52d30b0ca64b5d7ae2242a4b6e430"
+entrypoint = "impl.py"
+language = "python"
+license = "Apache-2.0"
+authors = ["you@example.com"]

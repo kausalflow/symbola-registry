@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "seconds": {
+      "description": "The simulation time of each recorded row.",
+      "items": {
+        "type": "number"
+      },
+      "title": "Seconds",
+      "type": "array"
+    },
+    "values": {
+      "additionalProperties": {
+        "items": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "type": "array"
+      },
+      "description": "For each requested signal, one series per lane; null for NaN.",
+      "title": "Values",
+      "type": "object"
+    }
+  },
+  "required": [
+    "seconds",
+    "values"
+  ],
+  "title": "Output",
+  "type": "object"
+}

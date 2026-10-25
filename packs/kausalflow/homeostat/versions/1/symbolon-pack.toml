@@ -1,0 +1,13 @@
+[pack]
+id = "kausalflow/homeostat"
+version = 1
+title = "Homeostat: process-industry time series with full ground truth, from a declarative scenario"
+license = "Apache-2.0"
+authors = ["kausalflow"]
+
+# Recomputed by `symbolon extract` from components/; no need to edit by hand.
+[components]
+"kausalflow/cli-contract@1" = "sha256:bfb1de63e3f0dbceb8394bee59d41bd291ab9f5bc6c07f012fabc67f47c792e9"
+"kausalflow/run-series@1" = "sha256:62275f99879cd9339130a8fe8a8627b1406576d9f03f9666e8eecf92b99ed201"
+"kausalflow/scenario-issues@1" = "sha256:458d56862981568ef2beaad21d3ccd5297e52d30b0ca64b5d7ae2242a4b6e430"
+"kausalflow/scenario-truth@1" = "sha256:2612565205aae82396467c030f4fde528e7210aca81e1bb126f6599103475be5"

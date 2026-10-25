@@ -1,0 +1,4 @@
+id = "K-same-numpy-version"
+statement = "Two runs give identical numbers only on the same Homeostat and NumPy versions: the random generator (PCG64 seeded through SeedSequence) and the system maths library are taken to behave the same for those versions. Across versions, platforms or CPUs the numbers may differ in the last bits, or entirely."
+basis = "The engine records Homeostat, NumPy, Python and platform in run.meta['reproducibility'], and snapshots refuse to restore under other versions (E_SNAPSHOT_VERSION). CLAUDE.md states the guarantee as 'same config + seed + package version + NumPy version'. Numbers from the compiled step match the Python step only to rounding on AVX-512 CPUs."
+monitor = "Compare run.meta['reproducibility'] of the two runs before comparing their values."

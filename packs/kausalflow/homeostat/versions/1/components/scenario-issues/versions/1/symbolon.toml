@@ -1,0 +1,76 @@
+[contract]
+id = "kausalflow/scenario-issues"
+version = 1
+title = "Scenario validation issues"
+description = '''
+What `homeostat validate` finds wrong with a scenario, before anything is simulated. The input is the scenario (a JSON value in `scenario`, or YAML/JSON document text in `text`, which wins when present). The output lists every problem as a code and a location, plus the warnings of a valid scenario. Messages are not part of the contract: the code, the location, whether a fix is offered, and the "Did you mean" name are.
+
+## Output
+
+`ok` is true exactly when `errors` is empty. A scenario with errors has no warnings. `errors` and `warnings` are sorted by (location, code) as plain strings, one entry per distinct (code, location). `has_fix`: every error carries a suggested fix, with one exception: an E_SCHEMA error for a value of the wrong type or form has none (a string where a number is expected, an unparseable duration, `lanes: 0`, an `init` that is not one of its forms, `custom` that is not a list). Every other E_SCHEMA error has one: an unknown or missing key, a scenario that is not a mapping, and the model-wide rules (a non-positive `dt`, `noise_keys` of the wrong length, `output.every`, an intervention with neither value nor fault, an expectation's kind or bounds). `suggestion`: when a name was misspelt, the fix starts with the closest known name (difflib SequenceMatcher ratio of at least 0.6, best first), which is given here; null when no name is close.
+
+## Stages
+
+Problems are found in stages, and a stage that finds any problem stops the later ones (all problems of one stage are reported together):
+1. Text: not parseable YAML -> E_YAML at `scenario`; not a mapping (a list, a number, null) -> E_SCHEMA at `scenario`.
+2. Schema and vocabulary: unknown keys, missing keys, wrong types or values, misspelt template/fault/degradation/task/parameter names. Model-wide rules (dt, duration, noise_keys) are checked only when no field has a problem.
+3. Building: library, exogenous sources, custom operators, units, degradations. Problems are located in the entry ("custom[i]: ...").
+4. Events: interventions and the plan's regimes and transitions become events; their problems are found here (E_UNKNOWN_REGIME, E_BAD_EVENT for a mode name, faults and tasks).
+5. Compilation of the wiring: E_MISSING_INPUT, E_UNKNOWN_SIGNAL, E_ALGEBRAIC_LOOP, E_BAD_FEEDBACK_INPUT, E_BAD_PERIOD.
+6. Checks on the compiled plant, reported together: every event and regime target (E_UNKNOWN_TARGET, E_TARGET_*, E_BAD_EVENT), expectations (E_BAD_EXPECT), `output.every` (E_SCHEMA).
+
+## Durations
+
+A duration is a number of seconds, or a string of parts `<number><unit>` with unit ms, s, sec, min, h, hr, d or w, optionally separated by spaces ("90s", "1h 30min", "3d2h", "250ms", "0.5h"); a bare number in a string is seconds. A sign is allowed in front of the whole string. Time keys take durations: `duration`, `dt`, `at`, `over`, `period`, `every`, window bounds, and every operator parameter measured in seconds (`tau`, also in an `exogenous` source, and the pid's `Ti`, `Td` and `Tt`), so `Ti: "60s"` is 60. `dt` defaults to 1s. `duration` must be a whole multiple of `dt` (tolerance 1e-9 steps).
+
+## Scenario keys
+
+Top level: seed, duration, dt, lanes, noise_keys, init, library, units, exogenous, interventions, custom, regimes, plan, degradation, family, output, expect. Nested keys: exogenous: target, source (kind constant: value; ou: mean, std, tau; ar: coef, mean, std), from, unit, measured, note. interventions: at, target, value (a number or MAN, AUTO, CAS in any case), action (set, shift, scale), fault, magnitude, profile (step, ramp), over, id, lanes, note. custom: id, op, inputs (port -> signal), unit, period, note, and the operator's own parameters as further keys. plan: start, production (at, to, over, id, note), maintenance. output: every, start. Any other key is an E_SCHEMA error located at the key ("duraton", "exogenous[0].soruce") with a suggestion; a missing required key is E_SCHEMA located at the key (`duration`, `exogenous[0].source.tau`). Rules: `dt` and `duration` must be positive and finite (located at the key); `noise_keys` has one key per lane (at `noise_keys`); an exogenous entry has exactly one of `source` and `from` (at `exogenous[i]`); an intervention has a `value` or a `fault`, not neither (at `interventions[i]`); an expectation of kind stat/shift needs `at_least` or `at_most` (at `expect[i]`), and an unknown `kind` is E_SCHEMA at `expect[i]` with a suggestion among stat, shift, saturation, settles, visible, feasible; `output.every` is a whole multiple of dt.
+
+## Operators of `custom`
+
+The original has more operators (bias, clip, clock, delay, fopdt, gate, log_linear, product, quantize, sample_hold, saturation, stiction, variable_delay, weighted_mean, white_noise); their rules are not part of this contract, and no check uses them or a name resembling one of them.
+
+| op | params (default; range) | inputs | direct feedthrough from |
+| constant, schedule | value (0) | none | - |
+| ou | mean (0), std (required, >= 0), tau (required, >= 0) | none | - |
+| ar | coef (required list), mean (0), std (required, >= 0) | none | - |
+| first_order | K (1), tau (required, >= 0), initial (0) | u | none |
+| lag | tau (required, >= 0) | u | none |
+| integrator | k (1), lo, hi, initial | u | none |
+| sum | weights (list, default [1, 1]), bias (0) | in0 .. in(n-1), one per weight | all |
+| pid | Kc (1, >= 0), Ti (inf), Td (0), alpha (0.1), Tt (0), lo (0), hi (100), bias (0), direct (false) | pv, sp (required), rsp, mode, man_out (optional) | all |
+
+Other numbers must be numbers; a string that reads as a number counts (`"2"` is 2, `"1e3"` is 1000), but any other string, or a boolean, is not. `lag` is an observation operator, the others are sources (constant, schedule, ou, ar), dynamic operators (first_order, integrator, sum) or feedback (pid). A source named in `exogenous` is built like a custom operator of the same name.
+
+## Codes and locations
+
+Stage 3 (problems of a custom operator are located "custom[i]: <what>"):
+- library: needed by units/faults/measurements/degradations/maintenance but absent -> E_SCHEMA at `library`; not installed -> E_UNKNOWN_LIBRARY at `library`; `process` is installed at version 1, and `process@1` pins it; any other pin -> E_LIBRARY_VERSION at `library`. A template name the library lacks -> E_UNKNOWN_TEMPLATE at `units[i].template`. The library's own templates, faults and parameters are outside this contract.
+- unknown operator -> E_UNKNOWN_OP at `custom[i].op`, suggestion among operator names.
+- unknown parameter key -> E_BAD_PARAM at `custom[i]: <id>`; missing required parameter -> E_BAD_PARAM at `custom[i]: <id>.<param>` (each one); a value that is not a number, not finite or out of range -> E_BAD_PARAM at `custom[i]: <id>.<param>`.
+- unknown input port -> E_UNKNOWN_PORT at `custom[i]: <id>.<port>`, suggestion among the operator's ports.
+- `from` in an exogenous entry whose target is not a port of a unit -> E_UNKNOWN_TARGET at `exogenous[i].target`.
+- an id that an earlier operator or exogenous source already writes -> E_DUPLICATE_OPERATOR and E_DUPLICATE_WRITER, both at `custom[i]: <id>`.
+Stage 4: plan.start or a transition's regime that is not in `regimes` -> E_UNKNOWN_REGIME at `plan.start` / `plan.production[i].to`; a mode string that is not MAN, AUTO or CAS -> E_BAD_EVENT at `interventions[i].value`.
+Stage 5 (location without prefix): a required input that is not connected -> E_MISSING_INPUT at `<id>.<port>`; an input wired to a signal nobody writes -> E_UNKNOWN_SIGNAL at `<id>.<port>` (suggestion among signals); a feedback `pv` that is not the final output of an observation chain (here: a `lag`) -> E_BAD_FEEDBACK_INPUT at `<id>.pv`; an operator `period` that is not a whole multiple of dt -> E_BAD_PERIOD at `<id>`; a cycle of operators in which every operator has direct feedthrough from the previous one -> E_ALGEBRAIC_LOOP, located at the cycle as ids joined by " -> " in the direction of the signal flow, closed by repeating the first id, rotated to start at the smallest id as a string ("p -> q -> r -> p").
+Stage 6: an intervention (located at `interventions[i]`), a value of the starting regime (located at `regimes.<start>.<key>`) or of a regime a production transition moves to (located at `plan.production[i]`) whose target is: neither a signal nor a parameter path "<op>.<param>" of a float parameter -> E_UNKNOWN_TARGET; the regulated variable of a loop -> E_TARGET_REGULATED; a controller output -> E_TARGET_CONTROLLER_OUTPUT; written by anything but a `schedule` -> E_TARGET_NOT_SCHEDULABLE. A schedule and a numeric parameter path are valid targets. Event rules at `interventions[i]` -> E_BAD_EVENT: `at` below 0; a ramp whose `over` is not positive; a lane outside 0..lanes-1; a mode target (the `mode` input of a pid) that is not set by a step with a mode value. Expectations -> E_BAD_EXPECT at `expect[i].signal` (not a signal of the plant), `expect[i].loop` (not a pid's name, which is its id), `expect[i].lane` (>= lanes), `expect[i].window` (empty or starting at or after the end), `expect[i].id` (the second use of a name), `expect[i]` for a `settles` without any production transitions. Signal and loop names also carry a suggestion.
+
+Warnings (only for a valid scenario): W_UNUSED_SIGNAL at `exogenous[i].target` when a source's signal is read by no operator; W_EVENT_AFTER_END at the entry (`interventions[i]`, `plan.production[i]`) when an event is due at or after the end of the run (at >= duration, within 1e-9 dt), once per entry; W_UNUSED_REGIME at `regimes.<name>` when a regime is neither `plan.start` nor the target of a production transition.
+'''
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["kausalflow"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 100

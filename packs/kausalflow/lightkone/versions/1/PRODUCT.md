@@ -32,8 +32,19 @@ The library's files, in whatever storage the owner chose:
 | `lightkone/library.json` | Every paper; the source of truth | `library-file`, `library-merge` |
 | `lightkone/library.bib` | The whole library outside the trash, rewritten on every save | `library-file`, `bibtex-export` |
 | `papers/All Papers/<AUTHOR or Other>/<name>.pdf` | PDFs, filed as Paperpile files them | `pdf-filing` |
-| `lightkone/annotations/<paper id>.json` | Highlights and their notes on one paper's PDF | |
+| `lightkone/annotations/<paper id>.json` | Highlights and their notes on one paper's PDF (format below) | |
+| `lightkone/pages/<paper id>.html`, `.md` | A saved web page: its raw HTML as fetched, and its main text as Markdown (Mozilla Readability) | |
 | `lightkone/text/<paper id>.txt` | A paper's text, for search inside PDFs, Ask and MCP | |
+
+An annotation file is `{"format": "lightkone-annotations", "version": 1, "paper":
+<paper id>, "highlights": [...]}`, written with `JSON.stringify(file, null, 1)`.
+Each highlight is `{id, page, rects, text, note?, created}`: `page` 1-based,
+`rects` a list of `[x, y, width, height]` as fractions of the page's width and
+height, `created` an ISO time. A file whose `format` or `paper` does not match is
+read as no highlights. A `.bib` sync target in `library.json`'s `bibSync` is
+`{folder, repo, path, branch?}` (`folder` "" for the whole library), plus
+`tex` (the manuscript's folder) and `aliases` (cited key to paper id) for a
+watched manuscript.
 
 A paper record carries, besides what the components read: `pdf` (storage key of
 its PDF), `notes`, `starred`, `trashed` and `opened` (ISO times), `folders`, and,
@@ -71,8 +82,10 @@ which also rewrites `library.bib`. Saves are debounced and write the whole
 library. A read-only storage opens the library read-only.
 
 1. **Open.** Open `/app/`. With no storage set, the library lives in this browser
-   (IndexedDB) and starts with two example papers tagged `Example`, which **Remove
-   them** deletes for good. Opening reads `library.json` with `library-file`.
+   (IndexedDB) and a brand-new library starts with two example papers tagged
+   `Example`, *Attention Is All You Need* and *Transformer models: an introduction
+   and catalog*; **Remove them** deletes them, and they never come back in that
+   browser. Opening reads `library.json` with `library-file`.
 2. **Choose storage.** Settings, **Where your library lives**: this browser, an
    S3-compatible bucket (endpoint, bucket, region, optional folder, access key and
    secret; requests are signed in the browser) or a private GitHub repository
@@ -93,7 +106,9 @@ library. A read-only storage opens the library read-only.
    lower-cased and stripped of everything but `a-z0-9`, when that is longer than
    20 characters. The existing paper then gains the draft's `abstract`, `doi`,
    `arxiv`, `url`, `venue`, `year` and `file` where it has none, and its tags and
-   folders; nothing else changes. This is a different rule from `tidy`'s.
+   folders; nothing else changes. The rule also applies within one batch, so
+   the same paper pasted twice is added once. This is a different rule from
+   `tidy`'s.
 4. **Import a .bib file.** The same panel takes a `.bib` file, through
    `bibtex-import` and `citation-key`, with the same duplicate rule. Papers
    imported from Paperpile land in the folders their `file` paths name, by the
@@ -129,8 +144,10 @@ library. A read-only storage opens the library read-only.
     → import). Coming back to the tab picks up changes; every save merges, so two
     devices or an MCP client never overwrite each other.
 13. **Connect an AI app.** With a bucket or GitHub storage, **Make my AI app
-    address** gives `https://<site>/mcp/<token>`, which carries the storage
-    settings encrypted with a key only the site holds. MCP writes go through the
+    address** posts the storage settings to the site (`/api/mcp-link`), which
+    tries the storage once and returns `https://<site>/mcp/<token>`: the settings
+    encrypted with a secret only the site holds (`MCP_SECRET`). The site keeps no
+    copy; each MCP request decrypts the address and talks to the storage. MCP writes go through the
     same save.
 
 ## Interfaces

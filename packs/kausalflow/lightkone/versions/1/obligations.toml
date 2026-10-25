@@ -546,8 +546,8 @@ unchecked = "an end-to-end check: import a .bib twice, and one whose entries mat
 
 [[obligation]]
 id = "app.credentials-stay-local"
-statement = "Settings, storage credentials and API keys are kept in the browser that uses them and are never written into the library or sent to the site; the only exception is the MCP address, which carries the storage settings encrypted with a key only the site holds."
+statement = "Settings, storage credentials and API keys are kept in the browser that uses them and are never written into the library or sent to the site; the only exception is making an MCP address, when the site receives the storage settings once, returns them encrypted with a secret only it holds, and keeps no copy."
 status = "decided"
 kind = "security"
 source = "extract"
-unchecked = "a network and storage audit of a session: no credential appears in stored files or in requests to the site, except inside an MCP address"
+unchecked = "a network and storage audit of a session: no credential appears in stored files or in requests to the site, except the one request that makes an MCP address"

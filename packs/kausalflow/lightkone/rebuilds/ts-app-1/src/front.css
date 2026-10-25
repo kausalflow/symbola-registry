@@ -1,0 +1,14 @@
+:root { --ink: #1d2433; --muted: #5b6475; --accent: #1f3a5f; --gold: #c08a1e; --bg: #faf9f6; --card: #fff; }
+@media (prefers-color-scheme: dark) { :root { --ink: #e8e6e1; --muted: #a3a9b5; --accent: #8fb3e0; --bg: #14171d; --card: #1c2028; } }
+* { box-sizing: border-box; }
+body { margin: 0; font: 17px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+.front { max-width: 920px; margin: 0 auto; padding: 48px 20px; }
+.front header { text-align: center; margin-bottom: 40px; }
+.front h1 { font-size: 2.6rem; margin: 8px 0; letter-spacing: -0.02em; }
+.lede { font-size: 1.2rem; color: var(--muted); max-width: 36em; margin: 0 auto 24px; }
+.cta { display: inline-block; background: var(--accent); color: var(--bg); padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; }
+.points { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.points div { background: var(--card); border-radius: 10px; padding: 4px 20px 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.08); }
+.points h2 { font-size: 1.1rem; }
+code { font-size: 0.9em; background: rgb(127 127 127 / 0.15); padding: 1px 4px; border-radius: 4px; }
+footer { color: var(--muted); text-align: center; margin-top: 40px; font-size: 0.95rem; }

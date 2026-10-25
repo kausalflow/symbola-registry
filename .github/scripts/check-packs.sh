@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs `symbolon site check` on some packs instead of the whole registry.
+# Runs `symbola site check` on some packs instead of the whole registry.
 #
 #   check-packs.sh --all            every pack
 #   check-packs.sh --since REV      the packs that changed since REV, or every pack when something
@@ -27,7 +27,7 @@ esac
 
 if $all; then
   echo "Checking every pack."
-  exec symbolon site check packs
+  exec symbola site check packs
 fi
 
 tmp=$(mktemp -d)
@@ -41,4 +41,4 @@ for p in "${packs[@]}"; do
 done
 if [ "$n" = 0 ]; then echo "No packs changed."; exit 0; fi
 echo "Checking $n pack(s): ${packs[*]}"
-symbolon site check "$tmp"
+symbola site check "$tmp"

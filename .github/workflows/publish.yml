@@ -2,7 +2,7 @@
 # Started only by the Symbola GitHub app (from the site's API, after it checked that the
 # publisher owns the namespace). Every change lands as a pull request from the app.
 #
-#   build    downloads the upload, runs `symbolon release` and `site check` on that pack. It runs the pack's
+#   build    downloads the upload, runs `symbola release` and `site check` on that pack. It runs the pack's
 #            own checks, so it gets no secrets and a read-only token.
 #   propose  holds the app token; it never runs pack code. It checks what build produced,
 #            opens the PR, and turns on auto-merge, except for a namespace's first pack and
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: pip install "git+https://github.com/kausalflow/symbolon@$(cat .symbolon-version)"
+      - run: pip install "git+https://github.com/kausalflow/symbola@$(cat .symbolon-version)"
       - name: Release the upload into packs/
         env:
           UPLOAD_URL: ${{ inputs.upload_url }}

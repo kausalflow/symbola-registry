@@ -62,7 +62,7 @@ def unpack(data: bytes, dest: Path) -> Path:
 
 
 def build(upload_url: str, pack: str, out: Path) -> None:
-    from symbolon.registry import RegistryError, release
+    from symbola.registry import RegistryError, release
 
     if not PACK_RE.match(pack):
         fail(f"bad pack id {pack!r}")

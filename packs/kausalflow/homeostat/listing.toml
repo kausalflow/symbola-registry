@@ -2,4 +2,4 @@
 # changes the pack's digest.
 name = "Homeostat"
 category = "research"
-summary = "Process-plant time series with full ground truth from a declarative scenario: validation with actionable errors, exact discretization, reproducible random streams, a scriptable CLI."
+summary = "A Python package and command line that turn a declarative plant scenario into historian data with full ground truth: a process library of loops, reactors and faults, plans and plant families, and errors that say how to fix them."

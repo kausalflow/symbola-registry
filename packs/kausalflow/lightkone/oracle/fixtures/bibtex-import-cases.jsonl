@@ -52,3 +52,10 @@
 {"text": "@misc-{Ru, title = {J", "note": "an unterminated value runs to the end of the text; the type is everything up to whitespace or , = { } ( ) \" #"}
 {"text": "@ARTI\\CLE{0,TITLE=\"0", "note": "a backslash can be part of the type; an unterminated quoted value runs to the end"}
 {"text": "@article{k, title = {Turkh \\i stul\\ss and \\j}}", "note": "a bare \\j is not a letter command: only \\i is (it reads as ı)"}
+{"text": "@article{k, title = {Sets \\{a\\} and \\{b\\}}}", "note": "plain step 5 runs on step 4's result: an escaped brace becomes a brace and is then removed"}
+{"text": "@article{k, title = {T}, url = {https://arxiv.org/abs/2101.00001v2}, eprint = {2101.00001}, arxivid = {}, primaryclass = {cs.LG}}", "note": "an arXiv id found in the url still takes eprint, arxivid and primaryclass out of fields"}
+{"text": "@article{k, title = {T}, eprint = {hep-th/9901001}, arxivid = {}}", "note": "with no arXiv id found, eprint stays in fields; arxivid leaves fields even when empty"}
+{"text": "@article{k, title = {T}, doi = {dx.doi.org/10.1000/x}}", "note": "a DOI prefix is removed only with its http:// or https:// scheme: dx.doi.org/ alone stays"}
+{"text": "@article{k, title = {T}, doi = {HTTPS://DX.DOI.ORG/10.1000/y}}", "note": "the DOI prefix match ignores case"}
+{"text": "@article{k, title = {T}, keywords = {physics; see HTTP://example.org; Https://x.y}}", "note": "keywords containing http:// or https:// in any case are dropped"}
+{"text": "@book{k, title = {T}, author = {}, editor = {Ada Lovelace}, annote = {mine}, note = {theirs}}", "note": "an author field, even empty, keeps editor in fields; annote, even when note is there, keeps note in fields"}

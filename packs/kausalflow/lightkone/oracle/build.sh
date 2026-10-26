@@ -11,7 +11,8 @@ here=$(cd "$(dirname "$0")" && pwd)
 : "${LIGHTKONE:?set LIGHTKONE to a lightkone checkout}"
 lk=$(cd "$LIGHTKONE" && pwd)
 commit=$(git -C "$lk" rev-parse HEAD)
-contracts="$here/../versions/1/components"
+# The latest pack version: older ones are frozen.
+contracts="$here/../versions/$(ls "$here/../versions" | sort -n | tail -1)/components"
 
 for adapter in "$here"/adapters/*.ts; do
   name=$(basename "$adapter" .ts)

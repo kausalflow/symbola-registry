@@ -10,6 +10,9 @@ contract's examples.jsonl. If fixtures/<name>-library.json exists, it is the
 and each example refers to it with {"$fixture": "library.json"}. Cases may
 also refer to the contract's own fixtures with {"$fixture": "name.json"}.
 
+Examples go into the latest versions/<n>/, or into the pack folder named by
+SPEC (a spec folder about to be released as the next version).
+
 With --holdout, reads fixtures/holdout/<name>-cases.jsonl instead and writes
 holdout/<name>.jsonl: examples kept from builders, used by holdout.sh.
 
@@ -18,6 +21,7 @@ what we think it does.
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -27,7 +31,8 @@ from symbola.spec import resolve_fixtures
 here = Path(__file__).resolve().parent
 name = sys.argv[1]
 holdout = "--holdout" in sys.argv[2:]
-contract = here.parent / "versions" / "1" / "components" / name / "versions" / "1"
+latest = max((p for p in (here.parent / "versions").iterdir() if p.name.isdigit()), key=lambda p: int(p.name))
+contract = Path(os.environ.get("SPEC") or latest) / "components" / name / "versions" / "1"
 fixtures = here / "fixtures" / ("holdout" if holdout else "")
 target = here / "holdout" / f"{name}.jsonl" if holdout else contract / "examples.jsonl"
 library = here / "fixtures" / f"{name}-library.json"

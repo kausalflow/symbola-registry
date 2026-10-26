@@ -4,7 +4,8 @@ This is the first spec pack built from a real product: [kausalflow/lightkone](ht
 
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |
-| `versions/1/` | The pack, version 1: BRIEF, PRODUCT (the app), AGENTS, assumptions, obligations, and eight component contracts | yes |
+| `versions/2/` | The pack, version 2 (latest): BRIEF, PRODUCT (the app), AGENTS, assumptions, obligations, and eight component contracts | yes |
+| `versions/1/` | Version 1, kept as released | old versions are kept for evidence |
 | `oracle/` | Publisher side: lightkone's own TypeScript bundled as command implementations, fixtures, example recorder, holdout, differential tester, fact mutants | no |
 | `rebuilds/python-1/` | Milestone 1: an AI build in Python (Claude Opus 5.5 in Claude Code) of the first three contracts, made from `versions/1/` alone | no |
 | `rebuilds/go-1/` | Milestone 2: a second AI build in Go of all eight contracts, made from `versions/1/` alone, with its NOTES.md. Source only: `build.sh` makes the binaries byte for byte, and `check.sh` checks them against the attestations | no |
@@ -137,6 +138,16 @@ All of the bibtex-export distance is one split: inputs the builder probed with t
 
 So passing mutants is a good cheap screen for prose that can go, but not proof. Dense rule sets (a parser, a three-way merge, a naming scheme) need their prose; short output formats don't. Lightkone is re-attested on the six new digests with a new runner key, `attestations/runner-f.pub`.
 
+## Version 2: a JavaScript field test (2026-10-26)
+
+kausalflow built lightkone in JavaScript from version 1, as a buyer would: from the pack page, with a coding agent. All eight components passed and attested, and the app covered tiers 1 and 2 except the MCP endpoint. The builder listed 18 readings it chose where the pack was unclear, and 3 open questions. Each was settled against lightkone's own code, with no extra agent runs:
+
+- **8 were real gaps**, where the build differs from lightkone and the pack allowed it: a `dx.doi.org/` prefix without `https://` stays in the DOI; the keyword URL filter ignores case; Cite offers any CSL journal style (citeproc-js, styles fetched from the CSL repository) and a *Post* format, not one built-in style; the `/api/` pass-throughs allow requests with no `Origin` and rate-limit per address; emptying the trash keeps the papers' files in storage; a text file marks each page `[page N]`; a synced `.bib` is sorted by citation key under a header line; paper ids are UUIDs.
+- **7 matched lightkone** and are now stated, so the next build need not guess (plain()'s steps 4 and 5, which fields leave `fields`, `is:recent` with words, tidy's `opened`, offline writes, the GitHub `.bib` folder's `lightkone-source` field, a new paper keeping its notes).
+- **6 needed nothing.** `year:+2` stays open (`search.year-number-spelling`): deciding it would make every build copy JavaScript's `Number()`.
+
+Version 2 changes `bibtex-import`'s description (no rule changed, only its wording), adds 10 examples recorded from lightkone (bibtex-import 7, search-query 2, tidy 1), fills those facts into `PRODUCT.md`, and adds two unchecked obligations, `app.trash-keeps-files` and `app.pass-throughs-guarded`. The other five components are unchanged, so their attestations still hold. Lightkone is re-attested on the three new digests with runner key `attestations/runner-h.pub`. The full triage table is in the pull request.
+
 ## Re-running
 
 ```bash
@@ -148,5 +159,5 @@ oracle/holdout.sh search-query rebuilds/go-1/search-query
 python3 oracle/mutate.py bibtex-import 2000 9 > /tmp/cases.jsonl  # inputs for a differential run
 python3 oracle/differential.py bibtex-import /tmp/cases.jsonl rebuilds/go-1
 symbola verify attestations/search-query.python-1.json --trust attestations/runner-a.pub \
-  --contract versions/1/components/search-query/versions/1 --impl rebuilds/python-1/search-query --rerun
+  --contract versions/1/components/search-query/versions/1 --impl rebuilds/python-1/search-query --rerun  # python-1 attests version 1
 ```

@@ -1,0 +1,27 @@
+[contract]
+id = "lightkone/search-query"
+version = 1
+title = "Search a paper library with lightkone's query language"
+description = """
+Filters and orders a list of papers by a query string, as lightkone's search
+box does. Returns the ids of the matching papers, in display order.
+
+Full-text search is out of scope.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 150
+timeout_seconds = 300

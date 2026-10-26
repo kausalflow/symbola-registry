@@ -1,0 +1,15 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "description": "lightkone/library.json exactly as it is stored.",
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "Input",
+  "type": "object"
+}

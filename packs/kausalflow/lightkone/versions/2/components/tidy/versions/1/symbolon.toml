@@ -1,0 +1,26 @@
+[contract]
+id = "lightkone/tidy"
+version = 1
+title = "Find duplicate papers and merge them"
+description = """
+Finds papers entered more than once, picks the one to keep, and works out
+what the kept paper gains from the others, as lightkone's Tidy panel does.
+The others are then moved to the trash by the caller.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

@@ -1,5 +1,5 @@
 [implementation]
-contract = "sha256:00c475d33e8697ede3b95c1bc746344ce9b691131ae5f3e1e03698082c201f60"
+contract = "sha256:32cc3262e214b6615157f2b3caef983da7276cb4c9d1fe189b1fd021558c9a79"
 entrypoint = "impl.py"
 language = "python"
 license = "Apache-2.0"

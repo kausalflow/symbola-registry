@@ -40,6 +40,8 @@ Non-goals in `BRIEF.md`: no physics; no bit-identical numbers across NumPy versi
 8. Where an E_ALGEBRAIC_LOOP path starts depends on declaration order and discovery order; the contract rotates it to the smallest id.
 9. `validate` cannot see runs that cannot settle (an integrator with a non-zero input and `init: steady` gives E_INIT_NO_STEADY_STATE only when running).
 10. Location style differs by stage (`custom[0]: y.u` while building, `y.u` when compiling).
+11. An empty or false `faults` (`faults: []`, `faults: null`) is not expanded, so validation reports it as an unknown key (E_SCHEMA at `faults`), while a non-empty list is valid. Found while writing version 2; not pinned.
+12. A non-list `faults` (`faults: 1`) makes `validate` raise `TypeError` inside the fault generator instead of reporting E_SCHEMA. Not pinned; the unknown-key property never generates `faults`.
 
 ## 5. Requirements without a home
 

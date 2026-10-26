@@ -1,0 +1,60 @@
+[contract]
+id = "kausalflow/scenario-truth"
+version = 1
+title = "Scenario ground truth"
+description = '''
+The ground truth of a run (`run.meta`) for a scenario whose structure is fixed: the signal table, the loops and the roles of their signals, the causal graph, the event log, the promoted parameters and the timeline of the plan. All of it follows from the scenario alone: it does not depend on the seed, on noise, on the initial state, or on any simulated value. The input is a valid library-free scenario (the keys and operators of the `scenario-issues` contract: `custom` operators, `exogenous` sources, `interventions`, `regimes` and `plan.production`, `lanes`, `noise_keys`, `seed`, `init`, `output`, `expect`); the output is the ground truth. An invalid scenario raises ValueError. The original simulates the scenario to produce the event log; a rebuild need not, since only structure and times matter. Examples use `duration` of 20min at `dt` of 10s.
+
+All lists are in the order stated below, so outputs compare as plain data. NaN is null.
+
+## Signals
+
+One signal per operator output, named after the operator id (`custom` ids and `exogenous` targets), plus one per promoted parameter (named "<operator>.<parameter>"). Sorted by name. For each signal:
+- `writer`: the operator id that writes it (the parameter signal is written by a schedule of its own, named like the signal); `writer_op`: its operator name (`schedule` for a parameter signal); `kind`: the operator's kind: source (constant, schedule, ou, ar), dynamic (first_order, integrator, sum), feedback (pid), observation (lag).
+- `unit`: the `unit` of the custom entry or exogenous entry, '' when it gives none; null for a promoted parameter.
+- `level`: `measured` for an observation operator's output that no observation operator reads (the end of a chain, or a lone one); `internal` for one that an observation operator reads; `true` for everything else.
+- `observed` (what a historian records): true for every measured signal and for every loop's reference, mode and output signals; false otherwise. (A remote reference and a manual output are not observed.)
+- `roles`: sorted by (role, loop). Loop roles come from the structure of each `pid` (below). A signal that holds no loop role has one global role, with loop '': `parameter` (a promoted parameter), `exogenous` (a source), `measured` (a measured signal), `observation stage` (an internal signal), `free state` (any other).
+
+## Loops
+
+Each `pid` is a loop named after its id. `controller`: the pid; `output`: its output signal (the id); `measured`: the signal on its `pv` input, which must be measured; `regulated`: found by walking back from `measured` through observation operators (via their `u` input) until a signal that is not written by an observation operator; `reference`: its `sp` input; `remote_reference`: its `rsp` input, null when unconnected; `mode`: its `mode` input; `manual`: its `man_out` input (null when unconnected); `output_lo`, `output_hi`: its `lo` and `hi` parameters (defaults 0 and 100). A loop role is given to: the regulated signal (`regulated`), the measured signal (`measured`), the `sp` and `rsp` signals (both `reference`), the mode (`mode`), the manual output (`manual`) and the output (`manipulated`), each with the loop's name. A signal may hold several roles, including those of several loops. Loops sorted by name.
+
+## Causal graph
+
+`nodes`: all signal names, sorted. `edges`: for every operator, every connected input signal (and every promoted-parameter signal of the operator) to every output signal of the operator: `{from, to, operator, instantaneous}`, where `instantaneous` is true when the input has direct feedthrough to the output in the same step (sum: all inputs; pid: all inputs; promoted parameter signals: always; first_order, lag, integrator: never). Sorted by (from, to, operator).
+
+## Promoted parameters
+
+A parameter of an operator (float parameters of the operators in the `scenario-issues` table, such as `y.K`, `y.tau`, `u.Kc`) becomes a signal only when an event targets it: an intervention target, or a key of a regime that a plan uses. Untargeted parameters are not signals, nodes, edges or roles. `promoted` maps "<operator>.<parameter>" to {operator, parameter}, sorted by path. Targeting something the contract does not allow (a non-float parameter such as `weights`) is invalid.
+
+## Events
+
+Every intervention and every regime transition becomes events. The log has one row per event per lane it applies to: all lanes, or the `lanes` list of the intervention. Fields: `id`, `lane`, `at` (seconds, as written), `applied_at`, `target`, `action`, `value` (null for NaN), `profile`, `over` (seconds; 0 for a step), `label`, `origin`, `value_before`, `value_after`.
+- An intervention without a fault: id = its `id`, else "ev<i>" with i its position in `interventions`; action = its action (set, shift, scale); profile = its profile (default step); over = its `over` if a ramp (else 0); label "planned"; origin ''. A mode name is the number MAN 0, AUTO 1, CAS 2 (any case); other values are numbers.
+- A production transition `plan.production[i]` to regime R from regime P (P is the regime before it in time order; the first transition comes from `plan.start`): one event per key of R in the order the regime lists them, id "<transition id or transition<i>>.<j>" (j the key's position in R), target = the key, action set, value = the regime's value, label "transition:P->R", origin "plan.production[i]". The profile is a ramp over the transition's `over` when `over` > 0 and the value is a number, else a step. The `plan.start` regime sets the initial values before the run: it logs no event.
+- `applied_at` is the first step time k*dt (k = 0, 1, ...) at or after `at` (within 1e-9 dt). An event is logged only when `applied_at` is before `duration`. Events are applied in the order of their `at`; events with the same `at` in this order: interventions as written, then transitions in time order (equal times as written in `plan.production`); this order decides `value_before` and `value_after` when two events share a target.
+- `value_before` is the value the target holds when the event is applied (the initial value of the schedule or parameter, or the effect of earlier events; an unfinished ramp counts at its value at that step, interpolated linearly from the value at the ramp's start); `value_after` is the value it will hold when the event's profile is complete: the value for set, before + value for shift, before * value for scale. Initial values: a schedule's `value`; a parameter's own value (default of the operator); the `plan.start` regime's values override them.
+- Rows are sorted by (applied_at, id, lane).
+
+## Timeline
+
+The plan as intervals in seconds, sorted by (start, end) with ties kept in the order built: with `plan.start` S, a `regime` row for S from 0 (or from the end of the previous transition) to the start of the next transition; a `transition` row named "P->R" from `at` to `at + over` for each production transition in time order (zero length for a step); a `regime` row for R from the end of the transition to the start of the next one, the last to `duration`. Rows starting at or after `duration` are dropped and ends are clipped to `duration`. `targets` is '' for these rows. Without a plan the timeline is empty.
+'''
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["kausalflow"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 25
+timeout_seconds = 600

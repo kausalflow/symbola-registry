@@ -1,0 +1,500 @@
+# Obligations of the kausalflow/homeostat spec pack (format: docs/PACK_FORMAT.md).
+#
+# Each obligation is one decision a builder could get wrong, with the checks
+# that pin it down. status: decided (required), default (chosen; a fork may
+# change it with a note), open (deliberately undecided; builds may differ).
+# Checks are "<component>#example:<line in examples.jsonl>" or
+# "<component>#<property test name>".
+
+[[obligation]]
+id = "issues.report-every-problem-of-a-stage"
+statement = "validate reports all the problems of the stage that finds any, not only the first: several missing parameters, several bad expectations and targets, and several schema problems come back together."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:31", "scenario-issues#example:85", "scenario-issues#example:86", "scenario-issues#example:90", "scenario-issues#example:99"]
+
+[[obligation]]
+id = "issues.stages"
+statement = "Problems are found in six stages (text, schema and vocabulary, building, events, wiring, checks on the compiled plant) and a stage with any problem hides the problems of the later ones; the message to the user is to fix them and validate again."
+status = "default"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:81", "scenario-issues#example:82", "scenario-issues#example:83", "scenario-issues#example:84", "scenario-issues#example:85", "scenario-issues#example:86", "scenario-issues#test_an_earlier_stage_hides_the_problems_of_later_ones", "scenario-issues#example:90", "scenario-issues#example:99", "scenario-issues#example:102"]
+
+[[obligation]]
+id = "issues.location-at-the-offending-key"
+statement = "An issue is located at the offending key as a path: dotted keys with bracketed list positions (`exogenous[0].source.tau`, `interventions[2]`, `expect[1].signal`); an unknown or misspelt key is located at that key, and a missing key at the key that is missing. Problems of a custom operator found while building are located `custom[i]: <id>` or `custom[i]: <id>.<param or port>`; wiring problems found after building are located `<id>.<port>` or `<id>`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:12", "scenario-issues#example:13", "scenario-issues#example:11", "scenario-issues#example:20", "scenario-issues#example:30", "scenario-issues#example:32", "scenario-issues#example:35", "scenario-issues#example:38", "scenario-issues#example:40", "scenario-issues#example:46", "scenario-issues#example:48", "scenario-issues#example:66", "scenario-issues#test_an_unknown_top_level_key_is_the_only_problem_and_is_located_at_it", "scenario-issues#test_an_unknown_operator_name_is_located_at_its_op_key", "scenario-issues#example:95", "scenario-issues#example:105", "scenario-issues#example:107"]
+
+[[obligation]]
+id = "issues.did-you-mean"
+statement = "A misspelt key, operator, port, signal, loop or template gets the closest known name as a hint in the fix (SequenceMatcher ratio of at least 0.6, best first); a name with nothing close gets none."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:12", "scenario-issues#example:13", "scenario-issues#example:23", "scenario-issues#example:29", "scenario-issues#example:30", "scenario-issues#example:35", "scenario-issues#example:40", "scenario-issues#example:41", "scenario-issues#example:66", "scenario-issues#example:67", "scenario-issues#test_a_misspelt_key_gets_its_nearest_name", "scenario-issues#example:105", "scenario-issues#example:106"]
+
+[[obligation]]
+id = "issues.fix-offered"
+statement = "Every problem carries a suggested fix except an E_SCHEMA error for a value of the wrong type or form; issues are structured (code, location, reason, fix) and the wording of reason and fix is not part of the contract."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#test_issues_are_sorted_distinct_and_every_non_schema_error_has_a_fix", "scenario-issues#example:49", "scenario-issues#example:38", "scenario-issues#example:100", "scenario-issues#example:101", "scenario-issues#example:103", "scenario-issues#example:112", "scenario-issues#example:113", "scenario-issues#example:114", "scenario-issues#example:115", "scenario-issues#example:116", "scenario-issues#example:117"]
+
+[[obligation]]
+id = "issues.sorted-report"
+statement = "The contract reports issues sorted by (location, code) and without repeats, so that outputs compare as plain data; the order of the original's own list is incidental."
+status = "default"
+source = "extract"
+kind = "constraint"
+reason = "Normalization of the contract's output, not behaviour of the product."
+checks = ["scenario-issues#test_issues_are_sorted_distinct_and_every_non_schema_error_has_a_fix", "scenario-issues#example:101"]
+
+[[obligation]]
+id = "issues.valid-scenarios-pass"
+statement = "A scenario whose operators are wired acyclically through existing signals and whose numbers are within range is valid, and has no warnings; a minimal scenario needs only a duration."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:1", "scenario-issues#example:2", "scenario-issues#example:4", "scenario-issues#example:65", "scenario-issues#example:72", "scenario-issues#example:52", "scenario-issues#example:55", "scenario-issues#example:34", "scenario-issues#example:47", "scenario-issues#example:75", "scenario-issues#test_acyclic_scenarios_with_in_range_values_are_valid", "scenario-issues#example:91"]
+
+[[obligation]]
+id = "issues.text-forms"
+statement = "A scenario given as YAML text, JSON text or an object is the same scenario (JSON is YAML); text that is not YAML is E_YAML, and text or a value that is not a mapping is E_SCHEMA at `scenario`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-yaml-reads-the-scenario-as-written"]
+checks = ["scenario-issues#example:5", "scenario-issues#example:6", "scenario-issues#example:7", "scenario-issues#example:8", "scenario-issues#example:9", "scenario-issues#example:10", "scenario-issues#test_text_and_object_forms_agree"]
+
+[[obligation]]
+id = "issues.malformed-input-is-reported"
+statement = "Any malformed scenario is reported as issues and never raises an exception: ok is exactly 'no errors', errors have E_ codes, warnings W_ codes, and an invalid scenario has no warnings."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#test_malformed_input_is_reported_never_raised", "scenario-issues#example:10", "scenario-issues#example:89", "scenario-issues#example:94"]
+
+[[obligation]]
+id = "issues.durations"
+statement = "Durations are numbers of seconds or strings of number+unit parts (ms, s, sec, min, h, hr, d, w; spaces and a leading sign allowed); dt and duration must be positive, duration a whole multiple of dt, output.every a whole multiple of dt, and noise_keys one per lane, each reported as E_SCHEMA at its key."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:3", "scenario-issues#example:6", "scenario-issues#example:14", "scenario-issues#example:15", "scenario-issues#example:16", "scenario-issues#example:17", "scenario-issues#example:24", "scenario-issues#example:96", "scenario-issues#example:118"]
+
+[[obligation]]
+id = "issues.schema-shape"
+statement = "A scenario has exactly the stated keys at each level; an exogenous entry has exactly one of source and from, an intervention a value or a fault, a stat/shift expectation at least one bound, and an expectation a known kind."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:18", "scenario-issues#example:19", "scenario-issues#example:21", "scenario-issues#example:59", "scenario-issues#example:22", "scenario-issues#example:23", "scenario-issues#example:20", "scenario-issues#example:108"]
+
+[[obligation]]
+id = "issues.library-and-templates"
+statement = "Templates, faults, measurements, degradations and maintenance need a library (E_SCHEMA at `library` when absent); an uninstalled library is E_UNKNOWN_LIBRARY, a pin that is not the installed major version E_LIBRARY_VERSION, an unknown template E_UNKNOWN_TEMPLATE at `units[i].template`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-process-library-is-installed"]
+checks = ["scenario-issues#example:25", "scenario-issues#example:26", "scenario-issues#example:27", "scenario-issues#example:28", "scenario-issues#example:4", "scenario-issues#example:104"]
+
+[[obligation]]
+id = "issues.operator-parameters"
+statement = "Operator parameters are checked when the scenario is built: an unknown parameter name, a missing required parameter (each one), a value that is not a number (a boolean, or a string that does not read as a number; the string 2 counts as the number 2) or out of the declared range (tau and std at least 0, Kc at least 0) is E_BAD_PARAM; zero is inside a range that starts at 0."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:30", "scenario-issues#example:31", "scenario-issues#example:32", "scenario-issues#example:33", "scenario-issues#example:34", "scenario-issues#example:107", "scenario-issues#example:119"]
+
+[[obligation]]
+id = "issues.single-writer"
+statement = "Every signal has exactly one writer: an operator id that another operator or an exogenous source already writes is E_DUPLICATE_OPERATOR together with E_DUPLICATE_WRITER; a signal an input reads that nobody writes is E_UNKNOWN_SIGNAL."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:36", "scenario-issues#example:37", "scenario-issues#example:40", "scenario-issues#example:41", "scenario-issues#example:111"]
+
+[[obligation]]
+id = "issues.wiring"
+statement = "Inputs must be connected (E_MISSING_INPUT, per input, a sum having one input per weight), only existing ports may be wired (E_UNKNOWN_PORT), an operator period must be a whole multiple of dt (E_BAD_PERIOD), an unknown operator is E_UNKNOWN_OP, and `from` in an exogenous entry must name a port of a unit (E_UNKNOWN_TARGET at `exogenous[i].target`)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:73", "scenario-issues#example:38", "scenario-issues#example:39", "scenario-issues#example:35", "scenario-issues#example:29", "scenario-issues#example:46", "scenario-issues#example:47", "scenario-issues#example:88"]
+
+[[obligation]]
+id = "issues.algebraic-loops"
+statement = "A cycle in which every operator has direct feedthrough from the previous one is rejected as E_ALGEBRAIC_LOOP with the cycle as its location (ids in the direction of the signal flow joined by ' -> ', closed by repeating the first); an operator without feedthrough (a lag, an integrator) on the cycle makes it valid. The contract rotates the path to start at the smallest id; where the original starts is incidental."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:43", "scenario-issues#example:44", "scenario-issues#example:45", "scenario-issues#test_a_loop_of_algebraic_operators_is_reported_once_as_a_closed_path_from_its_smallest_id", "scenario-issues#example:98"]
+
+[[obligation]]
+id = "issues.feedback-reads-measured"
+statement = "A controller's process-variable input must be the end of an observation chain, so that controllers read measured values and never true ones: otherwise E_BAD_FEEDBACK_INPUT at `<id>.pv`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:42"]
+
+[[obligation]]
+id = "issues.event-targets"
+statement = "An event or a regime value may change only a schedule or a float parameter path `<operator>.<param>`: the regulated variable of a loop is E_TARGET_REGULATED (change its reference), a controller output E_TARGET_CONTROLLER_OUTPUT (switch to manual), anything else another operator writes E_TARGET_NOT_SCHEDULABLE, and a name that is neither a signal nor a parameter E_UNKNOWN_TARGET."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:48", "scenario-issues#example:49", "scenario-issues#example:50", "scenario-issues#example:51", "scenario-issues#example:52", "scenario-issues#example:62", "scenario-issues#example:64", "scenario-issues#example:63", "scenario-issues#test_what_an_event_may_target_follows_the_graph", "scenario-issues#example:92", "scenario-issues#example:93"]
+
+[[obligation]]
+id = "issues.event-fields"
+statement = "An intervention is rejected with E_BAD_EVENT when its time is negative, a ramp has no positive duration, a lane is outside the run's lanes, the mode of a loop is changed other than by a step, or a mode name is not MAN, AUTO or CAS."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:56", "scenario-issues#example:57", "scenario-issues#example:58", "scenario-issues#example:53", "scenario-issues#example:54", "scenario-issues#example:55", "scenario-issues#example:109"]
+
+[[obligation]]
+id = "issues.plan-references"
+statement = "The plan's start and its transitions must name regimes that exist (E_UNKNOWN_REGIME at `plan.start` or `plan.production[i].to`); the values of the starting regime are located at `regimes.<start>.<key>`, those of a transition's regime at the transition."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:60", "scenario-issues#example:61", "scenario-issues#example:62", "scenario-issues#example:63", "scenario-issues#example:110"]
+
+[[obligation]]
+id = "issues.expectations-name-real-things"
+statement = "An expectation naming a signal, loop, lane, window, transition or id that cannot exist is E_BAD_EXPECT, located at the field, so that it is reported before a long run; names of signals include the unmeasured and true ones."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:66", "scenario-issues#example:67", "scenario-issues#example:68", "scenario-issues#example:69", "scenario-issues#example:70", "scenario-issues#example:71", "scenario-issues#example:72"]
+
+[[obligation]]
+id = "issues.warnings"
+statement = "A valid scenario still gets warnings for parts that have no effect: W_UNUSED_SIGNAL (an exogenous source nothing reads, at `exogenous[i].target`), W_EVENT_AFTER_END (an event due at or after the end of the run, once per entry, at `interventions[i]` or `plan.production[i]`) and W_UNUSED_REGIME (a regime that is neither the start nor a transition's target, at `regimes.<name>`)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-issues#example:74", "scenario-issues#example:75", "scenario-issues#example:76", "scenario-issues#example:77", "scenario-issues#example:78", "scenario-issues#example:79", "scenario-issues#example:80", "scenario-issues#test_events_warn_exactly_when_due_at_or_after_the_end", "scenario-issues#test_regimes_nobody_visits_are_warned_about", "scenario-issues#example:87", "scenario-issues#example:97"]
+
+[[obligation]]
+id = "issues.message-wording"
+statement = "The wording of reason and fix texts, and the order in which the original lists issues, are open: builders choose them."
+status = "open"
+source = "extract"
+kind = "behaviour"
+
+[[obligation]]
+id = "truth.independent-of-randomness"
+statement = "The signal table, loops, roles, causal graph, event log, promoted parameters and timeline follow from the scenario alone: they do not depend on the seed, the noise, the initial state or any simulated value."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:17", "scenario-truth#test_ground_truth_does_not_depend_on_the_seed_noise_or_initial_state"]
+
+[[obligation]]
+id = "truth.signal-table"
+statement = "There is one signal per operator output, named by the operator's id (sorted), with its writer, the writer's operator name, the kind of operator (source, dynamic, feedback, observation), the declared unit ('' if none, null for a promoted parameter) and whether the historian records it: measured signals and every loop's reference, mode and output, but not manual outputs or remote references."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:1", "scenario-truth#example:2", "scenario-truth#example:3", "scenario-truth#example:4", "scenario-truth#test_the_regulated_variable_is_found_behind_the_whole_observation_chain"]
+
+[[obligation]]
+id = "truth.levels"
+statement = "A signal is `measured` when an observation operator writes it and no observation operator reads it, `internal` when one does, and `true` otherwise."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:2", "scenario-truth#example:1", "scenario-truth#test_the_regulated_variable_is_found_behind_the_whole_observation_chain"]
+
+[[obligation]]
+id = "truth.roles-from-structure"
+statement = "Roles are inferred from the graph and are relations to a loop: for each pid, the regulated variable (found by walking back through the observation chain behind its process-variable input), the measured signal, reference (setpoint and remote setpoint), mode, manual output and manipulated variable; a signal may hold several roles, also of several loops. A signal with no loop role has a global one: parameter, exogenous, measured, observation stage or free state."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:1", "scenario-truth#example:2", "scenario-truth#example:3", "scenario-truth#example:4", "scenario-truth#test_the_regulated_variable_is_found_behind_the_whole_observation_chain"]
+
+[[obligation]]
+id = "truth.loops"
+statement = "Each pid is a loop named by its id, with its controller, output, measured, regulated, reference, remote reference, mode and manual signals and its output limits (defaults 0 and 100)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:1", "scenario-truth#example:3", "scenario-truth#test_the_regulated_variable_is_found_behind_the_whole_observation_chain", "scenario-truth#example:28"]
+
+[[obligation]]
+id = "truth.causal-graph"
+statement = "The causal graph has every signal as a node and an edge from each connected input (and each promoted parameter signal) of an operator to each of its outputs; an edge is instantaneous when the input has direct feedthrough to the output in the same step, and promoted parameters always do."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:1", "scenario-truth#example:2", "scenario-truth#example:3", "scenario-truth#example:4", "scenario-truth#example:14", "scenario-truth#test_only_the_parameters_an_event_targets_are_signals", "scenario-truth#example:26", "scenario-truth#example:27"]
+
+[[obligation]]
+id = "truth.invalid-scenarios-have-no-truth"
+statement = "A scenario that is invalid has no ground truth: asking for it is an error (here ValueError), not an empty or partial answer."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:23", "scenario-truth#example:24"]
+
+[[obligation]]
+id = "truth.parameters-promoted-on-demand"
+statement = "A parameter becomes a signal, a node of the causal graph and a `parameter` role only when an event (an intervention or a regime value) targets it; untargeted parameters stay constants. A parameter that cannot change during a run is not a valid target."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:14", "scenario-truth#example:15", "scenario-truth#example:18", "scenario-truth#example:24", "scenario-truth#test_only_the_parameters_an_event_targets_are_signals", "scenario-truth#example:25"]
+
+[[obligation]]
+id = "truth.event-log-times"
+statement = "An event is logged once per lane it applies to, at the first step at or after its time (applied_at); events due at or after the end of the run are not logged."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:9", "scenario-truth#example:10", "scenario-truth#example:13", "scenario-truth#test_events_are_logged_at_the_first_step_at_or_after_their_time"]
+
+[[obligation]]
+id = "truth.event-log-values"
+statement = "value_before is what the target holds when the event is applied (an unfinished ramp counts at its current value) and value_after what it holds when the event's profile is complete; set, shift and scale act on the value held, and a mode name is 0, 1 or 2 for MAN, AUTO, CAS in any case."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:5", "scenario-truth#example:6", "scenario-truth#example:7", "scenario-truth#example:8", "scenario-truth#example:12", "scenario-truth#test_set_shift_and_scale_act_on_the_value_the_target_holds", "scenario-truth#test_a_ramp_logs_the_value_it_ends_on_and_its_duration"]
+
+[[obligation]]
+id = "truth.event-order"
+statement = "Events applied at the same step go in the order of their time, and for the same time: interventions as written, then production transitions in time order; the log is listed by (applied_at, id, lane), and this order decides value_before when events share a target."
+status = "default"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:11", "scenario-truth#example:16", "scenario-truth#example:22"]
+
+[[obligation]]
+id = "truth.event-ids"
+statement = "An intervention's event id is its `id`, else `ev<position>`; a transition's events are `<transition id, else transition<position>>.<j>` with j the key's position in the regime; labels are `planned` and `transition:P->R`, origins '' and `plan.production[i]`."
+status = "default"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:5", "scenario-truth#example:19", "scenario-truth#example:20", "scenario-truth#example:11"]
+
+[[obligation]]
+id = "truth.plan-and-timeline"
+statement = "The starting regime gives initial values and logs no event; a production transition logs one event per key of its regime (a ramp when it has a duration and the value is a number, else a step); the timeline lists regime and transition intervals in seconds, ordered by start, covering the run: rows starting at or after the end are dropped and ends clipped."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["scenario-truth#example:19", "scenario-truth#example:20", "scenario-truth#example:21", "scenario-truth#example:22", "scenario-truth#test_the_timeline_tiles_the_run_with_regimes_and_transitions"]
+
+[[obligation]]
+id = "series.step-order"
+statement = "Each step applies the events due, computes outputs from this step's inputs, records, then updates states: a schedule shows an event in the row of the step that applies it, an operator without direct feedthrough (first_order, lag, integrator) reacts one row later, and a parameter change acts from its step on the state reached."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:1", "run-series#example:2", "run-series#example:5", "run-series#example:7", "run-series#example:8", "run-series#test_an_integrator_adds_k_dt_u_and_stays_within_its_limits"]
+
+[[obligation]]
+id = "series.settled-start"
+statement = "A run starts settled, noise off, at the steady state of the initial values (first_order y = K u, lag y = u), so an event at time 0 changes the inputs, not the starting state."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:5", "run-series#example:2", "run-series#test_first_order_responses_follow_the_exact_exponential_whatever_dt"]
+
+[[obligation]]
+id = "series.exact-discretization"
+statement = "Dynamics are discretized exactly for an input held over each step, so the response at the grid times does not depend on dt: first_order and lag follow y = y_inf + (y_0 - y_inf) exp(-(t - t0)/tau) for a step at t0, whatever dt divides t0."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:2", "run-series#example:10", "run-series#test_first_order_responses_follow_the_exact_exponential_whatever_dt"]
+
+[[obligation]]
+id = "series.schedule-events"
+statement = "A schedule holds its value until an event: set, shift and scale act on the value held (events at the same time in written order), a ramp is linear from the step that applies it to the target over its duration, and `lanes` limits an event to some lanes."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:6", "run-series#example:3", "run-series#example:4", "run-series#example:11", "run-series#test_a_ramp_is_linear_from_the_step_that_applies_it", "run-series#test_events_set_shift_and_scale_the_held_value"]
+
+[[obligation]]
+id = "series.recording"
+statement = "Rows are recorded every output.every (default dt) from 0 below the duration, and thinning the output does not change the simulation."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:1", "run-series#example:9", "run-series#test_sampled_rows_are_a_thinning_of_the_full_run"]
+
+[[obligation]]
+id = "series.integrator"
+statement = "An integrator adds k dt u to its state each step and clips the state to [lo, hi], from `initial`."
+status = "default"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:8", "run-series#test_an_integrator_adds_k_dt_u_and_stays_within_its_limits"]
+
+[[obligation]]
+id = "series.unknown-signal-or-invalid"
+statement = "Asking for a signal the plant does not have, or running an invalid scenario, is an error."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:12", "run-series#example:13"]
+
+[[obligation]]
+id = "series.reproducible"
+statement = "The same scenario and seed give the same series every time; a different seed gives different noise."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-same-numpy-version"]
+checks = ["run-series#test_the_same_seed_repeats_and_another_seed_gives_other_noise"]
+
+[[obligation]]
+id = "series.keyed-streams"
+statement = "Random streams are keyed by the operator's id: adding, removing or reordering other operators, or events elsewhere in the plant, never changes an operator's noise; two operators have unrelated noise."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#test_unrelated_operators_and_events_do_not_move_an_operators_noise", "run-series#test_two_operators_with_the_same_parameters_have_unrelated_noise"]
+
+[[obligation]]
+id = "series.noise-keys"
+statement = "Lanes carry noise keys (default: lane k has key k); a lane's noise depends only on the seed, the key and the operator, so lanes with equal keys share noise even when an event differs between them, and the number of lanes does not matter."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["run-series#example:11", "run-series#test_lanes_with_the_same_noise_key_share_noise_and_the_key_alone_decides"]
+
+[[obligation]]
+id = "series.ou-parametrization"
+statement = "An OU source is parametrized by its stationary mean and standard deviation and correlation time, discretized exactly: the same spread and autocorrelation exp(-dt/tau) at any dt; it starts from its stationary distribution."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+exactness = "statistical"
+checks = ["run-series#test_ou_has_the_stated_stationary_mean_std_and_autocorrelation_at_any_dt", "run-series#test_ou_spread_is_the_stated_std_at_any_dt", "run-series#test_noise_sources_start_from_their_stationary_distribution"]
+
+[[obligation]]
+id = "series.ar-parametrization"
+statement = "An AR source is parametrized by its stationary standard deviation (not the innovation's) and mean, with coefficients per base step; for one coefficient the lag-1 autocorrelation is that coefficient; it starts from its stationary distribution."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+exactness = "statistical"
+checks = ["run-series#test_ar1_has_the_stated_mean_std_and_autocorrelation", "run-series#test_noise_sources_start_from_their_stationary_distribution"]
+
+[[obligation]]
+id = "cli.exit-codes"
+statement = "Exit 0 on success (also with warnings, and for no command at all); 1 when the scenario or the request is invalid; 2 for a usage error; 3 only when `diagnose` ran and an expectation did not hold (an invalid scenario is still 1)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["cli-contract#example:1", "cli-contract#example:5", "cli-contract#example:13", "cli-contract#example:21", "cli-contract#example:24", "cli-contract#example:3", "cli-contract#example:7", "cli-contract#example:16", "cli-contract#example:22", "cli-contract#example:23", "cli-contract#example:25", "cli-contract#example:27", "cli-contract#example:31", "cli-contract#example:32", "cli-contract#example:33", "cli-contract#example:34", "cli-contract#example:35", "cli-contract#test_validate_exits_zero_exactly_when_the_scenario_is_valid", "cli-contract#test_diagnose_exits_three_exactly_when_an_expectation_fails", "cli-contract#test_an_unknown_command_is_a_usage_error", "cli-contract#example:37", "cli-contract#example:39", "cli-contract#example:41", "cli-contract#example:43"]
+
+[[obligation]]
+id = "cli.problem-channels"
+statement = "validate always prints its report on standard output; every other command prints problems as issue lines on standard error with nothing on standard output, or with --json as {ok: false, errors} on standard output with standard error empty."
+status = "default"
+source = "extract"
+kind = "behaviour"
+checks = ["cli-contract#example:3", "cli-contract#example:10", "cli-contract#example:16", "cli-contract#example:17", "cli-contract#example:18", "cli-contract#example:20", "cli-contract#example:25", "cli-contract#example:30", "cli-contract#test_with_json_a_failure_is_one_json_object_on_standard_output", "cli-contract#test_without_json_a_failure_is_issue_lines_on_standard_error", "cli-contract#example:38"]
+
+[[obligation]]
+id = "cli.validate-report"
+statement = "validate prints `OK <name>` or `INVALID <name>: <n> problem(s)` as its first line in text mode; with --json one object {ok, file, errors, warnings, summary} whose summary is null when invalid and otherwise describes the scenario (durations formatted as 1d3h46min40s, steps, lanes, seed, library, units, loops, signal and operator counts, event counts by kind, promoted parameters, expectations)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["cli-contract#example:1", "cli-contract#example:2", "cli-contract#example:3", "cli-contract#example:4", "cli-contract#example:6", "cli-contract#example:8", "cli-contract#example:11", "cli-contract#test_validate_exits_zero_exactly_when_the_scenario_is_valid", "cli-contract#example:36", "cli-contract#example:42", "cli-contract#example:44"]
+
+[[obligation]]
+id = "cli.json-shapes"
+statement = "The top-level keys of the JSON the other commands print are fixed: run (ok, rows, span, recorded_every, lanes, start, observed, unreported_signals, all_signals, n_events, events, warnings, reproducibility, elapsed_s, and files with --out), explain, diagnose (ok, checked, passed, failed, errors, checks, warnings, reproducibility; ok iff nothing failed), diff."
+status = "default"
+source = "extract"
+kind = "behaviour"
+checks = ["cli-contract#example:12", "cli-contract#example:14", "cli-contract#example:19", "cli-contract#example:22", "cli-contract#example:23", "cli-contract#example:26", "cli-contract#example:27", "cli-contract#example:40"]
+
+[[obligation]]
+id = "cli.stdin"
+statement = "A scenario argument of `-` reads standard input, and the name reported is `<stdin>`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["cli-contract#example:9", "cli-contract#example:10", "cli-contract#example:29", "cli-contract#test_standard_input_is_named_stdin"]
+
+[[obligation]]
+id = "cli.run-output-files"
+statement = "`run --out DIR` writes truth.csv, measured.csv, observed.csv and meta.json (the ground truth) into DIR, with one CSV per lane (`<view>.lane<k>.csv`) when there are several lanes."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["cli-contract#example:14", "cli-contract#example:15", "cli-contract#test_run_out_writes_one_file_per_view_and_lane", "cli-contract#example:40"]
+
+[[obligation]]
+id = "cli.convert"
+statement = "`convert` rewrites the scenario as a JSON object or as YAML text without validating it; a missing file is still E_FILE with exit 1."
+status = "default"
+source = "extract"
+kind = "behaviour"
+checks = ["cli-contract#example:28", "cli-contract#example:29", "cli-contract#example:30", "cli-contract#test_convert_to_json_keeps_the_scenario_mapping"]
+
+[[obligation]]
+id = "cli.text-layout"
+statement = "The layout of text output other than the first line of validate (run tables, explain, diagnose, diff) is open."
+status = "open"
+source = "extract"
+kind = "behaviour"
+
+[[obligation]]
+id = "product.library-compiles-to-core"
+statement = "The `process` library is a plugin found by entry point: every template, fault, degradation and maintenance task expands into core operators and ordinary events, with the names, ports, ISA tags and signals PRODUCT.md lists, so the components' rules (single writer, roles, event log, exact discretization, keyed noise) hold for scenarios that use it."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "The core stays pure math and other domains can be added as libraries; the ground truth is exact for library plants only because they are plain core graphs."
+unchecked = "an end-to-end check: validate, explain and run the five shipped examples and the eval tasks' reference scenarios, and compare signals, loops, roles and events with the original"
+
+[[obligation]]
+id = "product.vocabulary-from-metadata"
+statement = "`describe`, `schema`, `catalog()` and validation read the same library metadata, so a name that `describe` lists validates and a misspelt one gets a suggestion from it; all of it works offline."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+unchecked = "a check that every name in `describe --json` validates in a minimal scenario, run with the network off"
+
+[[obligation]]
+id = "product.faults-and-tasks-are-labelled-events"
+statement = "A fault or a maintenance task is recorded in the event log as the events it expands to, labelled `fault:<name>` (origin `fault:<name>@<unit>`) or `maintenance:<task>` (origin `plan.maintenance[<i>]@<unit>`); generated plans, faults and draws are recorded in `meta[\"trace\"]` with their address, value, distribution and log-probability, and keyed by address so one generator never changes another's draws."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+unchecked = "a scenario-truth version 2 with library scenarios"
+
+[[obligation]]
+id = "product.python-api"
+statement = "`homeostat.simulate(source)` accepts a path, YAML text, a dict or a scenario and returns a Run whose truth, measured and observed are pandas DataFrames (one column per signal, `(lane, signal)` columns with several lanes) and whose meta holds the ground truth `scenario-truth` describes; history h of plant p in a `family()` runs on noise key p · histories + h and gives exactly the same data as that plant's concrete config run alone on that noise key (batching plants that share a structure is only a speed-up)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+unchecked = "a Python-API driver; the components check the same rules through adapters"
+
+[[obligation]]
+id = "issues.faults-expanded-before-validation"
+statement = "A non-empty top-level `faults` list is expanded into interventions and removed before validation, so validation accepts it although it is not one of the scenario's keys, it needs the library like any fault, and a misspelt key is never matched against it."
+status = "decided"
+source = "replication"
+kind = "behaviour"
+checks = ["scenario-issues#example:120", "scenario-issues#example:121", "scenario-issues#example:122", "scenario-issues#test_an_unknown_top_level_key_is_the_only_problem_and_is_located_at_it"]

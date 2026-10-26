@@ -1,5 +1,5 @@
 [implementation]
-contract = "sha256:564043f8ccedfc164c42b9d78331be4f280ef9f43388724a1c1a14485d85f3bb"
+contract = "sha256:75ac96844a392b075d95cb4538953e5a9396375795ee3631317b29bdb5fb96c2"
 language = "command"
 command = ["homeostat"]
 license = "Apache-2.0"

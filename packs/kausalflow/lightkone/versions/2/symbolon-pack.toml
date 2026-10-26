@@ -1,0 +1,18 @@
+# Spec pack manifest. Pack tooling (symbola pack validate/pull) comes later;
+# for now this records which contract versions make up the pack.
+[pack]
+id = "kausalflow/lightkone"
+version = 2
+title = "Lightkone: a research-paper library web app you own, with its core components"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow"]
+
+[components]
+"lightkone/search-query@1" = "sha256:625f693a49018e7c46fd4f11f960501ce3fbcb0571b9c6eec2e6d3408f1d4f9d"
+"lightkone/bibtex-import@1" = "sha256:1a2501a515786733dea3bdab0b9fe9c51a43dbdd18cffcc5eb38ca05e39642fb"
+"lightkone/bibtex-export@1" = "sha256:883d8b3c5a1dcd66441aaec9aad6d8080a8d880b44c30711a81f627905c2109b"
+"lightkone/citation-key@1" = "sha256:062950b2a47b50f437926a9d398a88288e2f4199fd0b0d40feb592297722c399"
+"lightkone/pdf-filing@1" = "sha256:064061dfc3a90b53468080311f629eb13c27c5c989f75888d53e8a5013432d21"
+"lightkone/library-merge@1" = "sha256:fb627a7ba3b1b3c4f63e13deea8a0f79ebb604b282c98a3b538a9bddfadf87bb"
+"lightkone/tidy@1" = "sha256:eae4d79585ea7a5fe4ef16e159e02abd26e9c118329ee921826de9a74034dc2f"
+"lightkone/library-file@1" = "sha256:391cb0f698e05800f1c19d56b8bdac3b76761f8a4e8e4189541757058d9e4b11"

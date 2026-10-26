@@ -1,0 +1,26 @@
+[contract]
+id = "lightkone/bibtex-export"
+version = 1
+title = "Write a lightkone paper as a BibTeX entry"
+description = """
+Writes one paper as the BibTeX entry lightkone puts in library.bib and in
+the .bib files it syncs for Overleaf. The output must match byte for byte,
+because those files are diffed and committed.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

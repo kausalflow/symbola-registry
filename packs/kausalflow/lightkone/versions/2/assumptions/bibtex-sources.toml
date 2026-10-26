@@ -1,0 +1,4 @@
+id = "K-bibtex-sources"
+statement = "Imported BibTeX comes from Paperpile, Zotero, JabRef or Google Scholar exports, or from a library.bib lightkone wrote."
+basis = "These are the managers lightkone's users migrate from; the import rules and examples were drawn from their exports."
+monitor = "Count entries dropped per import; report when more than 5% of an import is dropped."

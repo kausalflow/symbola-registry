@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "file": {
+      "description": "The matching Paperpile file field.",
+      "title": "File",
+      "type": "string"
+    },
+    "pdf": {
+      "description": "Storage key for the PDF: 'papers/' + file.",
+      "title": "Pdf",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pdf",
+    "file"
+  ],
+  "title": "Output",
+  "type": "object"
+}

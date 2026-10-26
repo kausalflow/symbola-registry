@@ -28,5 +28,7 @@ for fact, concern, edits, *survives in facts:
         f'{concern!r}\n\nfrom _node import patched\n\n{marker}_impl = patched({name!r}, {edits!r})\n\n\n'
         "def run(input):\n    return _impl(input)\n"
     )
-contract = here.parent.parent / "versions" / "1" / "components" / name / "versions" / "1"
+versions = here.parent.parent / "versions"
+latest = max((p for p in versions.iterdir() if p.name.isdigit()), key=lambda p: int(p.name))
+contract = latest / "components" / name / "versions" / "1"
 sys.exit(subprocess.call(["symbola", "mutants", str(contract), "--mutants", str(out), *sys.argv[2:]]))

@@ -1,0 +1,30 @@
+[contract]
+id = "lightkone/library-file"
+version = 1
+title = "Read and rewrite lightkone's library.json"
+description = """
+lightkone/library.json is the library: lightkone's own data, and what other
+devices, Claude through MCP, and anyone's scripts read and write. This
+contract fixes what lightkone does when it opens that file and saves it
+again with nothing else changed (Library.load, then Library.save): which
+files it accepts, the folders it adds from Paperpile paths, and the exact
+text it writes (JavaScript's JSON.stringify with an indent of one space),
+with library.bib alongside.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

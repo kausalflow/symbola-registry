@@ -1,0 +1,15 @@
+[pack]
+id = "spikinglabs/rondel"
+version = 1
+title = "Rondel: end-to-end encrypted retrospectives and meetings, no accounts"
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]
+
+# Recomputed by `symbola extract` from components/; no need to edit by hand.
+[components]
+"spikinglabs/backup@1" = "sha256:7664609abca2bcf9a8b529111ec161f48a7389246b132bd7a3033a39ccb23ffe"
+"spikinglabs/link-crypto@1" = "sha256:1ed17d473470a2fdd7a2609d624f74e524b5bc83c374d9f703331fbe993121cc"
+"spikinglabs/meeting@1" = "sha256:0356a7a3dcdb9b67b2b690f33febbef3b44b2d8cd31dc3794847430992caaa9b"
+"spikinglabs/room@1" = "sha256:02f4c28d377953f67992c6688bc361876d2ea66725722ac707781804d37515df"
+"spikinglabs/series@1" = "sha256:5f58d1a140385cee1a66a8e3c22e53a0590e41a48d655732dc6002a3e01d86cd"
+"spikinglabs/template@1" = "sha256:0d9045e488a43766ec993867a9adbbb16eae09439f11555e42246a1adabed2bd"

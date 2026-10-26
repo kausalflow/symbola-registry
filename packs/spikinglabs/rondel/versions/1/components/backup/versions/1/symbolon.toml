@@ -1,0 +1,58 @@
+[contract]
+id = "spikinglabs/backup"
+version = 1
+title = "The backup file and how a restore merges into a browser"
+description = """
+A backup moves everything Rondel keeps in one browser to another: identity, preferences, My templates, the
+meeting and series lists with their link keys, per-meeting voter ids and drafts, and the stored documents.
+Files made by any earlier version must keep restoring. `op` picks the function; the answer is `result`.
+
+File: JSON {format: "rondel-backup", version: 1, exportedAt, encrypted, ...}. `data` is {local, docs}: local
+maps browser storage keys that start with "rondel:" to their text values; docs maps "rondel-<room or series
+id>" to the base64 Yjs update of that document.
+Unprotected: encrypted false and data inline. With a passphrase: encrypted true, kdf {name: "PBKDF2", hash:
+"SHA-256", iterations: 310000, salt: base64 of 16 bytes}, iv (base64 of 12 bytes) and data = standard base64 of
+the AES-256-GCM ciphertext (with tag, no additional data) of the UTF-8 JSON text of {local, docs}; the key is
+PBKDF2-HMAC-SHA-256 of the UTF-8 passphrase. Key order in the file: format, version, exportedAt, encrypted,
+then kdf, iv, data. Nothing of the content may be readable in a protected file.
+make (now, data, passphrase?, salt?, iv?): result is the file object (exportedAt = now). Tests give salt and iv;
+real use draws them at random.
+read (file, passphrase?): result is data. The file may be given as text. Failures, all ValueError: not JSON, or
+format not "rondel-backup" (including a "rondel-meeting" file: a different message, "this is a meeting
+file"), version other than 1, encrypted but no passphrase, wrong passphrase or damaged data.
+
+Merge (merge: current, incoming, take_identity): result {changes, meetings, series, templates, identity}.
+`changes` maps storage keys to the new value, decoded from JSON (the caller stores it with JSON.stringify,
+no spaces); only keys whose new text would differ from current's text for that key are listed. Entries of incoming whose key does not start with
+"rondel:" or whose value is not valid JSON are skipped. By key:
+  rondel:me: if current's id equals incoming's, identity "same", no change. Else if take_identity or current
+    has no id: write {id: incoming id, name: current's name if non-empty, else incoming name}; identity "taken".
+    Otherwise identity stays "kept".
+  rondel:meetings (entries keyed by roomId), rondel:series (keyed by id): the union of both lists; for an id in
+    both, the entry with the greater updatedAt (string comparison, missing = ""); on a tie the one already
+    in current. Order: current's entries first (in order), then incoming's new ones.
+  rondel:templates, rondel:people, and keys starting "rondel:mine:": the union of both arrays, current's items
+    first, without duplicates.
+  keys starting "rondel:drafts:": the union of both arrays by item id (or its JSON text if it has no id);
+    current's first; an item present in both stays as current's.
+  rondel:prefs: incoming's fields overlaid by current's, with lastSeries the union (current's first).
+  every other "rondel:" key (voter ids, layout...): written only if current has no value for it.
+meetings/series/templates: how many entries the merged list has more than current's list (0 if unchanged).
+"""
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 12
+timeout_seconds = 300

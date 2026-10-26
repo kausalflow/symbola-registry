@@ -1,0 +1,4 @@
+id = "K-one-server-process"
+statement = "At most one room-server process serves a given set of meetings: open meetings live in that process's memory and its SQLite file has a single writer."
+basis = "DEPLOY.md says to run exactly one copy; the Node server keeps a Room object per open room, and the Cloudflare version uses one Durable Object per room."
+monitor = "none"

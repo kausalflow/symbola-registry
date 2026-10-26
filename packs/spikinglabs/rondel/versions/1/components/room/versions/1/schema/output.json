@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "description": "Connections the server closed: {code, reason}.",
+      "title": "Closed",
+      "type": "object"
+    },
+    "entries": {
+      "description": "What the room stores at the end: {seq, data}, long data shown as in frames.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "frames": {
+      "additionalProperties": {
+        "items": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "description": "What each connection was sent, in order (error messages left out; connections sent nothing are not listed). A data text longer than 40 characters is shown as data null and size = its length.",
+      "title": "Frames",
+      "type": "object"
+    },
+    "gone": {
+      "title": "Gone",
+      "type": "boolean"
+    },
+    "has_auth": {
+      "title": "Has Auth",
+      "type": "boolean"
+    },
+    "results": {
+      "description": "Per event: null, or for expire and expires_at the answer.",
+      "items": {},
+      "title": "Results",
+      "type": "array"
+    },
+    "room_id_ok": {
+      "items": {
+        "type": "boolean"
+      },
+      "title": "Room Id Ok",
+      "type": "array"
+    }
+  },
+  "required": [
+    "frames",
+    "closed",
+    "results",
+    "entries",
+    "has_auth",
+    "gone",
+    "room_id_ok"
+  ],
+  "title": "Output",
+  "type": "object"
+}

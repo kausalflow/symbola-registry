@@ -1,0 +1,66 @@
+[contract]
+id = "spikinglabs/room"
+version = 1
+title = "The room server: WebSocket messages and the link-key check"
+description = """
+A room server stores and relays the encrypted updates of one meeting; it never sees content. Real Rondel
+clients speak this protocol, so a rebuild must match it. Transport: a WebSocket per client at a path ending
+"/api/rooms/<roomId>" (roomId matches ^[A-Za-z0-9_-]{8,64}$ in full; nothing else, not even a trailing newline,
+is accepted); text frames carry one JSON message each; binary frames are ignored. GET "<base>/api/health"
+answers 200 {"rondel": true, "protocol": 1}. This contract checks the room logic: the events are connections
+opening, text they send, closing, the clock and expiry.
+
+Client messages: {t:"hello", v, auth, since}; {t:"upd", id, data}; {t:"aw", data}; {t:"compact", upTo, data};
+{t:"ping"}; {t:"delete"}. data is base64 text sealed by the client (see link-crypto), opaque to the server.
+Server messages: {t:"welcome", entries:[{seq,data}], others, entryCount, expiresAt, retentionDays};
+{t:"upd", seq, data}; {t:"ack", id, seq}; {t:"aw", data}; {t:"peers", others, joined}; {t:"pong"};
+{t:"deleted"}; {t:"error", code, message}. Codes: bad-request, forbidden, too-large, room-full, version, gone.
+Every error is sent and then the connection is closed with code 4000 and the error code as reason. The
+output leaves out error messages (their wording is the builder's); every other field is exact. A data
+text longer than 40 characters is reported as data null and size = its length, wherever it appears.
+
+Rules.
+ Opening: with 100 connections already open (authenticated or not), a new one gets room-full and is closed.
+   `authed` hands back a connection that had already proved the link (no hello needed).
+ A frame longer than 2,000,000 characters: too-large. Text that is not JSON: bad-request.
+ Before a connection has said hello, anything but hello is bad-request. hello checks in this order: v is not
+   1: version; the meeting was deleted from the server: gone; auth not a string of at least 16 characters:
+   bad-request; a different auth proof than the first one ever presented: forbidden (the first hello to an
+   empty room registers its auth; the server keeps only a hash). Then welcome goes to the sender: entries with
+   seq > since in order (since not a finite number counts as 0), others = the other authenticated connections,
+   entryCount = all stored entries, expiresAt (below, ISO 8601 text or null) and retentionDays. Every other
+   authenticated connection gets {t:"peers", others: its own count of other authenticated connections, joined:true}.
+ After hello: ping answers pong. upd with data not a string: bad-request; if the stored characters plus this
+   data would exceed 25,000,000: too-large ("this meeting is full"); else store it under the next seq
+   (1, 2, 3, ...), send the sender {t:"ack", id (as sent), seq}, and send every other authenticated connection
+   {t:"upd", seq, data}. aw with string data is sent to every other authenticated connection, never stored
+   and not back to the sender; otherwise ignored. compact with string data and integer upTo >= 1 replaces all
+   entries with seq <= upTo by one entry (seq upTo, data); no reply, nothing sent on; otherwise bad-request.
+   delete empties the room (entries and auth), remembers that it was deleted, sends {t:"deleted"} to every
+   connection and closes it with code 4000, reason "gone"; later hellos get gone, even with the old proof. An
+   unknown message type is bad-request. A later hello after authentication is also bad-request.
+ A connection that leaves (close) and was authenticated tells every other authenticated one
+   {t:"peers", others, joined:false}.
+ Retention (days; 0 = keep forever): expiresAt = (the moment of the last upd or compact) + retention days, or
+   null when the room is empty, nothing was written, or retention is 0. Joining, presence and reads do not move
+   it. expire(now): null if there is no expiry; if any connection is open, max(expiresAt, now + 1 day) and
+   nothing is deleted; if expiresAt is later than now, expiresAt; otherwise the room is emptied (entries and
+   auth, but not marked deleted, so a new link key may take the id) and null. A deleted room stays deleted.
+"""
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 100
+timeout_seconds = 300

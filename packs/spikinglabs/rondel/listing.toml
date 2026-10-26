@@ -1,0 +1,5 @@
+# How symbola.sh lists this pack in the shop. Lives outside versions/, so editing it never
+# changes the pack's digest.
+name = "Rondel"
+category = "other"
+summary = "End-to-end encrypted retrospectives and team meetings with no accounts, as a static web app plus a tiny room server: the meeting model, recurring series, link keys and sealing, backups, the room protocol and meeting templates specified exactly."

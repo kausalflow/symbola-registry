@@ -35,13 +35,15 @@ what a careful builder would, and note it in `NOTES.md`.
 | `degradation[]` | `{target: <unit>, kind, note?, <its parameters>}` |
 | `plan.maintenance[]` | `{at, task, target: <unit or list>, duration?, id?, note?}`, or recurring: `{task, target, every, first?, jitter?}` |
 | `plan.production` | a list, or a generator `{cycle: [...] or next: {from: {to: weight}}, campaign, over}` |
-| `faults[]` | random faults: `{target: <unit or list>, every, kinds: {fault: weight}, magnitude?: {fault: number or distribution}, after?}` |
+| `faults[]` | random faults, expanded into `interventions` and removed before validation (so it is not among the keys `scenario-issues` lists): `{target: <unit or list>, every, kinds: {fault: weight}, magnitude?: {fault: number or distribution}, after?}` |
 | `family` | `{plants, histories}` |
 | `init` | `steady` (default), `none`, or `{burn_in: <duration>}` |
 | `output.start` | a date-time: the index becomes timestamps |
 | `expect[]` | kinds `stat`, `shift`, `saturation`, `settles`, `visible`, `feasible` (Flow 5) |
 
-Any number or choice may be a **distribution**: `{normal: {mean, sd}}`,
+Any number, duration or choice may be a **distribution**, anywhere: a unit's
+parameters, a source's, event and plan times (`at`), generator `campaign`, `jitter`
+and fault `magnitude`, regime values: `{normal: {mean, sd}}`,
 `{lognormal: {median, sigma}}`, `{uniform: [a, b]}`, `{loguniform: [a, b]}`,
 `{choice: {a: w, ...}}` or `{choice: [a, b]}`; numbers may be durations, and a
 choice may pick a template.
@@ -71,7 +73,8 @@ NaN manual output holds the last output; mode switches are bumpless.
 `XT-nnn` (the reading), `XV-nnn` (the valve), and `<id>.sp`, `.mode` (0 MAN, 1
 AUTO, 2 CAS), `.man_out`, `.out` and `.cv` (the true regulated variable); analyzers
 and labs get `AT-nnn`; ports are `<id>.<port>`, inner parameters paths such as
-`TIC-101.plant.K`. Every loop is: schedules for sp, mode and man_out, a `pid`
+`TIC-101.plant.K`. A loop is named after its unit id (`TIC-101`, in `meta["loops"]`,
+roles and expectations); its controller is `<id>.pid`. Every loop is: schedules for sp, mode and man_out, a `pid`
 (reverse acting unless stated), `stiction` on its output, `saturation` 0 to 100 as
 the valve, the plant below, and the instrument chain of its `sensor` on `cv`. Loop
 parameters common to all loop templates: `sp`, `mode` (AUTO), `Kc`, `Ti`, `tuning`
@@ -134,10 +137,15 @@ Degradations (ageing states, held while settling): `fouling` (lost gain fraction
 grows at rate · T/t_ref per day, max 0.8), `sensor_drift` (rate % of span per day),
 `valve_wear` (friction band grows at rate % per day, max 10), `catalyst_decay`
 (reactor and cstr; activity falls at rate per day, faster when hot, max 0.9).
-Maintenance tasks (label `maintenance:<task>`): `clean`, `replace_catalyst`,
-`calibrate`, `replace_sensor`, `replace_valve`, `stop` (MAN with the valve closed
-for `duration`, then AUTO), `remove_sensor` (reading NaN, the controller holds),
-`install_sensor`. A task or fault that does not apply to the unit is an error.
+Maintenance tasks (label `maintenance:<task>`) expand into these events, one log
+entry each (`reset` returns an ageing state to zero): `clean` (reset fouling),
+`replace_catalyst` (reset decay), `calibrate` (set the bias offset to 0, reset
+drift if any), `replace_sensor` (calibrate, and set the noise std to nominal; the
+lag is not reset), `replace_valve` (set fs and fd to the unit's own, reset the
+stiction state and wear), `stop` (mode MAN and man_out 0, then mode AUTO after
+`duration`), `remove_sensor` (`<tag>.installed` 0: the reading is NaN and the
+controller holds), `install_sensor` (`<tag>.installed` 1, then replace_sensor). A
+task or fault that does not apply to the unit is an error.
 
 **The Python API.** `simulate(source)` → `Run`; `prepare(source, plant=0)` →
 `Prepared` (`scenario`, `warnings`, `compiled`, `config_hash`, `engine()`,
@@ -150,9 +158,10 @@ degradation and task as data); `homeostat.labelers`: `visibility`, `settle_times
 A source is a path, YAML text, a dict or a scenario. `Run` has `truth`, `measured`,
 `observed` (DataFrames, index a TimedeltaIndex or timestamps, `(lane, signal)`
 columns with several lanes), `seconds`, `frame(signals)`, `lane(k)`, `lanes`, and
-`meta`: `signals`, `loops`, `causal_graph`, `events`, `timeline`, `promoted`
-(`scenario-truth`), plus `units`, `trace`, `scenario`, `reproducibility`,
-`warnings`.
+`meta` with the content of `scenario-truth` in pandas form: `signals` (a DataFrame
+indexed by signal name), `events`, `timeline` and `trace` (DataFrames), `loops`
+(a list of dicts), `causal_graph` (`{nodes, edges}`), `promoted` (a dict), plus
+`units`, `scenario`, `reproducibility` and `warnings`.
 
 **The command line.** `validate`, `explain`, `run`, `diagnose`, `diff` and
 `convert` as `cli-contract` states, plus `guide [topic]` (the bundled docs; no
@@ -187,13 +196,16 @@ generated grades, maintenance and faults).
    and writes the files `cli-contract` names; in Python, `simulate` gives the same
    run. The run starts settled (`run-series`) unless `init` says otherwise; ground
    truth follows `scenario-truth`.
-5. **Check what the run shows.** `expect` entries: `stat` (mean, std, min, max or
-   count of a signal over a window, within `at_least`/`at_most`), `shift` (mean of
-   window `after` minus mean of `before`; `absolute`), `saturation` (fraction of
-   samples at an output limit), `settles` (loops reach the new setpoint after a
-   transition within `within`, judged on cv from the transition's start; `band`
-   default 1 %, `hold` 600 s), `visible` (a fault shows on an observed signal within
-   a time, or `visible: false`), `feasible`. Each has `id`, `note`, `lane`.
+5. **Check what the run shows.** `expect` entries, each with `id`, `note`, `lane`:
+   `stat` (`signal`, `stat` required: mean, std, min, max or count of non-NaN
+   samples, over `window`, within `at_least`/`at_most`); `shift` (`signal`, mean of
+   window `after` minus mean of `before`; `absolute`); `saturation` (`loop`,
+   `at_most` required: the fraction of samples at an output limit, over `window`);
+   `settles` (`within`; optional `transition` written `grade_A->grade_B`, `loop`,
+   `band` default 1 % of the new setpoint, `hold` 600 s; judged on cv from the
+   transition's start); `visible` (`fault` a fault name such as `sensor_noise`,
+   optional `target` unit, `signal` an observed signal, `visible` default true,
+   `within`; every matching fault must satisfy it); `feasible`.
    `homeostat diagnose` reports PASS, FAIL or ERROR with evidence; exit 3 on a
    failure.
 6. **Changes and faults.** `interventions` set, shift or scale a setpoint, mode,
@@ -216,9 +228,11 @@ generated grades, maintenance and faults).
 10. **Twin runs.** `lanes`, `noise_keys`, `lanes:` on events; `Engine.fork()`
     continues a copy on the same streams.
 11. **Labels.** `visibility(scenario)` adds one twin lane per fault on the same noise
-    and reports when and on which recorded signal each fault first stands out from
-    the signal's own variation over a moving window (an oracle bound; too small
-    means not visible); `settle_times(run)`; `feasibility(run)`; `lineage(scenario,
+    and reports when and on which recorded signal each fault's effect (twin minus
+    fault-free) first stands out from the signal's own variation over a moving
+    `window` (1800 s), as a shift of the mean or a change of variance (`z` 3,
+    `alpha` 0.001), and stays out for `persistence` (half the window): an oracle
+    bound, and too small means not visible; `settle_times(run)`; `feasibility(run)`; `lineage(scenario,
     sample)` gives, per lab result, when its material was sampled and entered each
     upstream unit, from tracers that are never recorded.
 12. **Measure an assistant.** `eval list` and `eval show <task>` give thirteen

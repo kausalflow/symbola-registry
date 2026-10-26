@@ -1,0 +1,4 @@
+id = "K-time-is-simulated"
+statement = "All times in a scenario are simulated seconds from the start of the run; nothing reads the wall clock, a time zone or a calendar. `output.start` only relabels the index, as a naive timestamp, and plays no part in the dynamics."
+basis = "The engine advances a step counter times dt; Run builds a TimedeltaIndex, or a DatetimeIndex from `output.start` without a time zone."
+monitor = "none"

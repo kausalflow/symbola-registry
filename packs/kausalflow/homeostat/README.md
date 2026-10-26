@@ -4,7 +4,9 @@ The second spec pack built from a real product, and the first that is not a set 
 
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |
-| `versions/1/` | The pack: BRIEF, PRODUCT (the whole package around the components), AGENTS, assumptions, 60 obligations, four components at the product's surfaces (scenario in, issues / ground truth / series out, and the command line) | yes |
+| `versions/2/` | The latest pack: version 1 plus the gaps the product rebuild found (below) | yes |
+| `attestations/` | homeostat itself attested against version 2's four components, with the runner key | yes, as evidence |
+| `versions/1/` | The first pack: BRIEF, PRODUCT (the whole package around the components), AGENTS, assumptions, 60 obligations, four components at the product's surfaces (scenario in, issues / ground truth / series out, and the command line) | yes |
 | `oracle/` | Adapters that run homeostat itself for each component (for `cli-contract`, just the `homeostat` command) | no |
 | `REVIEW.md` | Questions for kausalflow: priorities, the 8 `default` obligations, suspected homeostat bugs | no |
 
@@ -15,5 +17,12 @@ The second spec pack built from a real product, and the first that is not a set 
 3. **Replication 2** (one full Go build, one prose-only). The full build passes all four components. The prose-only build passes `run-series` and 130 of 131 `scenario-issues` checks. That run found one more missing rule (an `exogenous` source's `tau` takes a duration), which is now fixed. Its remaining failures are malformed-input edge cases that only the examples carry.
 
 4. **Product layer.** Like lightkone, the pack first specified only the four components, so a rebuild asked for "homeostat" had no process library, plans, families, labelers or most commands. `PRODUCT.md` now describes the whole package, drafted from homeostat's README and docs. A clean-room Python rebuild from the pack (Opus, 84 min) built all four tiers of its Order except the optional compiled step, attested all four components, and ran homeostat's own 13 eval reference scenarios with the same signals, loops, events and observed means within a few percent. Its five gaps (loop names, `meta` types, where distributions may appear, expectation fields, task expansions) are fixed in PRODUCT.md. The rebuild's source is not kept here.
+
+5. **Version 2.** The rebuild left four readings open, now settled against homeostat's own code with no new agent run:
+   - `scenario-issues` says a non-empty `faults` list is expanded before validation, so it is a valid top-level key that is never suggested for a typo (3 examples recorded from homeostat, one new obligation; the unknown-key property no longer generates `faults`);
+   - PRODUCT.md gives the `visibility` labeler's lanes (lane 0 with every fault, one twin without each), its two scores and its defaults;
+   - PRODUCT.md says `lineage` carries back-mixing (mean entry time) and lists its table;
+   - PRODUCT.md says a family member's noise key is plant · histories + history and its data equal that plant run alone, which is the requirement; batching is only a speed-up.
+   The four `schema.py` docstrings now say `symbola schema`.
 
 `seed: -1` passes validation but crashes the run; it is listed in `REVIEW.md` and not pinned.

@@ -1,0 +1,174 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Hash"
+    },
+    "id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Id"
+    },
+    "iv": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "seal: base64 of 12 bytes to use as the nonce; random if absent (tests only).",
+      "title": "Iv"
+    },
+    "key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Key"
+    },
+    "kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "meeting",
+            "series"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Kind"
+    },
+    "link_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The key from the meeting link (base64url).",
+      "title": "Link Key"
+    },
+    "op": {
+      "enum": [
+        "auth",
+        "open",
+        "seal",
+        "link",
+        "route",
+        "new_ids"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "origin": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Origin"
+    },
+    "pathname": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pathname"
+    },
+    "plaintext": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "seal: base64 of the bytes to seal.",
+      "title": "Plaintext"
+    },
+    "room_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Room Id"
+    },
+    "sealed": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "open: base64 text as stored on a room server.",
+      "title": "Sealed"
+    },
+    "share_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Share Url"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "Input",
+  "type": "object"
+}

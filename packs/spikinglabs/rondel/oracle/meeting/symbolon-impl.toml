@@ -1,0 +1,6 @@
+[implementation]
+contract = "sha256:0356a7a3dcdb9b67b2b690f33febbef3b44b2d8cd31dc3794847430992caaa9b"
+language = "command"
+command = ["sh", "-c", "cd \"${RONDEL_SRC:-/root/w/rondel}\" && exec node --import tsx \"$OLDPWD/adapter.mts\""]
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]

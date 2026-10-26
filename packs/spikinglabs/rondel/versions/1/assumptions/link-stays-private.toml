@@ -1,0 +1,4 @@
+id = "K-link-stays-private"
+statement = "Only the people meant to be in a meeting ever have its full link (the part after #), and the link is never sent to anything that logs or stores URLs with fragments."
+basis = "The key is the fragment of the link, which browsers do not send to servers; everything else (encryption, the server proof, retention) assumes nobody outside the meeting holds it. Facilitator controls are a convention, not enforced: anyone with the link can edit."
+monitor = "none"

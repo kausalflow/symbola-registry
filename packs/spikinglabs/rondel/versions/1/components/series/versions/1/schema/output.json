@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "result": {
+      "description": "Depends on op.",
+      "title": "Result"
+    }
+  },
+  "required": [
+    "result"
+  ],
+  "title": "Output",
+  "type": "object"
+}

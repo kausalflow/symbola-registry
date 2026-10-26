@@ -1,0 +1,57 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "notes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Shared notes text per agenda item id.",
+      "title": "Notes",
+      "type": "object"
+    },
+    "results": {
+      "description": "One per step; limit: refused by a vote limit.",
+      "items": {
+        "enum": [
+          "ok",
+          "limit"
+        ],
+        "type": "string"
+      },
+      "title": "Results",
+      "type": "array"
+    },
+    "update": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Update"
+    },
+    "view": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The meeting as readView reads it; null if the document holds no meeting.",
+      "title": "View"
+    }
+  },
+  "required": [
+    "results",
+    "view",
+    "notes"
+  ],
+  "title": "Output",
+  "type": "object"
+}

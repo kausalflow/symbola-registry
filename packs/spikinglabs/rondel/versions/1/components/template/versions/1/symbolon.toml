@@ -1,0 +1,78 @@
+[contract]
+id = "spikinglabs/template"
+version = 1
+title = "Meeting templates: the YAML format and what it means"
+description = """
+A template is a small YAML file (people write them, share them and keep them in an organisation's templates
+folder) that sets up a meeting. Old templates must keep reading the same. `op` picks the function; the answer
+is `result`.
+
+parse (yaml, id_prefix): result {template, errors}. errors is a list of {line} (the 1-based line of the
+offending node, null if there is none, as for a missing name), sorted by line, one per problem, wording is
+the builder's; template is null when there are any. A YAML syntax error (including a repeated key) gives a single error with line null.
+Allowed top-level fields: id, name, type, description, title, columns, agenda, settings; any other is an
+error at that key's line. name: required, text or number, trimmed, at most 80 characters. type: one of retro,
+standup, planning, one_on_one, general (default general). description: at most 200. title: at most 120.
+Text fields accept strings or numbers (made into text); too-long text is an error, and the stored value is cut.
+columns: a list of at most 12; each a plain text (the title) or {title (required, at most 80), description (at
+most 300, default ""), color}; color is kept only if it is "#" and six hex digits, else "#6b7280". Plain
+columns have description "" and color "#6b7280". Unknown keys are errors. agenda: a list of at most 40; each
+a plain text (title, 5 minutes; a number or other plain value is an error) or {title (required, at most 200), minutes (a whole number 0..600, default 5),
+activity (topic, round, brainstorm, write, group, vote, discuss, actions, break; default topic), owner (at most
+80), notes (at most 4000), screen}. Unknown keys are errors. screen: a mapping with `middle` (a single block, or a list of at
+most 2 entries, from board, brainstorm, topic, actions, decisions, people; duplicates in the list are then
+removed) and any of agenda, people,
+board, brainstorm, topic, actions, decisions set to open or folded; other keys are errors. settings: a
+mapping with anonymous_cards (true/false; stored as showAuthors = not that), votes_per_person (whole number
+0..99; votesPerUser), votes_per_card (votesPerCard), secret_voting (secretVoting), open_board (openBoard);
+other keys and wrong types are errors. Lists that are not lists are errors.
+The template: {id, name, type, description, [title,] columns, agenda, [settings]} where id = id_prefix + the
+slug of `id` if given else of the name (lower case, runs of other characters become one "-", no leading or
+trailing "-", at most 48 characters; "template" if empty); each agenda item {title, durationMin, and only
+when present/not default: activity (omitted when topic), owner, notes (omitted when empty), screen (omitted
+when empty)}; description is "" when absent; title is present only when the YAML has one; settings present
+only when something was set. Texts are trimmed.
+to_yaml (template): the YAML a template is saved as; result {data, order}: data is that YAML read as plain
+JSON and order its top-level keys in order. Field order and names: name, type, description, title, columns,
+agenda, settings. Description and title appear only if non-empty; columns/agenda only if non-empty; a column
+is {title} plus description when non-empty (the colour is not saved); an agenda item is {title, minutes}
+plus activity (if not topic), owner, notes, screen when set; settings use the YAML names (anonymous_cards
+is not showAuthors) and only the ones set. Reading it back with parse must give the same template (without
+the colours).
+roundtrip (template): result is what parse gives for the YAML that to_yaml would write for the template, as
+{template, errors}.
+new_version (yaml, taken): the YAML of the "New version" copy: the line starting "id:" is removed (first
+one); the template's name becomes the next version name, written as a JSON string on the "name:" line (the
+first line starting "name:"; one is added at the top if there is none). Next version name: strip a trailing
+" (vN)" or " (my version)" to get the base ("Template" if that leaves nothing), then the first "<base>
+(vK)" not in taken (compared ignoring case), K starting at N+1 for a "(vN)" suffix, else 2. result is the
+text.
+design_checks (template): result is the list of warnings, as codes in this order: "no-stages" if the agenda
+is empty; "no-columns" if some stage is write, group, vote, discuss or actions and there are no columns;
+"vote-before-write", "group-before-write", "discuss-before-vote" if both stages exist and the first of the
+former comes first in the list (stage kinds compared by their first occurrence); "no-break" if the total
+minutes exceed 90 and there is no break stage; then, per stage with 0 minutes in order, "no-time:<title>".
+from_meeting (view): "Save as a new template": a template with id = slug of the series name (else title),
+name = that, type, description "", columns {title, description, color}, agenda {title, durationMin, and
+activity (if not topic), owner (if non-empty), screen (if non-empty)} (no notes), settings {showAuthors,
+votesPerUser, votesPerCard, secretVoting, and openBoard only when true}.
+builtin: the templates every Rondel ships (English), in order, as {id, name, type, title, columns (titles),
+agenda ([title, minutes, activity]), settings}.
+"""
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

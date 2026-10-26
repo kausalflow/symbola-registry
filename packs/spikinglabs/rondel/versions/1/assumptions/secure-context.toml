@@ -1,0 +1,4 @@
+id = "K-secure-context"
+statement = "Rondel runs in a secure browsing context (HTTPS, or localhost), where the Web Crypto API (HKDF, AES-GCM, PBKDF2) is available."
+basis = "The app encrypts everything with crypto.subtle, which browsers only offer in secure contexts. DEPLOY.md says to put the server behind HTTPS."
+monitor = "none"

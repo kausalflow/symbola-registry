@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "Event": {
+      "additionalProperties": false,
+      "properties": {
+        "authed": {
+          "default": false,
+          "description": "open: hand back a connection that had already proved the link (a room that woke up).",
+          "title": "Authed",
+          "type": "boolean"
+        },
+        "conn": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of the connection.",
+          "title": "Conn"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "open: open this many connections, named conn1, conn2, ...",
+          "title": "Count"
+        },
+        "data_size": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "send: replace frame.data by this many characters 'x'.",
+          "title": "Data Size"
+        },
+        "do": {
+          "enum": [
+            "open",
+            "send",
+            "close",
+            "clock",
+            "expire",
+            "expires_at",
+            "restart"
+          ],
+          "title": "Do",
+          "type": "string"
+        },
+        "frame": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "send: a message, sent as JSON text.",
+          "title": "Frame"
+        },
+        "ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "clock, expire: a moment, in milliseconds since 1970.",
+          "title": "Ms"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "send: raw text instead of a frame.",
+          "title": "Text"
+        },
+        "text_size": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "send: raw text of this many characters 'x'.",
+          "title": "Text Size"
+        }
+      },
+      "required": [
+        "do"
+      ],
+      "title": "Event",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "events": {
+      "items": {
+        "$ref": "#/$defs/Event"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "retention_days": {
+      "default": 90,
+      "minimum": 0,
+      "title": "Retention Days",
+      "type": "integer"
+    },
+    "room_ids": {
+      "description": "Room ids to check against the allowed form.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Room Ids",
+      "type": "array"
+    }
+  },
+  "title": "Input",
+  "type": "object"
+}

@@ -1,0 +1,591 @@
+# Obligations of the spikinglabs/rondel spec pack (format: docs/PACK_FORMAT.md).
+#
+# Each obligation is one decision a builder could get wrong, with the checks
+# that pin it down. status: decided (required), default (chosen; a fork may
+# change it with a note), open (deliberately undecided; builds may differ).
+# Checks are "<component>#example:<line in examples.jsonl>" or
+# "<component>#<property test name>". A required obligation no check can
+# express yet has checks = [] and unchecked = "<the check it would need>".
+
+[[obligation]]
+id = "meeting.title"
+statement = "A new meeting's title is the explicit title (trimmed), else the template's title with `{date}` (the day, ISO) and `{month}` filled in, else `<template name> – <date>`; titles are trimmed and cut to 200 characters."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:1", "meeting#example:2", "meeting#example:3", "meeting#example:4", "meeting#test_texts_are_trimmed_and_cut"]
+
+[[obligation]]
+id = "meeting.start-phase"
+statement = "A meeting starts in the phase of its first board stage (write, group, vote, discuss or actions); a retro without board stages starts in write; a general meeting without one has no board phase; the template's per-stage `screen` is kept."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:3", "meeting#example:5", "meeting#example:6"]
+
+[[obligation]]
+id = "meeting.settings"
+statement = "Settings start from the type's defaults (a retro: anonymous cards, 5 votes per person, 3 per card, secret voting; a general meeting: names shown, 3 votes per person, 1 per card), then the saved defaults of the browser, then the template's own settings, which win; `settings` later merges fields into the current ones."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:1", "meeting#example:3", "meeting#example:7", "meeting#example:44"]
+
+[[obligation]]
+id = "meeting.series-meeting"
+statement = "A meeting made for a series stores the series reference and name, and its facilitators are the series' facilitators instead of only the creator."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:8"]
+
+[[obligation]]
+id = "meeting.ids-from-seed"
+statement = "With a seed, every id a start creates (columns, agenda items, the meeting's own) is a pure function of the seed, the kind and the position: two browsers starting a series meeting from the same seed get identical ids, another seed gives other ids, and the seed is read as UTF-16 code units, so a long seed or an emoji works. Without a seed ids are random."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:9", "meeting#example:10", "meeting#example:11", "meeting#test_ids_come_from_the_seed_only"]
+
+[[obligation]]
+id = "meeting.prefilled-notes"
+statement = "Notes given at the start become the shared notes of the matching agenda item."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:12"]
+
+[[obligation]]
+id = "meeting.next-meeting"
+statement = "A next meeting from a previous one copies the settings (votes hidden again) and the template, carries over open actions (each keeping the origin of its first meeting) and the previous meeting's unfinished extra topics, and records the previous title."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:13", "meeting#example:14", "meeting#test_carrying_over_keeps_open_actions_and_unfinished_extra_topics"]
+
+[[obligation]]
+id = "meeting.card-author"
+statement = "A shared card carries its author's name only when authors are shown or the board is open, otherwise it is anonymous; the card's text is trimmed."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:15", "meeting#example:16", "meeting#example:17"]
+
+[[obligation]]
+id = "meeting.card-text-limit"
+statement = "Card text is cut at 2,000 characters."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:18"]
+
+[[obligation]]
+id = "meeting.grouping"
+statement = "Dropping a card on another puts both in one group led by the target, in the target's column, with the dropped card's own title reset; dropping on a member joins that group; moving a card to another column moves its group; ungrouping or deleting down to one card dissolves the group (a title passes to the new leader); grouping a card onto itself or a missing card changes nothing; deleting a card also removes its votes."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:19", "meeting#example:20", "meeting#example:21", "meeting#example:22", "meeting#example:23", "meeting#example:24", "meeting#example:25", "meeting#test_groups_stay_well_formed"]
+
+[[obligation]]
+id = "meeting.columns"
+statement = "Columns: a new column's title is trimmed and cut, its colour follows the number of columns; deleting a column deletes its cards; `move_column` puts a column first, last or between others."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:26", "meeting#example:27", "meeting#example:28"]
+
+[[obligation]]
+id = "meeting.vote-limits"
+statement = "A vote that would exceed the per-person or per-card limit is refused with `limit` and changes nothing; removing votes frees them; 0 means unlimited; votes per person are counted over cards."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:29", "meeting#example:30", "meeting#example:31", "meeting#test_votes_follow_the_limits"]
+
+[[obligation]]
+id = "meeting.reveal-votes"
+statement = "Moving to the discuss or actions phase reveals the votes; other phases leave them as they are; each phase change raises `readyEpoch`, which clears everyone's done mark."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:32", "meeting#example:33"]
+
+[[obligation]]
+id = "meeting.stage-timer"
+statement = "Starting an agenda item makes it current, marks the one left as done, sets the phase of a board stage and starts a timer of the item's minutes (none for 0 minutes or a plain item); pause, resume, +minutes and reset act on the timer; closing and reopening a meeting set its status and times; pause or resume with nothing to apply changes nothing."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:34", "meeting#example:35", "meeting#example:36", "meeting#example:37", "meeting#example:38", "meeting#test_timer_state_stays_consistent"]
+
+[[obligation]]
+id = "meeting.agenda"
+statement = "Agenda items are appended (title trimmed, minutes, activity; a board stage sets the phase only when none is set); `move_agenda` puts an item at an index; deleting the current item clears the current item and drops its notes."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:39", "meeting#example:40", "meeting#example:41", "meeting#test_moving_an_agenda_item_puts_it_at_the_index"]
+
+[[obligation]]
+id = "meeting.notes"
+statement = "Notes are shared text per agenda item; inserts go at the end or at a given position."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:42"]
+
+[[obligation]]
+id = "meeting.rename"
+statement = "Renaming trims the title, cuts it at 200 characters and ignores an empty one."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:43"]
+
+[[obligation]]
+id = "meeting.people"
+statement = "Joining refreshes the person's entry only after five minutes or under a new name (a new name replaces the entry); the creator cannot be removed; removing a person drops them from the facilitators and they cannot join again until `allow_back`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:45", "meeting#example:46"]
+
+[[obligation]]
+id = "meeting.brainstorm"
+statement = "Brainstorm ideas belong to an agenda item; each person has three dots per item, stackable, limited per item; step and hidden flag merge with defaults; an idea can become an action or an agenda topic; deleting an idea removes its dots; ideas can be edited."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:47", "meeting#example:48", "meeting#example:49"]
+
+[[obligation]]
+id = "meeting.decisions-actions"
+statement = "Decisions and actions: texts trimmed, optional owner and due date, optional link to a card."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:50"]
+
+[[obligation]]
+id = "meeting.files"
+statement = "A meeting is read back from a meeting file (JSON text or object, as saved by 0.26.0 and 0.27.0), from a bare document update, or created from them, and steps continue from it; text that is not JSON, a file of another kind and a document that is no meeting are errors; reading back an export gives the same meeting."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["meeting#example:51", "meeting#example:52", "meeting#example:53", "meeting#example:54", "meeting#example:55", "meeting#example:56", "meeting#test_reopening_an_export_gives_the_same_meeting"]
+
+[[obligation]]
+id = "series.period"
+statement = "A meeting's period is the calendar period of its date: the day (daily), the ISO week (weekly and biweekly, `YYYY-Www`: weeks start Monday, week 1 holds the first Thursday, two digits), the month (monthly), or `all` for an irregular series."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:1", "series#example:2", "series#example:3", "series#example:4", "series#example:5", "series#example:6", "series#example:7", "series#example:8", "series#example:9", "series#example:10", "series#example:11", "series#example:12", "series#example:13", "series#test_period_is_the_calendar_period_of_the_date"]
+
+[[obligation]]
+id = "series.meeting-name"
+statement = "A series meeting is named `<period>` for the first and `<period>-<n>` for the n-th (n from 2) in a period; the base period leads back from a name, and a name that is no period stays as it is."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:14", "series#example:15", "series#example:16", "series#example:17", "series#example:18", "series#example:19", "series#example:20", "series#test_a_meeting_name_leads_back_to_its_period"]
+
+[[obligation]]
+id = "series.next-period"
+statement = "The next period is one step later (week, month or day) and handles the ends of week-years, months and years; irregular series have `all`; biweekly counts as weekly."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:21", "series#example:22", "series#example:23", "series#example:24", "series#example:25", "series#example:26", "series#example:27", "series#example:28", "series#example:29", "series#example:30", "series#example:31", "series#example:32", "series#example:33", "series#example:34", "series#example:35", "series#test_the_next_period_is_the_period_one_step_later"]
+
+[[obligation]]
+id = "series.next-occurrence"
+statement = "`next_after` gives the next period's first name, or the next free name when that period already has meetings; for irregular series it fills the lowest free number."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:36", "series#example:37", "series#example:38", "series#example:39"]
+
+[[obligation]]
+id = "series.decide"
+statement = "Opening a series link decides from the current period's meetings: none → create the first; a live meeting → open it; only closed ones → report closed and offer the next free name; deleted meetings are skipped and flagged and never reopen; other periods' meetings do not count; a gap does not hide a later meeting; irregular series follow the chain of names."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:40", "series#example:41", "series#example:42", "series#example:43", "series#example:44", "series#example:45", "series#example:46", "series#example:47", "series#example:48", "series#example:49", "series#test_decide_follows_the_walk_through_the_periods_names", "series#test_a_deleted_meeting_stays_deleted"]
+
+[[obligation]]
+id = "series.latest"
+statement = "The latest meeting is the one with the latest creation time; none if there are none."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:50", "series#example:51"]
+
+[[obligation]]
+id = "series.label"
+statement = "A meeting's label is `Week 42, 2026` for weeks (a second meeting of the week keeps the week), `October 2026` for months and `5 Oct 2026` for days."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:52", "series#example:53", "series#example:54", "series#example:55", "series#example:56", "series#example:57"]
+
+[[obligation]]
+id = "series.room-key"
+statement = "A series meeting's room id is the URL-safe base64 of the first 12 bytes of SHA-256 of `rondel-series-room:<series key>:<occurrence>` and its link key the first 18 bytes of SHA-256 of `rondel-series-key:<series key>:<occurrence>`, texts hashed as UTF-8, so everyone with the series link reaches the same room without coordination."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:58", "series#example:59", "series#example:60", "series#example:61", "series#test_room_and_key_are_truncated_sha256_of_the_series_key_and_meeting"]
+
+[[obligation]]
+id = "series.calendar"
+statement = "The calendar file is an iCalendar text: CRLF lines folded at 75 octets, text escaped, one event starting at the series' first meeting time for its length, repeating weekly (`FREQ=WEEKLY`), every second week (`INTERVAL=2`), monthly, or daily as every weekday (`BYDAY=MO,TU,WE,TH,FR`), with no rule for an irregular series, and the agenda and link in the description and location."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:62", "series#example:63", "series#example:64", "series#example:65", "series#example:66", "series#example:67", "series#test_calendar_text_is_well_formed_and_unfolds_to_the_escaped_lines"]
+
+[[obligation]]
+id = "series.document"
+statement = "A series document (Yjs, saved by 0.26.0 and 0.27.0) holds the series settings, its meetings (each with name, room, state, title) and facilitators; adding, renaming and marking meetings keeps it in step; older documents lack optional keys and get defaults; an operation without a source is an error."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["series#example:68", "series#example:69", "series#example:70", "series#example:71", "series#example:72", "series#example:73"]
+
+[[obligation]]
+id = "crypto.auth"
+statement = "From the link key and the room, HKDF-SHA256 (salt `rondel:<room>`) gives an AES-GCM content key (info `content-v1`) and a 32-byte proof (info `auth-v1`, sent as standard base64); keys are URL-safe base64 (the last character of a 43-character key carries two bits, so spellings of the same bytes agree), the room is part of the salt, and the server never learns the key."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["link-crypto#example:1", "link-crypto#example:2", "link-crypto#example:3", "link-crypto#example:4", "link-crypto#example:5", "link-crypto#test_auth_is_hkdf_of_the_link_key"]
+
+[[obligation]]
+id = "crypto.seal-open"
+statement = "A sealed text is base64 of nonce (12 bytes) + AES-GCM ciphertext + tag (16 bytes); every seal uses a fresh nonce; only the right key and room open it, damage and too-short input are detected as errors; sealing nothing leaves nonce and tag."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["link-crypto#example:8", "link-crypto#example:9", "link-crypto#example:10", "link-crypto#example:11", "link-crypto#example:12", "link-crypto#example:13", "link-crypto#example:14", "link-crypto#test_sealed_text_has_a_nonce_ciphertext_and_tag_and_opens_again", "link-crypto#test_each_seal_uses_a_fresh_nonce", "link-crypto#test_only_the_right_key_and_room_open_it_and_damage_is_detected"]
+
+[[obligation]]
+id = "crypto.stored-updates-open"
+statement = "An update stored by Rondel 0.26.0 or 0.27.0 still opens with its link key, so meetings saved by older releases keep working."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["link-crypto#example:6", "link-crypto#example:7"]
+
+[[obligation]]
+id = "crypto.links"
+statement = "Links: a meeting is `<base>#/m/<room>/<key>`, a series `<base>#/s/<id>/<key>`, with the app under any path; a share address (claude.ai) uses the dotted form `#m.<room>.<key>` and loses its own fragment."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["link-crypto#example:15", "link-crypto#example:16", "link-crypto#example:17", "link-crypto#example:18", "link-crypto#example:19", "link-crypto#test_links_lead_back_to_the_same_route"]
+
+[[obligation]]
+id = "crypto.route"
+statement = "Routing reads the fragment: meeting, dotted meeting (normalised), series, dotted series, series overview, `#/data` (also with a suffix), `#/crash-test` (only exactly); a dotted id shorter than 8 is not dotted; anything else, an empty fragment or a meeting without key is home; extra path after the key is ignored."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["link-crypto#example:20", "link-crypto#example:21", "link-crypto#example:22", "link-crypto#example:23", "link-crypto#example:24", "link-crypto#example:25", "link-crypto#example:26", "link-crypto#example:27", "link-crypto#example:28", "link-crypto#example:29", "link-crypto#example:30", "link-crypto#example:31"]
+
+[[obligation]]
+id = "crypto.new-ids"
+statement = "A new meeting gets a random room id of 12 and a link key of 18 random bytes, URL-safe base64."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["link-crypto#test_new_ids_have_the_sizes_of_12_and_18_random_bytes"]
+
+[[obligation]]
+id = "backup.read"
+statement = "A backup (`rondel-backup`, as saved by 0.26.0 and 0.27.0, JSON or text) restores; a protected one needs the passphrase and a wrong one is an error; non-JSON, a meeting file and a newer version are errors."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["backup#example:1", "backup#example:2", "backup#example:3", "backup#example:4", "backup#example:7", "backup#example:8", "backup#example:9", "backup#example:10", "backup#example:11", "backup#test_what_was_saved_comes_back_only_with_the_passphrase"]
+
+[[obligation]]
+id = "backup.make"
+statement = "A backup is JSON; with a passphrase its data is encrypted with PBKDF2-SHA256 (310,000 iterations) and AES-GCM with fresh salt and nonce, so two files of the same data differ."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["backup#example:5", "backup#example:6", "backup#test_two_protected_files_of_the_same_data_differ"]
+
+[[obligation]]
+id = "backup.merge"
+statement = "Restoring merges into the browser and never removes anything: the browser's own settings, voter ids and identity stay (or the identity is taken over on request, keeping the browser's name if it has one); meeting, series and template lists are unions without duplicates (ties keep the browser's entry, newer wins, own first); drafts and own cards merge by id; layouts the browser lacks are taken; entries that are not JSON are skipped; merging again changes nothing and reports zero counts."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["backup#example:12", "backup#example:13", "backup#example:14", "backup#example:15", "backup#example:16", "backup#example:17", "backup#example:18", "backup#example:19", "backup#example:20", "backup#example:21", "backup#example:22", "backup#example:23", "backup#test_merging_loses_nothing_and_a_second_merge_changes_nothing"]
+
+[[obligation]]
+id = "room.hello"
+statement = "The first message must be `hello` (protocol, proof, since); the room answers `welcome` with the seq, the stored entries after `since`, the peer count and the expiry; the first client sees nobody, the second sees the first and the first is told; anything before hello is an error; a second hello, non-JSON, unknown messages and bad fields are errors that keep the connection or close it as the protocol says."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:1", "room#example:4", "room#example:7", "room#example:9", "room#example:20", "room#example:21", "room#test_a_newcomer_gets_what_is_after_since"]
+
+[[obligation]]
+id = "room.auth"
+statement = "The first hello registers the proof (a string of at least 16 characters); later hellos must present the same proof, a different one is `forbidden` and the connection is closed; the first proof stays valid after the room slept."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["room#example:5", "room#example:6", "room#example:12", "room#test_only_the_first_proof_is_accepted_afterwards"]
+
+[[obligation]]
+id = "room.version"
+statement = "A hello with an old protocol version is told to reload, before any other check."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:8"]
+
+[[obligation]]
+id = "room.updates"
+statement = "An `upd` is stored with the next consecutive number, acknowledged to the sender with the sender's id and seq, and passed to the others (never echoed); presence (`aw`) is passed on, never stored or echoed; peers messages carry each receiver's own count."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:2", "room#example:3", "room#test_updates_get_consecutive_numbers_and_reach_exactly_the_others", "room#test_peers_messages_carry_each_receivers_own_count"]
+
+[[obligation]]
+id = "room.leave"
+statement = "A connection that leaves tells the others (peers); one that never authenticated does not."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:13"]
+
+[[obligation]]
+id = "room.compact"
+statement = "`compact` with `upTo` replaces the stored entries up to that number by one snapshot, keeps the newer ones, and is silent (no reply, nothing sent on)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:10", "room#example:11", "room#test_compaction_keeps_one_snapshot_and_the_newer_entries"]
+
+[[obligation]]
+id = "room.delete"
+statement = "`delete` tells and closes everyone, empties the room and leaves a tombstone: the room is refused afterwards and never expires back to life."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:14", "room#example:26"]
+
+[[obligation]]
+id = "room.expiry"
+statement = "A room expires at its last write plus the retention time (null for an empty room or retention 0, which never expires; the welcome says when); presence and joining do not move it; an expiry sweep deletes only rooms that are due and have nobody connected (open connections postpone it by a day); an expired room is free again and a new link key may take it."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:15", "room#example:22", "room#example:23", "room#example:24", "room#example:25"]
+
+[[obligation]]
+id = "room.limits"
+statement = "A frame holds at most 2,000,000 characters, a room at most 25,000,000 characters of stored data (exactly that many are accepted, one more is refused), and a room at most 100 connections."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "The server holds sealed data for free and in memory-bound runtimes (a Durable Object, a SQLite file); the limits keep one room from exhausting it."
+checks = ["room#example:16", "room#example:17", "room#example:18", "room#example:19"]
+
+[[obligation]]
+id = "room.ids"
+statement = "Room ids are 8 to 64 characters of letters, digits, `-` and `_`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["room#example:27", "room#test_room_ids_are_8_to_64_url_safe_characters"]
+
+[[obligation]]
+id = "template.full"
+statement = "A template YAML is read into name, type, title, description, columns, agenda and settings; plain lines in `columns` and `agenda` are titles, defaults fill the rest; only a name is needed; a template of Rondel 0.27.0 with every field reads fully."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:1", "template#example:2", "template#example:3"]
+
+[[obligation]]
+id = "template.id"
+statement = "The id is the caller's prefix plus the slug of a given `id`, else of the name (lowercase letters and digits, other runs becoming one `-`); a name with no letters or digits gives `template`; long ids are cut at 48 characters."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:4", "template#example:5", "template#example:6", "template#example:7", "template#test_the_id_is_the_slug_of_the_name_or_the_given_id"]
+
+[[obligation]]
+id = "template.name"
+statement = "The name is required, trimmed, at most 80 characters (a number is text); an empty or longer one is an error."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:8", "template#example:9", "template#example:10", "template#example:11", "template#example:12"]
+
+[[obligation]]
+id = "template.unknown-fields"
+statement = "An unknown field or type is an error reported at its line; every error carries its line; all known types are accepted."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:13", "template#example:14", "template#example:15", "template#example:16", "template#test_an_unknown_field_is_an_error_at_its_line"]
+
+[[obligation]]
+id = "template.minutes"
+statement = "Minutes are whole numbers from 0 to 600; 601, negatives, fractions, text and booleans are errors."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:17", "template#example:18", "template#example:19", "template#example:20", "template#example:21", "template#example:22", "template#example:23", "template#test_numbers_and_lengths_are_checked_exactly"]
+
+[[obligation]]
+id = "template.activity"
+statement = "Activity is one of the known kinds; null means a plain topic (which is not written out); an unknown one is an error."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:24", "template#example:25", "template#example:26"]
+
+[[obligation]]
+id = "template.agenda"
+statement = "Agenda items need a title (a number as a whole item is an error); owner and notes are limited and left out when empty; the agenda is a list of at most 40 items."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:27", "template#example:28", "template#example:29", "template#example:30", "template#example:31", "template#example:40"]
+
+[[obligation]]
+id = "template.screen"
+statement = "A stage's `screen` names blocks as open or folded and at most two in `middle` (duplicates collapse, three are too many); errors are reported; an empty screen is left out."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:32", "template#example:33", "template#example:34", "template#example:35"]
+
+[[obligation]]
+id = "template.columns"
+statement = "Columns need a title (or only a description), have a valid colour or none, are a list, and at most 12."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:36", "template#example:37", "template#example:38", "template#example:39", "template#example:41", "template#example:42"]
+
+[[obligation]]
+id = "template.settings"
+statement = "Settings are a mapping of known fields (anonymous is the inverse of showing authors), values are checked, empty settings are left out."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:43", "template#example:44", "template#example:45", "template#example:46"]
+
+[[obligation]]
+id = "template.long-texts"
+statement = "Descriptions and titles have maximum lengths; an empty title equals none."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:47", "template#example:48"]
+
+[[obligation]]
+id = "template.yaml-errors"
+statement = "A YAML syntax error, a repeated key, tabs in indentation, a document that is no mapping, an empty file and comments only are reported as errors with their line."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:49", "template#example:50", "template#example:51", "template#example:52", "template#example:53", "template#example:54"]
+
+[[obligation]]
+id = "template.to-yaml"
+statement = "A template is saved as YAML with names, order and only what is set; a minimal one saves only name and type; texts that look like YAML or numbers survive; reading a saved template back gives the same template."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:55", "template#example:56", "template#example:57", "template#example:58", "template#test_a_saved_template_reads_back_the_same"]
+
+[[obligation]]
+id = "template.new-version"
+statement = "A new version drops the `id:` line, appends ` (v2)` to the name (`(v2)` becomes `(v3)`, `(v7)` counts on from 8, `(my version)` is a version suffix), skips names in use ignoring case, writes names needing quotes as JSON strings and adds a `name:` line when there is none; only the first `id:` and `name:` lines count."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:59", "template#example:60", "template#example:61", "template#example:62", "template#example:63", "template#example:64", "template#example:65", "template#example:66", "template#test_a_new_version_gets_a_name_nobody_has"]
+
+[[obligation]]
+id = "template.design-checks"
+statement = "The designer warns, by code, about a meeting without stages, board stages without columns, voting, grouping and discussing out of order, stages without time, and a run over 90 minutes without a break; a calm design has no warnings."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:67", "template#example:68", "template#example:69", "template#example:70", "template#example:71", "template#example:72", "template#example:73", "template#example:74", "template#example:75", "template#example:76", "template#test_design_warnings_follow_the_rules"]
+
+[[obligation]]
+id = "template.from-meeting"
+statement = "A meeting saved as a template keeps its type, columns, agenda and settings; a series name names the template; open board is kept."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:77", "template#example:78"]
+
+[[obligation]]
+id = "template.builtin"
+statement = "The built-in templates are exactly those listed by `builtin`."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["template#example:79"]
+
+[[obligation]]
+id = "app.sync-client"
+statement = "The app syncs as PRODUCT.md's second flow says: hello with `since`, applying welcome entries, uploading what the server lacks, `upd` with ids kept until acknowledged, re-announced presence, `compact` after 150 entries, ping every 10 s with a 25 s timeout, reconnect back-off from 1 s to 30 s, and `forbidden`/`version`/`gone` as final."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = []
+unchecked = "a scripted end-to-end session in a browser against the Node server with two clients, one going offline"
+
+[[obligation]]
+id = "app.health-and-static"
+statement = "The Node server answers `GET api/health` with `{\"rondel\": true, \"protocol\": 1}`, serves the built app with an `index.html` fallback and the headers PRODUCT.md lists, and takes its settings from PORT, DATA_DIR, STATIC_DIR and RETENTION_DAYS."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = []
+unchecked = "an HTTP check against a running server: health body, fallback, headers, retention variable"
+
+[[obligation]]
+id = "app.local-first"
+statement = "Meeting data stays in the browser (IndexedDB and the listed `rondel:` localStorage keys); no analytics and no third-party requests; the QR code is drawn in the browser; Markdown is rendered to elements, never raw HTML."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "The product's promise is that nobody but the people with the link can read a meeting; any request to a third party or any readable copy would break the data page."
+checks = []
+unchecked = "a browser run that records every network request of a full meeting"
+
+[[obligation]]
+id = "app.offline-and-p2p"
+statement = "Without a room server the app falls back to peer-to-peer sync, and a built app loads offline through its service worker."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = []
+unchecked = "a browser test with the server absent and with the network off"
+
+[[obligation]]
+id = "app.surfaces"
+statement = "The pages, panels and files of PRODUCT.md's Surfaces exist and work as its Flows describe, in English and German."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = []
+unchecked = "an end-to-end browser walk through the ten flows"

@@ -1,0 +1,78 @@
+[contract]
+id = "spikinglabs/series"
+version = 1
+title = "Recurring meeting series: periods, rooms and the series document"
+description = """
+A series is one stable link (#/s/<id>/<key>) for a recurring meeting. Opening it finds the meeting of the
+current period; every person with the link computes the same room and key without a server, so the rules
+below must match exactly. Cadences: daily, weekly, biweekly (a name only older series have; treated as
+weekly), monthly, none. `op` picks the function; the answer is `result`.
+
+period (cadence, date): the period a calendar date falls in: daily "YYYY-MM-DD"; weekly/biweekly the ISO 8601
+week "YYYY-Www" (week-based year, two-digit week: 2026-01-01 is 2026-W01, 2021-01-03 is 2020-W53); monthly
+"YYYY-MM"; none "all".
+Meeting names in a period: the period itself for the first, "<period>-<n>" for the n-th (n >= 2) ("2026-W42-2").
+For cadence none the names are "all", "all-2", ...
+base_period (cadence, occ): the period a meeting name belongs to: for none "all"; else the leading
+YYYY-Www, YYYY-MM-DD or YYYY-MM of the name (for monthly only the YYYY-MM part counts, since "2026-10-2" is
+October's second meeting); a name that has none of these is returned unchanged.
+next_period (cadence, occ): the period after the meeting's own (next day, ISO week, calendar month), "all"
+for none or when the name has no valid period; computed on the calendar, so 2020-W53 is followed by 2021-W01.
+next_after (cadence, occ, occurrences): where "Start next occurrence" leads: result {occ, n, exists}. For none
+the first name "all", "all-2", ... not in occurrences (exists false, n its number); else the next period with
+n 1 and exists = it is in occurrences.
+decide (period, occurrences): which meeting the series link opens. Walk the period's names in order
+(period, period-2, period-3, ...) past every one that exists and is closed or deleted; call the first other
+name occ and the number of ended meetings passed n-1. If occ exists (it is live): {kind: "open", occ}.
+Else if nothing was passed: {kind: "create", occ, n: 1}. Else {kind: "closed", last (the last name
+passed), next (occ), n (the number of occ), deleted (whether last is deleted rather than closed)}. A
+deleted meeting's name is therefore never reused. Only the period's own names count.
+latest (occurrences with createdAt): the entry created most recently (string order of createdAt), or null.
+label (cadence, period): how a period reads in a meeting title, in English: "Week 42, 2026" for a week;
+"October 2026" for monthly; "15 Oct 2026" (day, short month, year) for a day.
+room (series_key, occ): {roomId, key} for one meeting: roomId = first 12 bytes and key = first 18 bytes of
+SHA-256 of the UTF-8 text "rondel-series-room:<series_key>:<occ>" and "rondel-series-key:<series_key>:<occ>",
+each base64url without padding. These are what a real Rondel client computes for the same link.
+ics (id, info, link, now): the text of a recurring calendar event for Outlook. info has name, cadence, start
+(local "YYYY-MM-DDTHH:mm", the first meeting), durationMin and template.agenda. CRLF line endings, a final CRLF,
+lines in this order: BEGIN:VCALENDAR, VERSION:2.0, PRODID:-//Rondel//Meeting series//EN, METHOD:PUBLISH,
+BEGIN:VEVENT, UID:<id>@rondel, DTSTAMP:<now as YYYYMMDDTHHMMSSZ>, DTSTART:<start as YYYYMMDDTHHMM00>,
+DURATION:PT<m>M with m = max(5, durationMin), RRULE (daily FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR; weekly
+FREQ=WEEKLY; biweekly FREQ=WEEKLY;INTERVAL=2; monthly FREQ=MONTHLY; none: no line), SUMMARY:<name>,
+LOCATION:<link>, URL:<link> (not escaped), DESCRIPTION:<invite text>, END:VEVENT, END:VCALENDAR. Text values
+escape backslash, ; and , with a backslash and a newline as \\n. The invite text is the lines
+"Meeting board (Rondel): <link>" and "This link always opens the current meeting. No sign-up needed; the part
+after # is the key, so keep the link within the team.", then, if the agenda is not empty, an empty line,
+"Agenda:", and "- <title> (<n> min)" per item (no bracket part when durationMin is 0). Lines longer than 75
+bytes are folded: break before the character that would pass 75 bytes (74 on continuation lines, which start
+with a space), never inside a character.
+
+document (update or info, steps): the series document, a Yjs document with Y.Map "series" (name, cadence,
+template, facilitators, createdBy, createdAt, start, durationMin: one key each) and Y.Map "occurrences"
+(name -> {occ, title, status, createdAt, closedAt}). result is {info, occurrences} as a client reads it, or
+null when the document has no name. Reading defaults: cadence weekly, facilitators [], createdBy "",
+createdAt "", start null, durationMin 60. With `info`, a new document is made from it (each key set);
+with `update`, an existing one is opened. Steps (op, args): add_occurrence {occurrence}: ignored if the name
+exists. sync_occurrence {occ, title, status, closedAt, createdAt}: ignored if the entry is deleted or
+already equal; else the entry becomes {occ, createdAt (the old one, else the given), title, status, closedAt}.
+mark_deleted {occ}: status deleted if the entry exists. add_facilitator {facilitator: {id, name}}: replaces
+one with the same id, appended at the end. remove_facilitator {id}. rename {name}: trimmed, at most 120
+characters, ignored if empty.
+"""
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

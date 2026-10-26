@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id_prefix": {
+      "default": "",
+      "title": "Id Prefix",
+      "type": "string"
+    },
+    "op": {
+      "enum": [
+        "parse",
+        "to_yaml",
+        "roundtrip",
+        "new_version",
+        "design_checks",
+        "from_meeting",
+        "builtin"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "taken": {
+      "description": "new_version: names already in use.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Taken",
+      "type": "array"
+    },
+    "template": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A template as the app holds it (camelCase: durationMin, showAuthors...).",
+      "title": "Template"
+    },
+    "view": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "from_meeting: {meta: {title, type, settings, seriesName}, columns, agenda}.",
+      "title": "View"
+    },
+    "yaml": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Yaml"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "Input",
+  "type": "object"
+}

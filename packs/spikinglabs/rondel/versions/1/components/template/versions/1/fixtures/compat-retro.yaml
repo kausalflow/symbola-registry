@@ -1,0 +1,38 @@
+id: compat-retro
+name: Compatibility retro
+type: retro
+description: Every template field, for the compatibility test.
+title: Compat retro {date}
+columns:
+  - title: Went well
+    description: Wins worth repeating
+    color: "#16a34a"
+  - To improve
+agenda:
+  - title: Check-in
+    minutes: 3
+    activity: round
+    owner: Everyone
+    notes: |
+      One word for the sprint.
+  - title: Ideas
+    minutes: 5
+    activity: brainstorm
+    screen:
+      middle: [brainstorm]
+      people: folded
+  - title: Write
+    minutes: 5
+    activity: write
+  - title: Vote
+    activity: vote
+  - title: Discuss
+    minutes: 20
+    activity: discuss
+  - Wrap-up
+settings:
+  anonymous_cards: false
+  votes_per_person: 4
+  votes_per_card: 2
+  secret_voting: true
+  open_board: false

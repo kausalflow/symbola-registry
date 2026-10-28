@@ -1,0 +1,4 @@
+id = "K-keyring-optional"
+statement = "A machine may have no OS keyring. Then tokens are kept in `~/.pbi_cli/credentials.json`; with a keyring they are kept there (service `pbi-cli`, user name = profile name) and the file is not used. The checks run without a keyring."
+basis = "The code probes the keyring and falls back to the file on any keyring error, including no backend and, on Windows, tokens too long for the credential manager."
+monitor = "`pbi profile list` shows ✓ for a profile only if its token is found in either place."

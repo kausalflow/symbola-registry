@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "files": {
+      "additionalProperties": true,
+      "description": "Files the command created or changed: path -> parsed JSON for .json files, \"<xlsx>\" for a workbook, else text.",
+      "title": "Files",
+      "type": "object"
+    },
+    "ok": {
+      "description": "The command exited with code 0.",
+      "title": "Ok",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "ok",
+    "files"
+  ],
+  "title": "Output",
+  "type": "object"
+}

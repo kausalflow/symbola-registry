@@ -1,0 +1,5 @@
+# How symbola.sh lists this pack in the shop. Lives outside versions/, so editing it never
+# changes the pack's digest.
+name = "powerbi-cli"
+category = "data"
+summary = "A command line tool for Power BI admins that saves workspaces, apps, reports, report users and workspace scans as JSON and Excel files: auth profiles for user and admin tokens, a versioned offline cache, file converters and batch scans from a YAML config, with every API call it makes written down."

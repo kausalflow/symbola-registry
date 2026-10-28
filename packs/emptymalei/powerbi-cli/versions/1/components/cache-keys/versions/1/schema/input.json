@@ -1,0 +1,170 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "cache_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op entry: the key to save under.",
+      "title": "Cache Key"
+    },
+    "command": {
+      "anyOf": [
+        {
+          "enum": [
+            "workspaces list",
+            "apps list",
+            "users user-access"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op key: the command that fetched the data.",
+      "title": "Command"
+    },
+    "data": {
+      "default": null,
+      "description": "op entry: the JSON value to save.",
+      "title": "Data"
+    },
+    "expand": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op key, workspaces list: the --expand values, in order.",
+      "title": "Expand"
+    },
+    "files": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op index: relative paths (with /) of the files in a cache folder; each has some content.",
+      "title": "Files"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op entry: request metadata to save with it, if any.",
+      "title": "Metadata"
+    },
+    "now": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op entry: the local time of the save, as an ISO 8601 string like 2024-01-02T03:04:05.123456.",
+      "title": "Now"
+    },
+    "odata_filter": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op key, workspaces list: the --odata-filter value, if given.",
+      "title": "Odata Filter"
+    },
+    "op": {
+      "enum": [
+        "key",
+        "entry",
+        "index"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "role": {
+      "anyOf": [
+        {
+          "enum": [
+            "admin",
+            "user"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op key, apps list: the --role value.",
+      "title": "Role"
+    },
+    "top": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op key, workspaces list: the --top value.",
+      "title": "Top"
+    },
+    "user_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "op key, users user-access: the --user-id value.",
+      "title": "User Id"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "Input",
+  "type": "object"
+}

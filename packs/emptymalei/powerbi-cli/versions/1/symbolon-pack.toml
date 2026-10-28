@@ -1,0 +1,20 @@
+[pack]
+id = "emptymalei/powerbi-cli"
+version = 1
+title = "pbi: a command line tool that pulls Power BI workspace, app, report, user and scan metadata into JSON and Excel files"
+license = "MIT"
+authors = ["emptymalei"]
+# Most of pbi calls a hard-coded Power BI API that no check can reach, so the API calls are
+# unchecked decisions (app.*). See REVIEW.md.
+max_unchecked = 0.3
+
+# Recomputed by `symbola extract` from components/; no need to edit by hand.
+[components]
+"emptymalei/auth-profiles@1" = "sha256:cede639e9f590ad9728041d13b62d85a1b7324295f34221a7025e31686591219"
+"emptymalei/cache-keys@1" = "sha256:c8e7a771c9807f806be80a41522fb850ba870f7419ae21086f28c13a60c36bee"
+"emptymalei/cached-reads@1" = "sha256:fdf24f1414d72fb95141fd4ef1522859a3d9611315e92f37eb70868413c806e9"
+"emptymalei/config-cache@1" = "sha256:3858dd80e9be4281bd2925c78358782849938e6ef326be495556b3c9c12e08d8"
+"emptymalei/file-converters@1" = "sha256:f8735c3bfea7737aeaa6e64d775ce7b538b25da1bd271b37100df84da1bbced4"
+"emptymalei/flatten@1" = "sha256:92293c4b11f641c10873e5601801ded838afa0ae189ef304595cee5cc17d1eed"
+"emptymalei/scan-batch@1" = "sha256:3ec5daac305a31317a1827160cc5c63c667f271a9070051545e4081b58578599"
+"emptymalei/workspace-entries@1" = "sha256:f3e8a494682cbdcfff489695d97940a519bddfe29dd05279fae976fc1b05defb"

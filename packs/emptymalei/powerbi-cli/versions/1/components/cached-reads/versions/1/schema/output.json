@@ -1,0 +1,93 @@
+{
+  "$defs": {
+    "Table": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "The header cells of the table.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "rows": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The first cell of each row (the id); null for a user-access table, whose cell is one nested value.",
+          "title": "Rows"
+        },
+        "title": {
+          "description": "The line after the first rule of =, e.g. `Workspaces: 2 record(s)`.",
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "columns",
+        "rows"
+      ],
+      "title": "Table",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "errors": {
+      "description": "The lines of standard error that start with `Error:`, and `Aborted!`, in order.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "files": {
+      "additionalProperties": true,
+      "description": "Files the command created or changed: path -> parsed JSON for .json files, \"<xlsx>\" for a workbook, else text.",
+      "title": "Files",
+      "type": "object"
+    },
+    "lines": {
+      "description": "The non-blank lines of standard output outside the table block, in order, with the scratch directory's path replaced by <scratch>.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Lines",
+      "type": "array"
+    },
+    "table": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Table"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The table block: three rules of 80 `=` around a title line and the table (header line, then one line per row)."
+    }
+  },
+  "required": [
+    "exit_code",
+    "lines",
+    "table",
+    "errors",
+    "files"
+  ],
+  "title": "Output",
+  "type": "object"
+}

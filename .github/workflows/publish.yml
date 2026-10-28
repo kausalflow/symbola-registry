@@ -44,7 +44,8 @@ jobs:
         env:
           UPLOAD_URL: ${{ inputs.upload_url }}
           PACK: ${{ inputs.pack }}
-        run: python3 .github/scripts/publish.py build "$UPLOAD_URL" "$PACK" built
+          PUBLISHER: ${{ inputs.publisher }}
+        run: python3 .github/scripts/publish.py build "$UPLOAD_URL" "$PACK" built "$PUBLISHER"
       - name: Check the pack
         env:
           PACK: ${{ inputs.pack }}

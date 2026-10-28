@@ -1,12 +1,19 @@
 """Helpers for the publish workflow (.github/workflows/publish.yml).
 
-    publish.py build UPLOAD_URL PACK OUT     download the upload, release it into packs/, copy the new version to OUT
+    publish.py build UPLOAD_URL PACK OUT [PUBLISHER]
+                                             download the upload, release it into packs/, copy the new version
+                                             (and the upload's evidence) to OUT
     publish.py place ARTIFACT PACK           check a built version against main and copy it into packs/
     publish.py profile OWNER CONTENT_B64     write publishers/<owner>.toml after checking it
 
 `build` runs pack code (validation runs its checks), so its job has no secrets. `place`
 runs in the job that holds the app token and never runs pack code; it only accepts a
-new version folder for PACK and the matching line appended to its digests.txt.
+new version folder for PACK, the matching line appended to its digests.txt, and new
+attestation files.
+
+An upload may carry evidence from a test build (`symbola publish --evidence`): attestations
+and runner keys in `.evidence/`. `build` checks that every attestation verifies and covers
+the new version, and names the files so they never replace ones already there.
 """
 
 import base64
@@ -25,6 +32,8 @@ PACK_RE = re.compile(r"^[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*$")
 OWNER_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 MAX_BYTES = 5 * 1024 * 1024
 MAX_FILES = 2000
+MAX_EVIDENCE = 200
+EVIDENCE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,120}\.(json|pub)$")
 
 
 def fail(message: str) -> None:
@@ -61,7 +70,7 @@ def unpack(data: bytes, dest: Path) -> Path:
     fail("no symbolon-pack.toml at the top of the archive (or one folder down)")
 
 
-def build(upload_url: str, pack: str, out: Path) -> None:
+def build(upload_url: str, pack: str, out: Path, publisher: str = "publisher") -> None:
     from symbola.registry import RegistryError, release
 
     if not PACK_RE.match(pack):
@@ -87,9 +96,55 @@ def build(upload_url: str, pack: str, out: Path) -> None:
         fail(f"{pack} version {r.version} already has exactly this content; nothing to publish")
     out.mkdir(parents=True)
     shutil.copytree(r.path, out / "version")
+    evidence(spec / ".evidence", pack, r.path, r.version, publisher, out / "attestations")
     shutil.copyfile(Path("packs", pack, "digests.txt"), out / "digests.txt")
     (out / "meta.json").write_text(json.dumps({"pack": pack, "version": r.version, "digest": r.digest}))
     print(f"{pack} version {r.version} built ({r.digest})")
+
+
+def evidence(src: Path, pack: str, version_dir: Path, n: int, publisher: str, out: Path) -> None:
+    """Check the upload's attestations against the new version and copy them, renamed, to out."""
+    from symbola.registry import pack_evidence
+
+    if not src.is_dir():
+        return
+    files = [p for p in src.iterdir()]
+    if len(files) > MAX_EVIDENCE:
+        fail(f"at most {MAX_EVIDENCE} evidence files")
+    for p in files:
+        if not p.is_file() or p.is_symlink() or not EVIDENCE_NAME_RE.match(p.name):
+            fail(f"evidence: {p.name} is not an attestation (.json) or a runner key (.pub)")
+    owner = publisher if OWNER_RE.match(publisher) else "publisher"
+    attestations = Path("packs", pack, "attestations")
+    taken = {p.name for p in attestations.iterdir()} if attestations.is_dir() else set()
+    out.mkdir(parents=True)
+    keys = sorted(p for p in files if p.suffix == ".pub")
+    for i, p in enumerate(keys, 1):
+        name = f"{owner}.pub" if len(keys) == 1 else f"{owner}-{i}.pub"
+        if name in taken and (attestations / name).read_bytes() != p.read_bytes():
+            name = f"{owner}-v{n}-{i}.pub"
+        if name not in taken:
+            shutil.copyfile(p, out / name)
+    for p in sorted(p for p in files if p.suffix == ".json"):
+        name = f"v{n}.{p.name}"
+        if name in taken:
+            fail(f"evidence: {name} already exists beside the pack")
+        shutil.copyfile(p, out / name)
+    # Check them as the site will: beside the pack, with the keys already there.
+    trial = Path("evidence-check")
+    shutil.copytree(Path("packs", pack), trial / "pack")
+    shutil.copytree(out, trial / "pack" / "attestations", dirs_exist_ok=True)
+    report = pack_evidence(trial / "pack", trial / "pack" / "versions" / str(n))
+    ours = {f"attestations/{p.name}" for p in out.glob("*.json")}
+    for rec in report["attestations"]:
+        if rec["file"] not in ours:
+            continue
+        if not rec["valid"]:
+            fail(f"evidence: {rec['file']}: {'; '.join(rec['problems'])}")
+        if rec["covers"] != "latest":
+            fail(f"evidence: {rec['file']} attests {rec['contract']}, which is not part of version {n}")
+    shutil.rmtree(trial)
+    print(f"{len(ours)} attestations from the test build")
 
 
 def place(artifact: Path, pack: str) -> None:
@@ -112,6 +167,14 @@ def place(artifact: Path, pack: str) -> None:
         fail("digests.txt may only gain one line, for the new version")
     shutil.copytree(artifact / "version", versions / str(n))
     (root / "digests.txt").write_text(new)
+    evidence = artifact / "attestations"
+    if evidence.is_dir():
+        target = root / "attestations"
+        target.mkdir(exist_ok=True)
+        for p in sorted(evidence.iterdir()):
+            if not p.is_file() or p.is_symlink() or not EVIDENCE_NAME_RE.match(p.name) or (target / p.name).exists():
+                fail(f"the built evidence has an unexpected file: {p.name}")
+            shutil.copyfile(p, target / p.name)
     print(f"placed {pack} version {n}")
     with open("place.out", "w") as f:
         f.write(json.dumps({"version": n, "new_pack": current == 0}))
@@ -150,5 +213,5 @@ def profile(owner: str, content_b64: str) -> None:
 
 if __name__ == "__main__":
     cmd, *args = sys.argv[1:]
-    {"build": lambda u, p, o: build(u, p, Path(o)), "place": lambda a, p: place(Path(a), p),
+    {"build": lambda u, p, o, *who: build(u, p, Path(o), *who), "place": lambda a, p: place(Path(a), p),
      "profile": profile}[cmd](*args)

@@ -1,0 +1,4 @@
+id = "K-api-limits"
+statement = "The admin endpoints are throttled by Power BI and the tool does not back off beyond a fixed retry on HTTP 500, 502 and 504; users keep to the limits with `--wait-interval`, scan `interval`/`timeout` and by scanning workspaces one by one."
+basis = "Retries are fixed (5, backoff factor 0.3); there is no handling of HTTP 429 or Retry-After. The scan batch and report-users commands expose waiting options for this reason."
+monitor = "HTTP 429 answers."

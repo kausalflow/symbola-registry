@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "description": "One invocation of the `pbi` command in a scratch directory that is also HOME and holds `files`.",
+  "properties": {
+    "argv": {
+      "description": "The arguments after the program name.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Argv",
+      "type": "array"
+    },
+    "files": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "File name (relative to the scratch directory and HOME) -> text.",
+      "title": "Files",
+      "type": "object"
+    },
+    "stdin": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Text on standard input.",
+      "title": "Stdin"
+    }
+  },
+  "required": [
+    "argv"
+  ],
+  "title": "Input",
+  "type": "object"
+}

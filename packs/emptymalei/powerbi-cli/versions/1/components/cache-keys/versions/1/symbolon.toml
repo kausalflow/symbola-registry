@@ -1,0 +1,39 @@
+[contract]
+id = "emptymalei/cache-keys"
+version = 1
+title = "What pbi caches, under which key and version"
+description = '''
+`pbi` caches the result of the list commands in a cache folder so later reads can work offline. This contract is the naming and the file layout. Reading with `--use-cache` or `--cache-only` is the `cached-reads` contract; listing and clearing is `config-cache`.
+
+## op "key"
+
+The key and the request metadata saved with the data, per command:
+
+- `workspaces list`: key `workspaces`; metadata `{"top": <top>, "expand": <list of the --expand values in order, [] if none>, "filter": <odata filter or null>}`.
+- `apps list`: key `apps_<role>` (`apps_user`, `apps_admin`); metadata `{"role": <role>}`.
+- `users user-access`: key `user_access_<slug of the user id>`; metadata `{"user_id": <the id as given>}`. The slug is the one the output file names use: ASCII letters lowercased, every run of characters that are not a-z or 0-9 after folding accents to ASCII becomes one `-`, no leading or trailing `-`. (A GUID keeps its dashes, an email `a.b@x.com` becomes `a-b-x-com`.)
+
+## op "entry"
+
+Saving `data` under `cache_key` at local time `now` creates exactly one file, `<cache_key>/<version>/<cache_key>.json`, where `<version>` is the time as `YYYYMMDD_HHMMSS` (seconds resolution, no fraction). The file is a JSON object with the fields, in this order, `cache_key`, `cached_at` (`now` exactly as given), `version` (the same string as the folder), `metadata` (the metadata given, `{}` if none) and `data`. The output reports that version and file.
+
+## op "index"
+
+The layout is `<cache folder>/<key>/<version>/<key>.json`. A version of a key is a directory directly under `<key>` that contains a file named `<key>.json` (other files and directories there, and files directly in the cache folder, are ignored). Versions are listed newest first, which is descending string order of their names. A key is listed when at least one version exists, keys sorted ascending. The latest data of a key is its first version. The output has an entry in `versions` and `latest` for every directory directly under the cache folder (`[]` and null when it has no version).
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200

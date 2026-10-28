@@ -1,0 +1,4 @@
+id = "K-bearer-token"
+statement = "The user supplies a valid Power BI bearer token (for the admin commands, one with admin rights on the tenant) and replaces it when it expires; the tool never obtains, refreshes or validates one."
+basis = "No sign-in code exists; `pbi auth` only stores the string it is given. Power BI tokens are short-lived, so long scripts see HTTP 401 once the token has expired."
+monitor = "HTTP 401 and 403 answers from the API; the tool itself reports the failure."

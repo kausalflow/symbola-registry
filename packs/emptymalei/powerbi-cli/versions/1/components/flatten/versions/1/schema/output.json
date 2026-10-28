@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "sheets": {
+      "additionalProperties": {
+        "items": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "description": "Sheet name -> rows, in the order the sheets are written to a workbook; the order of keys inside a row is the column order.",
+      "title": "Sheets",
+      "type": "object"
+    }
+  },
+  "required": [
+    "sheets"
+  ],
+  "title": "Output",
+  "type": "object"
+}

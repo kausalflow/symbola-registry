@@ -1,0 +1,45 @@
+[contract]
+id = "emptymalei/config-cache"
+version = 1
+title = "pbi config and cache list/clear"
+description = '''
+The settings commands and the cache folder commands of `pbi`. One call is one run of `pbi` in a scratch directory that holds the given `files`; the scratch directory is also the user's home and the current directory, so `~/.pbi_cli/config.yaml` is `.pbi_cli/config.yaml`. The output reduces what happened (exit code, standard output, `Error:` lines of standard error, files created or changed); a deleted file is not seen.
+
+## Settings file
+
+`.pbi_cli/config.yaml` is the file described in `auth-profiles` (block-style YAML mapping; keys not present read as: no active profile, no profiles, no default output folder, no cache folder, `cache_enabled` true, `verify_certificates` true). Each command below changes exactly one key and writes the file back with all other keys, including ones it does not know, as they were. A missing or unreadable file is the defaults; the first change creates it with all keys.
+
+## config set-output-folder P, set-cache-folder P
+
+P has any surrounding `"` or `'` removed. The stored value (`default_output_folder`, `cache_folder`) is P with `~` expanded to the home directory and made absolute against the current directory (no trailing slash). `set-cache-folder` stores a P starting with `s3://`, `gs://` or `az://` as it is. Output, two lines: `✓ Default output folder set to: <path>` and `  Commands will now use subfolders within this folder by default.`, or `✓ Cache folder set to: <path>` and `  API call results will be cached in this folder.`
+
+## config get-output-folder, get-cache-folder, enable-cache, disable-cache, show
+
+`get-*` print `Default output folder: <path>` (`Cache folder: <path>` followed by `Cache enabled: <True|False>`), or a yellow message and a hint line when unset, as in the examples. `enable-cache`/`disable-cache` set `cache_enabled` and print `✓ Cache enabled` / `✓ Cache disabled`. `show` prints the settings, the ungrouped profiles and the two groups as in the examples (booleans as `True`/`False`, unset values as `None` or `Not set`).
+
+## config set-verify-certificates VALUE, get-verify-certificates
+
+`verify_certificates` says how API requests verify TLS certificates: true (the system CA bundle), false (no verification), or the absolute path of a CA bundle file. `set-verify-certificates` takes `true` or `false` in any letter case, or a path, which must name an existing file and is stored with `~` expanded and made absolute against the current directory. Output: `✓ Verify certificates: <True|path>`, or for false the warning `! Certificate verification disabled: API traffic can be intercepted`. Anything else exits 1 with `Error: '<VALUE>' is not true, false or an existing CA bundle file` and changes nothing. `get-verify-certificates` prints `Verify certificates: <True|False|path>`.
+
+## cache list [-k KEY], cache clear [-k KEY] [-v VERSION]
+
+The cache layout and what counts as a key and a version are in `cache-keys`. With no cache folder set both print `Cache folder not configured.` and `Use 'pbi config set-cache-folder' to set one.` (exit 0). `list` ignores `cache_enabled`. Without `-k` it prints `Cached data:` and, per listed key in order, `  - <key> (<n> version(s))`, or `No cached data found.`; with `-k` it prints `Cached versions for '<key>':` and `  - <version>` newest first, or `No cached versions found for '<key>'`. `clear` first asks `Are you sure you want to clear the cache? [y/N]:` and aborts (exit 1, `Aborted!`) unless answered yes or given `--yes`. `-v` without `-k` prints `Error: --version requires --cache-key` (exit 0, nothing cleared). Otherwise it removes everything, a key with all its versions, or one version's file, and reports success as `✓ Cleared entire cache`, `✓ Cleared all versions of <key>` or `✓ Cleared <key> version <version>` even if nothing was there.
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+driver = "cli"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 30
+timeout_seconds = 300

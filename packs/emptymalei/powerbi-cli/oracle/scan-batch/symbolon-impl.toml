@@ -1,0 +1,6 @@
+[implementation]
+contract = "sha256:3ec5daac305a31317a1827160cc5c63c667f271a9070051545e4081b58578599"
+language = "command"
+command = ["env", "PYTHON_KEYRING_BACKEND=keyring.backends.fail.Keyring", "pbi"]
+license = "MIT"
+authors = ["emptymalei"]

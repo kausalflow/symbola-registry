@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "title": "Data"
+    },
+    "key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "report_users only: the field holding the users list of each report record. Default `reports_users_value`.",
+      "title": "Key"
+    },
+    "kind": {
+      "description": "workspaces: `data` is the non-empty `value` list of an admin workspaces listing. app: `data` is one app object. report_users: `data` maps a workspace name to a list of report records.",
+      "enum": [
+        "workspaces",
+        "app",
+        "report_users"
+      ],
+      "title": "Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kind",
+    "data"
+  ],
+  "title": "Input",
+  "type": "object"
+}

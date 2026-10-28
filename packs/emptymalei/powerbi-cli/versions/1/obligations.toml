@@ -1,0 +1,780 @@
+# Obligations of the emptymalei/powerbi-cli spec pack (format: docs/PACK_FORMAT.md).
+#
+# Each obligation is one decision a builder could get wrong, with the checks
+# that pin it down. status: decided (required), default (chosen; a fork may
+# change it with a note), open (deliberately undecided; builds may differ).
+# Checks are "<component>#example:<line in examples.jsonl>" or
+# "<component>#<property test name>". A required obligation no check can
+# express yet has checks = [] and unchecked = "<the check it would need>".
+
+[[obligation]]
+id = "auth.token-prefix"
+statement = "A token given as `Bearer <token>` is stored without the prefix."
+status = "decided"
+checks = [
+  "auth-profiles#example:2",
+  "auth-profiles#test_auth_saves_the_token_and_activates_the_profile_when_none_is"
+]
+
+[[obligation]]
+id = "auth.activation"
+statement = "Without `-g` a saved profile becomes the ungrouped active profile when none is active, or when it is named `default`; with `-g` it becomes the group's active profile when the group has none. An existing active profile otherwise stays, and a grouped save leaves the ungrouped profiles alone."
+status = "decided"
+checks = [
+  "auth-profiles#example:1",
+  "auth-profiles#example:3",
+  "auth-profiles#example:5",
+  "auth-profiles#example:6",
+  "auth-profiles#example:7",
+  "auth-profiles#test_auth_saves_the_token_and_activates_the_profile_when_none_is"
+]
+
+[[obligation]]
+id = "auth.token-per-name"
+statement = "Tokens are kept once per profile name in `~/.pbi_cli/credentials.json` (a JSON object, indent 2), shared by the ungrouped and grouped profiles of that name: saving replaces the token, deleting a profile deletes it, even if another list still has a profile of that name."
+status = "decided"
+assumes = ["K-keyring-optional"]
+checks = [
+  "auth-profiles#example:1",
+  "auth-profiles#example:8",
+  "auth-profiles#example:26",
+  "auth-profiles#test_auth_saves_the_token_and_activates_the_profile_when_none_is",
+  "auth-profiles#test_delete_removes_the_profile_and_its_token_and_promotes_the_first_remaining"
+]
+
+[[obligation]]
+id = "auth.credentials-private"
+statement = "The credentials file is readable and writable only by its owner (mode 600)."
+status = "decided"
+kind = "security"
+assumes = ["K-keyring-optional"]
+checks = []
+unchecked = "A check that reports the permission bits of the files a command wrote; the harness reports only their content."
+
+[[obligation]]
+id = "auth.keyring"
+statement = "When an OS keyring works, tokens are stored there (service `pbi-cli`, user name = profile name) and read from there first; the credentials file is only the fallback, also when the keyring raises any error."
+status = "decided"
+kind = "security"
+assumes = ["K-keyring-optional"]
+checks = []
+unchecked = "A run against a fake keyring backend, which the harness does not provide."
+
+[[obligation]]
+id = "auth.legacy-import"
+statement = "Old installations keep working: a legacy `profiles.json` is imported into a new `config.yaml`, and a legacy `auth.json` token becomes the ungrouped profile `default` when there are no ungrouped profiles."
+status = "default"
+checks = [
+  "auth-profiles#example:9",
+  "auth-profiles#example:12"
+]
+
+[[obligation]]
+id = "auth.resolution"
+statement = "A command uses the active profile of its group (`user`, or `admin` for the admin-only commands) if that is one of the group's profiles; otherwise the ungrouped active profile, which must be one of the ungrouped profiles; it then needs a token for it. A group profile without a token does not fall back. Failures exit 1 with an `Error:` line naming the group or profile."
+status = "decided"
+checks = [
+  "auth-profiles#example:29",
+  "auth-profiles#example:30",
+  "auth-profiles#example:31",
+  "auth-profiles#example:32",
+  "auth-profiles#example:33",
+  "auth-profiles#example:34",
+  "auth-profiles#example:35",
+  "auth-profiles#example:36",
+  "auth-profiles#example:37",
+  "auth-profiles#example:38",
+  "auth-profiles#example:39",
+  "auth-profiles#test_user_commands_take_the_user_groups_profile_else_the_ungrouped_one",
+  "auth-profiles#test_admin_commands_fail_the_same_way_naming_the_admin_group"
+]
+
+[[obligation]]
+id = "profile.list"
+statement = "`profile list` shows the ungrouped profiles (✓ when a token is stored under the name, ✗ when not, `(active)` on the active one) and then each group, with a hint for each empty part."
+status = "decided"
+checks = [
+  "auth-profiles#example:10",
+  "auth-profiles#example:11",
+  "auth-profiles#example:12",
+  "auth-profiles#test_list_shows_ungrouped_then_each_group_with_token_marks"
+]
+
+[[obligation]]
+id = "profile.switch"
+statement = "`profile switch NAME [-g G]` makes NAME the active profile of that list; an unknown NAME, or an empty list, is reported and changes nothing, with exit 0."
+status = "decided"
+checks = [
+  "auth-profiles#example:13",
+  "auth-profiles#example:14",
+  "auth-profiles#example:15",
+  "auth-profiles#example:16",
+  "auth-profiles#example:17",
+  "auth-profiles#example:18",
+  "auth-profiles#test_switch_changes_only_the_active_profile"
+]
+
+[[obligation]]
+id = "profile.switch-interactive"
+statement = "Without a name, `profile switch` lists the profiles numbered from 1, reads the number from standard input (an empty answer is 1) and switches; a number out of range prints `Invalid selection` and changes nothing."
+status = "default"
+checks = [
+  "auth-profiles#example:19",
+  "auth-profiles#example:20",
+  "auth-profiles#example:21"
+]
+
+[[obligation]]
+id = "profile.delete"
+statement = "`profile delete NAME [-g G]` asks for confirmation (`--yes` skips it; declining aborts with exit 1), removes the profile and its token, and when it was the active one activates the first remaining profile of that list (none if none remain), announcing it. An unknown name is reported with exit 0."
+status = "decided"
+checks = [
+  "auth-profiles#example:22",
+  "auth-profiles#example:23",
+  "auth-profiles#example:24",
+  "auth-profiles#example:25",
+  "auth-profiles#example:26",
+  "auth-profiles#example:27",
+  "auth-profiles#example:28",
+  "auth-profiles#test_delete_removes_the_profile_and_its_token_and_promotes_the_first_remaining"
+]
+
+[[obligation]]
+id = "config.file"
+statement = "`~/.pbi_cli/config.yaml` is a block-style YAML mapping with `active_profile`, `profiles`, `groups` (`user`, `admin`, each with `active_profile` and `profiles`), `default_output_folder`, `cache_folder` and `cache_enabled` (default true). A missing or unreadable file reads as the defaults; a change rewrites the whole file and keeps all other keys as they were."
+status = "decided"
+checks = [
+  "auth-profiles#example:1",
+  "auth-profiles#example:4",
+  "config-cache#example:5",
+  "config-cache#example:13",
+  "config-cache#example:14",
+  "config-cache#test_enable_and_disable_change_only_cache_enabled",
+  "config-cache#test_set_folder_stores_one_absolute_path_and_keeps_the_other_keys"
+]
+
+[[obligation]]
+id = "config.set-folder"
+statement = "`config set-output-folder P` and `set-cache-folder P` drop surrounding quotes from P, expand `~` to the home directory, make a relative path absolute from the current directory and store it without a trailing slash; they print `✓ ... set to: <path>` and a hint line."
+status = "decided"
+checks = [
+  "config-cache#example:3",
+  "config-cache#example:4",
+  "config-cache#example:5",
+  "config-cache#example:8",
+  "config-cache#test_set_folder_stores_one_absolute_path_and_keeps_the_other_keys"
+]
+
+[[obligation]]
+id = "config.cloud-cache-folder"
+statement = "A cache folder starting with `s3://`, `gs://` or `az://` is stored and shown as given."
+status = "decided"
+checks = [
+  "config-cache#example:9",
+  "config-cache#example:10",
+  "config-cache#test_set_cache_folder_keeps_cloud_locations"
+]
+
+[[obligation]]
+id = "config.get-and-switch"
+statement = "`get-output-folder` and `get-cache-folder` print the stored folder (the cache one also `Cache enabled: True|False`) or say it is not configured; `enable-cache` and `disable-cache` set `cache_enabled` and print `✓ Cache enabled` / `✓ Cache disabled`."
+status = "decided"
+checks = [
+  "config-cache#example:6",
+  "config-cache#example:7",
+  "config-cache#example:11",
+  "config-cache#example:12",
+  "config-cache#example:13",
+  "config-cache#example:14",
+  "config-cache#test_enable_and_disable_change_only_cache_enabled"
+]
+
+[[obligation]]
+id = "config.show"
+statement = "`config show` prints the active ungrouped profile, default output folder, cache folder, whether the cache is enabled, the profile count, the ungrouped profiles, and per group its profile count and active profile."
+status = "default"
+checks = [
+  "config-cache#example:1",
+  "config-cache#example:2",
+  "config-cache#test_show_lists_the_settings"
+]
+
+[[obligation]]
+id = "cache.layout"
+statement = "The cache folder holds `<key>/<version>/<key>.json`. A version is a directory under the key that contains `<key>.json`; versions are listed newest first (descending string order); a key is listed when it has at least one version, keys sorted; the latest data of a key is its first version."
+status = "decided"
+checks = [
+  "cache-keys#example:9",
+  "cache-keys#example:10",
+  "cache-keys#example:11",
+  "cache-keys#test_index_lists_versions_newest_first",
+  "config-cache#example:17",
+  "config-cache#example:19",
+  "config-cache#example:20",
+  "config-cache#test_list_counts_versions_per_key_or_lists_the_versions_of_one_key"
+]
+
+[[obligation]]
+id = "cache.entry-format"
+statement = "A save creates one file `<key>/<version>/<key>.json` whose version is the local time as `YYYYMMDD_HHMMSS`, holding a JSON object with `cache_key`, `cached_at` (ISO 8601 time), `version`, `metadata` and `data`."
+status = "decided"
+assumes = ["K-single-user"]
+checks = [
+  "cache-keys#example:7",
+  "cache-keys#example:8",
+  "cache-keys#test_entry_is_one_versioned_file"
+]
+
+[[obligation]]
+id = "cache.keys"
+statement = "The cache key of `workspaces list` is `workspaces`, of `apps list` `apps_<role>`, of `users user-access` `user_access_<slug of the id>`; the request metadata saved is `{top, expand, filter}`, `{role}` and `{user_id}`."
+status = "decided"
+checks = [
+  "cache-keys#example:1",
+  "cache-keys#example:2",
+  "cache-keys#example:3",
+  "cache-keys#example:4",
+  "cache-keys#example:5",
+  "cache-keys#example:6",
+  "cache-keys#test_workspaces_key_and_metadata",
+  "cache-keys#test_apps_key_has_the_role",
+  "cache-keys#test_user_key_keeps_an_id_that_is_already_a_slug",
+  "cache-keys#test_user_key_slugs_other_ids",
+  "cached-reads#example:10",
+  "cached-reads#example:11",
+  "cached-reads#example:12",
+  "cached-reads#example:13",
+  "cached-reads#test_apps_read_the_key_of_their_role",
+  "cached-reads#test_user_access_is_cached_under_the_slug_of_the_id"
+]
+
+[[obligation]]
+id = "cache.list-and-clear"
+statement = "`cache list [-k KEY]` and `cache clear [-k KEY] [-v VERSION]` print what is in the cache or report what was cleared, as in the examples; `clear` asks for confirmation (`--yes` skips; declining aborts with exit 1); `-v` without `-k` is refused with a message (exit 0); with no cache folder both say so."
+status = "decided"
+checks = [
+  "config-cache#example:15",
+  "config-cache#example:16",
+  "config-cache#example:17",
+  "config-cache#example:18",
+  "config-cache#example:19",
+  "config-cache#example:20",
+  "config-cache#example:21",
+  "config-cache#example:22",
+  "config-cache#example:23",
+  "config-cache#example:24",
+  "config-cache#example:25",
+  "config-cache#example:26",
+  "config-cache#example:27",
+  "config-cache#test_list_counts_versions_per_key_or_lists_the_versions_of_one_key",
+  "config-cache#test_clear_reports_what_it_cleared"
+]
+
+[[obligation]]
+id = "cache.clear-effect"
+statement = "`cache clear` removes everything in the folder (the folder stays), the key's whole folder, or the one version's file, and reports success even when nothing was there."
+status = "decided"
+assumes = ["K-single-user"]
+checks = []
+unchecked = "A check that sees deleted files; the harness reports only files created or changed."
+
+[[obligation]]
+id = "cache.read-conditions"
+statement = "A list command reads the cache only with `--use-cache` or `--cache-only`, and only when a cache folder is set and caching is enabled."
+status = "decided"
+checks = [
+  "cached-reads#example:3",
+  "cached-reads#example:4",
+  "cached-reads#example:5",
+  "cached-reads#example:6",
+  "cached-reads#example:7",
+  "cached-reads#test_cache_only_without_a_usable_cache_fails_with_exit_1",
+  "cached-reads#test_use_cache_that_misses_goes_on_to_the_api_and_needs_a_token"
+]
+
+[[obligation]]
+id = "cache.read-latest"
+statement = "A read takes the latest version of the command's key."
+status = "decided"
+checks = [
+  "cached-reads#example:1",
+  "cached-reads#test_cache_only_shows_the_latest_version_of_the_key"
+]
+
+[[obligation]]
+id = "cache.notice-from-file"
+statement = "On a hit the first line is `Using cached data from <cached_at> (version: <version>)` with both fields taken from inside the cache file, not from the folder name."
+status = "default"
+checks = [
+  "cached-reads#example:1",
+  "cached-reads#example:13",
+  "cached-reads#test_cache_only_shows_the_latest_version_of_the_key"
+]
+
+[[obligation]]
+id = "cache.unreadable-latest"
+statement = "If the latest version's file cannot be read as JSON the cache counts as unavailable; an older version is not used instead."
+status = "default"
+checks = [
+  "cached-reads#example:2",
+  "cached-reads#test_cache_only_without_a_usable_cache_fails_with_exit_1"
+]
+
+[[obligation]]
+id = "cache.miss-cache-only"
+statement = "With `--cache-only` and no usable cache, standard output says `Error: Cache not available and --cache-only was specified` (or, when no cache is set up or it is disabled, `Error: Cache not configured and --cache-only was specified` and a hint line), and the command exits 1 with `Aborted!`."
+status = "decided"
+checks = [
+  "cached-reads#example:2",
+  "cached-reads#example:3",
+  "cached-reads#example:4",
+  "cached-reads#example:5",
+  "cached-reads#example:14",
+  "cached-reads#test_cache_only_without_a_usable_cache_fails_with_exit_1"
+]
+
+[[obligation]]
+id = "cache.miss-use-cache"
+statement = "With only `--use-cache` and an empty cache the command says `Cache not available, fetching from API...` (not when no cache is set up) and goes on to the API."
+status = "decided"
+checks = [
+  "cached-reads#example:6",
+  "cached-reads#example:7",
+  "cached-reads#test_use_cache_that_misses_goes_on_to_the_api_and_needs_a_token"
+]
+
+[[obligation]]
+id = "cache.table"
+statement = "Without a target folder the result is printed as a blank line, a rule of 80 `=`, the title (`Workspaces: n record(s)`, `Apps (<role>): n record(s)`, `User Access Information for: <id>`), a rule, the table (header line, one line per record) and a rule; with no records it prints `No workspaces found.` / `No apps (<role>) found.`."
+status = "decided"
+checks = [
+  "cached-reads#example:1",
+  "cached-reads#example:8",
+  "cached-reads#example:10",
+  "cached-reads#example:11",
+  "cached-reads#example:13",
+  "cached-reads#test_cache_only_shows_the_latest_version_of_the_key",
+  "cached-reads#test_apps_read_the_key_of_their_role",
+  "cached-reads#test_user_access_is_cached_under_the_slug_of_the_id"
+]
+
+[[obligation]]
+id = "cache.table-columns"
+statement = "The workspaces table shows `id, name, type, state, isReadOnly, isOnDedicatedCapacity` and the apps table `id, name, description, publishedBy, lastUpdate`, in that order and only those that exist; when none exists all columns are shown, nested objects flattened into dotted columns."
+status = "default"
+checks = [
+  "cached-reads#example:1",
+  "cached-reads#example:9",
+  "cached-reads#example:10",
+  "cached-reads#test_cache_only_shows_the_latest_version_of_the_key",
+  "cached-reads#test_apps_read_the_key_of_their_role"
+]
+
+[[obligation]]
+id = "cache.save-files"
+statement = "With `--target-folder`, the list commands save `<name>.json` (the data on one line) and, with `-ft excel`, `<name>.xlsx`; `-n` sets the name (default `workspaces`, `apps`); the folder is created when missing and announced with `creating folder <path>`."
+status = "decided"
+checks = [
+  "cached-reads#example:15",
+  "cached-reads#example:16",
+  "cached-reads#test_target_folder_gets_the_cached_data_as_one_line_json"
+]
+
+[[obligation]]
+id = "cache.target-under-default-output"
+statement = "A relative target folder is placed under `default_output_folder` when one is set, else under the current directory."
+status = "decided"
+checks = [
+  "cached-reads#example:16",
+  "cached-reads#test_target_folder_gets_the_cached_data_as_one_line_json"
+]
+
+[[obligation]]
+id = "cache.user-access-save"
+statement = "`users user-access` with `--target-folder` is meant to save `<name>.json` / `.xlsx` like the other list commands; the original only prints and saves nothing."
+status = "open"
+checks = []
+
+[[obligation]]
+id = "cache.workspaces-excel-from-cache"
+statement = "`workspaces list --use-cache|--cache-only -ft excel -tf ...`: what is saved as the workbook when the data came from the cache (the original crashes after writing the JSON)."
+status = "open"
+checks = []
+
+[[obligation]]
+id = "flatten.workspaces"
+statement = "Workspaces become seven sheets, in the order users, reports, dashboards, datasets, dataflows, workbooks, workspace: one row per child with the workspace's own (non-list) fields, in order, followed by the child's fields as `<child>_<field>`; sheet `workspace` has one row of own fields per workspace. Other list fields are dropped; sheets with no rows are kept."
+status = "decided"
+checks = [
+  "flatten#example:1",
+  "flatten#example:3",
+  "flatten#test_workspaces_one_row_per_child_repeating_the_workspace_fields"
+]
+
+[[obligation]]
+id = "flatten.app"
+statement = "An app becomes the sheets users, reports, dashboards and app by the same rules."
+status = "decided"
+checks = [
+  "flatten#example:4",
+  "flatten#example:5",
+  "flatten#test_app_one_row_per_child_repeating_the_app_fields"
+]
+
+[[obligation]]
+id = "flatten.report-users"
+statement = "Report users are flattened per workspace name: one row per user of each report, with the report's fields (without the users field) and the user's fields as `<key>_<field>` (key `reports_users_value` unless given); a report without users produces no row."
+status = "decided"
+checks = [
+  "flatten#example:6",
+  "flatten#example:7",
+  "flatten#test_report_users_one_row_per_user_of_each_report",
+  "flatten#test_report_users_custom_key"
+]
+
+[[obligation]]
+id = "flatten.child-wins"
+statement = "When a child's prefixed field has the same name as an own field, the child's value replaces it in place."
+status = "default"
+checks = [
+  "flatten#example:2"
+]
+
+[[obligation]]
+id = "flatten.workbook"
+statement = "Each sheet is written as one worksheet of the same name, with a header row of the column names, no index column, and nested objects in a cell spread over dotted columns (`a.b`). (`apps list -ft excel` is an exception in the original: it has an index column; see REVIEW.)"
+status = "decided"
+checks = []
+unchecked = "A check that reads the worksheets of an .xlsx file; the harness reports only that a file starts like a workbook."
+
+[[obligation]]
+id = "flatten.empty-listing"
+statement = "Converting or saving as Excel a listing with no workspaces (an empty `value`, or no `value`): the original fails with an internal error."
+status = "open"
+checks = []
+
+[[obligation]]
+id = "convert.workbook"
+statement = "`workspaces format-convert -s S -t T` writes the workbook of the `flatten` sheets to T, whatever T is called, without needing a token; a missing or non-JSON S, or a T in a missing folder, fails."
+status = "decided"
+checks = [
+  "file-converters#example:1",
+  "file-converters#example:2",
+  "file-converters#example:3",
+  "file-converters#example:4",
+  "file-converters#example:5",
+  "file-converters#test_format_convert_writes_a_workbook_under_the_given_name",
+  "file-converters#test_format_convert_fails_on_unreadable_source"
+]
+
+[[obligation]]
+id = "convert.apps-token"
+statement = "`apps augment` and `reports users` resolve the user group's token before anything else and write nothing without one."
+status = "decided"
+checks = [
+  "file-converters#example:8",
+  "file-converters#example:15",
+  "file-converters#test_without_a_token_nothing_is_written"
+]
+
+[[obligation]]
+id = "convert.apps-no-apps"
+statement = "A source with no apps (no `value`, or an empty list) needs no request: a json target holds `[]`."
+status = "decided"
+checks = [
+  "file-converters#example:6",
+  "file-converters#example:7",
+  "file-converters#example:13",
+  "file-converters#example:14",
+  "file-converters#test_json_target_of_no_apps_is_an_empty_list"
+]
+
+[[obligation]]
+id = "convert.apps-source"
+statement = "A missing source, or a source that is not a JSON object, fails."
+status = "decided"
+checks = [
+  "file-converters#example:9",
+  "file-converters#example:12",
+  "file-converters#example:16",
+  "file-converters#example:19",
+  "file-converters#test_a_source_that_is_not_an_object_fails"
+]
+
+[[obligation]]
+id = "convert.excel-target"
+statement = "With `-ft excel` the target is a folder without a file extension, created when missing; a target with an extension is refused and nothing is written (the original fails with an internal error where it means a usage error)."
+status = "default"
+checks = [
+  "file-converters#example:10",
+  "file-converters#example:11",
+  "file-converters#example:17",
+  "file-converters#example:18",
+  "file-converters#test_excel_target_is_a_folder_without_extension"
+]
+
+[[obligation]]
+id = "convert.apps-fetch"
+statement = "With apps in the source each app is fetched in full (`app.endpoint-app`); one the API answers with an error is reported in red (`Cannot download <app info>`) and skipped; a json target holds the list of fetched apps, an excel target gets `<app name>_<app id>.xlsx` per app (sheets of `flatten` kind app)."
+status = "decided"
+checks = []
+unchecked = "A fake API behind the base URL, which is hard-coded."
+
+[[obligation]]
+id = "convert.report-users"
+statement = "`reports users` also fetches the users of each report of each fetched app (`app.endpoint-report-users`) and replaces the report by the users answer's fields followed by the report's fields; a report whose fetch fails with an error answer is dropped from the app and logged; an excel target gets `<app name>_<app id>_report_users.xlsx`."
+status = "decided"
+checks = []
+unchecked = "A fake API behind the base URL, which is hard-coded."
+
+[[obligation]]
+id = "scan.entry-shape"
+statement = "Each `workspace_ids` entry is a string (an id) or a mapping with a non-empty `id` and an optional `name`; entries keep their order, extra keys are ignored."
+status = "decided"
+checks = [
+  "workspace-entries#example:1",
+  "workspace-entries#example:4",
+  "workspace-entries#example:5",
+  "workspace-entries#test_entries_without_a_name_use_the_id",
+  "workspace-entries#test_order_is_kept_and_extra_keys_are_ignored"
+]
+
+[[obligation]]
+id = "scan.label-and-file-name"
+statement = "An entry's label is `<name> (<id>)` or the id; its result file is `<slug of name>-<id>.json`, or `<id>.json` when there is no name or its slug is empty. The slug is ASCII (accents folded), lowercase letters and digits with every other run of characters as one `-`, no leading or trailing `-`."
+status = "decided"
+checks = [
+  "workspace-entries#example:1",
+  "workspace-entries#example:2",
+  "workspace-entries#example:3",
+  "workspace-entries#example:4",
+  "workspace-entries#test_a_name_is_slugged_into_the_file_name"
+]
+
+[[obligation]]
+id = "scan.entry-validation"
+statement = "`workspace_ids` that is not a list, or an entry that is not a string or a mapping with an `id`, makes the config invalid."
+status = "decided"
+checks = [
+  "workspace-entries#example:6",
+  "workspace-entries#example:7",
+  "workspace-entries#example:8",
+  "workspace-entries#example:9",
+  "workspace-entries#example:10",
+  "workspace-entries#test_workspace_ids_must_be_a_list",
+  "workspace-entries#test_one_bad_entry_makes_the_input_invalid",
+  "scan-batch#example:10",
+  "scan-batch#example:11",
+  "scan-batch#example:12",
+  "scan-batch#test_config_problems_come_before_any_setting_is_looked_at"
+]
+
+[[obligation]]
+id = "scan.config-order"
+statement = "Config problems are reported one at a time, in this order: not a mapping; bad `workspace_ids`; no entries; no `target_folder`; then (after the folder is created) a non-boolean flag in the order lineage, datasource_details, dataset_schema, dataset_expressions, get_artifact_users; then non-numeric, then non-positive `interval`/`timeout`. Each is an `Error:` line and exit 1."
+status = "decided"
+checks = [
+  "scan-batch#example:6",
+  "scan-batch#example:7",
+  "scan-batch#example:8",
+  "scan-batch#example:9",
+  "scan-batch#example:10",
+  "scan-batch#example:11",
+  "scan-batch#example:12",
+  "scan-batch#example:13",
+  "scan-batch#example:14",
+  "scan-batch#example:15",
+  "scan-batch#example:17",
+  "scan-batch#example:23",
+  "scan-batch#test_config_problems_come_before_any_setting_is_looked_at",
+  "scan-batch#test_settings_are_checked_flags_first_then_numbers"
+]
+
+[[obligation]]
+id = "scan.flags-boolean"
+statement = "A flag must be a YAML boolean; `1`, a string and null are refused with `'<flag>' must be a boolean value.`"
+status = "decided"
+checks = [
+  "scan-batch#example:16",
+  "scan-batch#example:17",
+  "scan-batch#example:18",
+  "scan-batch#test_settings_are_checked_flags_first_then_numbers"
+]
+
+[[obligation]]
+id = "scan.interval-timeout"
+statement = "`interval` (default 5) and `timeout` (default 300) are numbers or numeric strings; null or absent means the default; they must be above 0."
+status = "decided"
+checks = [
+  "scan-batch#example:4",
+  "scan-batch#example:19",
+  "scan-batch#example:20",
+  "scan-batch#example:21",
+  "scan-batch#example:22",
+  "scan-batch#test_settings_are_checked_flags_first_then_numbers"
+]
+
+[[obligation]]
+id = "scan.yaml-1-1"
+statement = "The config is read as YAML 1.1: `yes`, `no`, `on` and `off` are booleans."
+status = "default"
+checks = [
+  "scan-batch#example:3"
+]
+
+[[obligation]]
+id = "scan.target-folder"
+statement = "`target_folder` is resolved like other output folders (relative: under `default_output_folder` when set, else the current directory), created when missing and announced as `creating folder <path>` before the flags are checked."
+status = "decided"
+checks = [
+  "scan-batch#example:1",
+  "scan-batch#example:2",
+  "scan-batch#example:16",
+  "scan-batch#test_settings_are_checked_flags_first_then_numbers"
+]
+
+[[obligation]]
+id = "scan.loop"
+statement = "Workspaces run one after another, each announced by a blank line and `=== Workspace <label> ===`; a failure prints `✗ <label>: <message>` and the loop goes on."
+status = "decided"
+checks = [
+  "scan-batch#example:1",
+  "scan-batch#example:2",
+  "scan-batch#example:5",
+  "scan-batch#test_workspaces_that_cannot_start_are_reported_in_order_and_the_run_fails"
+]
+
+[[obligation]]
+id = "scan.exit-code"
+statement = "If any workspace failed, after the loop a blank line and `Failed workspaces: <labels, comma separated>` are printed and the exit code is 1; otherwise `✓ Scanned <n> workspace(s) into <path>` and exit 0."
+status = "decided"
+checks = [
+  "scan-batch#example:1",
+  "scan-batch#example:3",
+  "scan-batch#example:4",
+  "scan-batch#test_workspaces_that_cannot_start_are_reported_in_order_and_the_run_fails"
+]
+
+[[obligation]]
+id = "scan.result-file"
+statement = "A scanned workspace's result is saved as `<target folder>/<file stem>.json` (indent 2) and announced `✓ Saved <path>`."
+status = "decided"
+checks = []
+unchecked = "A fake API behind the base URL, which is hard-coded."
+
+[[obligation]]
+id = "scan.own-cycle"
+statement = "Each workspace gets its own scan: initiate with just its id, poll its status, fetch its result; a failure of one does not affect the others."
+status = "decided"
+checks = []
+unchecked = "A fake API behind the base URL, which is hard-coded."
+
+[[obligation]]
+id = "app.http"
+statement = "Every request carries `Authorization: Bearer <token>`; GETs are plain, the one POST sends JSON. Failed connections and HTTP 500, 502 and 504 are retried up to 5 times with backoff factor 0.3. "
+status = "default"
+kind = "security"
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.verify-certificates"
+statement = "Every API request verifies TLS certificates as the `verify_certificates` setting says (`config.verify-certificates`): true against the system CA bundle, a path against that CA bundle file, false not at all. Nothing else turns verification off."
+status = "decided"
+kind = "security"
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "config.verify-certificates"
+statement = "`verify_certificates` in `config.yaml` defaults to true. `pbi config set-verify-certificates true|false|PATH` sets it (`true`/`false` in any case; a path must name an existing file and is stored absolute, else exit 1 and nothing changes); setting false prints a warning. `pbi config get-verify-certificates` prints `Verify certificates: <value>`."
+status = "decided"
+kind = "security"
+checks = [
+  "config-cache#example:28",
+  "config-cache#example:29",
+  "config-cache#example:30",
+  "config-cache#example:31",
+  "config-cache#example:32",
+  "config-cache#example:33",
+  "auth-profiles#example:1",
+]
+
+[[obligation]]
+id = "app.api-errors"
+statement = "A JSON answer with an `error` key is a failure that shows the answer; HTTP errors of report, scan and export calls fail with their status."
+status = "decided"
+assumes = ["K-api-shape"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.endpoint-workspaces-list"
+statement = "`workspaces list` calls `GET /admin/groups` with the query `$top=<top>` (default 1000), `$expand=<kinds joined by commas>` (default all of users, reports, dashboards, datasets, dataflows, workbooks) and, when given, `$filter=<odata filter>`; it prints `Retrieving workspaces for: ...` first."
+status = "decided"
+assumes = ["K-bearer-token", "K-api-shape"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.endpoint-apps-list"
+statement = "`apps list` calls `GET /apps` for role user and `GET /admin/apps?$top=200` for role admin (admin token); it prints `Listing Apps as <role>` first."
+status = "decided"
+assumes = ["K-api-shape"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.endpoint-app"
+statement = "`apps app` and `apps augment` get one app from `GET /apps/{appId}`, its reports from `GET /apps/{appId}/reports` and its dashboards from `GET /apps/{appId}/dashboards`, and return the app object with `reports` and `dashboards` lists (the `value` of those answers)."
+status = "decided"
+assumes = ["K-api-shape"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.endpoint-user-access"
+statement = "`users user-access` calls `GET /admin/users/{userId}/artifactAccess` (admin token), takes `ArtifactAccessEntities` from the first page only (a continuation URI is not followed) and returns `{\"artifacts\": [...]}`."
+status = "decided"
+assumes = ["K-api-shape"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.endpoint-reports"
+statement = "`reports list` calls `GET /groups/{groupId}/reports`; `reports pages` calls `GET /groups/{groupId}/reports/{reportId}/pages`, or for every report of the group (a report whose call fails is logged and skipped) a list of `{report_id, report_name, pages}`; `reports export` and `export` call `GET /groups/{groupId}/reports/{reportId}/Export` and save the bytes; the list and pages results are printed or saved as JSON with indent 2."
+status = "decided"
+assumes = ["K-api-shape"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.endpoint-report-users"
+statement = "The users of a report come from `GET /admin/reports/{reportId}/users` (admin API). `workspaces report-users` reads the `reports` sheet of the Excel file `workspaces list` saved, keeps rows whose `type` is `Workspace` and (with `-wn`) whose `name` is listed, requests each row's `reports_id`, waits `-wi` seconds (default 3) after each success, merges the answer into the row as `reports_users_<field>` plus the row's own fields, logs failures and goes on, and saves `workspaces_reports_users.json` / `.xlsx` (json and excel by default) per workspace name, or prints a summary table without a target folder."
+status = "decided"
+assumes = ["K-api-shape", "K-api-limits"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.endpoint-scan"
+statement = "A scan is `POST /admin/workspaces/getInfo?lineage=<bool>&datasourceDetails=<bool>&datasetSchema=<bool>&datasetExpressions=<bool>&getArtifactUsers=<bool>` with the JSON body `{\"workspaces\": [ids]}` (booleans as `true`/`false`, all five always sent), its state is `GET /admin/workspaces/scanStatus/{scanId}` and its result `GET /admin/workspaces/scanResult/{scanId}`."
+status = "decided"
+assumes = ["K-api-shape"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.scan-polling"
+statement = "`scan get` and each `scan batch` workspace poll the status every `interval` seconds (default 5, a positive number) until `Succeeded`, then fetch the result; `Failed` and running past `timeout` seconds (default 300) end the workspace with an error naming the scan id; a result that is HTTP 202 is not ready."
+status = "decided"
+assumes = ["K-api-shape", "K-api-limits"]
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."
+
+[[obligation]]
+id = "app.scan-get-options"
+statement = "`scan get` takes one or more ids; `--target` and `--target-folder` exclude each other, and `--target-folder` needs exactly one id and saves `<id>.json` (indent 2); otherwise the result is printed as JSON. `scan initiate` prints the API answer, `scan status` the status answer, `scan result [-t FILE]` the result."
+status = "decided"
+checks = []
+unchecked = "No check can reach the API: the base URL `https://api.powerbi.com/v1.0/myorg` is hard-coded."

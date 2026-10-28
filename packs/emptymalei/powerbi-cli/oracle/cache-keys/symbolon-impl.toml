@@ -1,0 +1,6 @@
+[implementation]
+contract = "sha256:c8e7a771c9807f806be80a41522fb850ba870f7419ae21086f28c13a60c36bee"
+language = "command"
+command = ["python3", "-I", "adapter.py"]
+license = "MIT"
+authors = ["emptymalei"]

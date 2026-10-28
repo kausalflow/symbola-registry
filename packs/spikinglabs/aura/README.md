@@ -1,6 +1,6 @@
 # Aura pilot
 
-The fourth spec pack built from a real product, and the first consumer app: [emptymalei/aura2](https://github.com/emptymalei/aura2) with [#26](https://github.com/emptymalei/aura2/pull/26), a serverless baby and child log (an installable web app in one HTML file). Data lives on the phone and, if the parent connects it, in one JSON file in their own Google Drive that a partner can share.
+The fourth spec pack built from a real product, and the first consumer app: [emptymalei/aura2](https://github.com/emptymalei/aura2) at 4a6f683 (with [#26](https://github.com/emptymalei/aura2/pull/26)), a serverless baby and child log (an installable web app in one HTML file). Data lives on the phone and, if the parent connects it, in one JSON file in their own Google Drive that a partner can share.
 
 | Path | What it is | Ships to buyers |
 | --- | --- | --- |

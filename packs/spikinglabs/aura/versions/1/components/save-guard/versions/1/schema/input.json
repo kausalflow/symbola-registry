@@ -1,0 +1,39 @@
+{
+  "$defs": {
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_shrink": {
+          "default": false,
+          "description": "The parent chose something that removes items (e.g. 'delete everything').",
+          "title": "Allow Shrink",
+          "type": "boolean"
+        },
+        "state": {
+          "description": "The whole log the app wants to save.",
+          "title": "State"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "title": "Step",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "steps"
+  ],
+  "title": "Input",
+  "type": "object"
+}

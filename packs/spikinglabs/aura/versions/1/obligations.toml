@@ -1,0 +1,618 @@
+# Obligations of the spikinglabs/aura spec pack (format: docs/PACK_FORMAT.md).
+#
+# Each obligation is one decision a builder could get wrong, with the checks
+# that pin it down. status: decided (required), default (chosen; a fork may
+# change it with a note), open (deliberately undecided; builds may differ).
+# Checks are "<component>#example:<line in examples.jsonl>" or
+# "<component>#<property test name>". A required obligation no check can
+# express yet has checks = [] and unchecked = "<the check it would need>".
+
+[[obligation]]
+id = "product.no-advice"
+statement = "The app never gives medical, dose or diagnosis advice: no amount, no 'give', no illness named, no treatment. It shows reminders (the fixed rules of the reminders component), and when a medicine's minimum gap has passed. Every AI prompt carries the same rule, and an AI answer is only ever sorted into entries or a handover the parent reads. Schedules (vaccinations, checkups, dental) only remind of the published recommendation and say that the pediatrician decides; the app never signs in to a calendar."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "The product is a log and a reminder, not a medical device; the parents' doctor decides."
+checks = []
+unchecked = "A review of every screen text, reminder and AI prompt (a list of all prompt texts and all reminder texts) for dose, diagnosis or treatment wording; each prompt states the rule."
+
+[[obligation]]
+id = "merge.newest-wins"
+statement = "Logs merge item by item, matched by id: an item of the other copy replaces the local one only if its updatedAt is strictly greater (missing counts as 0); on a tie the local item stays. Items are never combined field by field."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-device-clocks", "K-ids-unique"]
+checks = ["merge#example:2", "merge#example:3", "merge#example:4", "merge#example:8", "merge#test_the_newer_item_wins_and_a_tie_keeps_local"]
+
+[[obligation]]
+id = "merge.tombstones"
+statement = "A deletion is an item that stays with deleted true and a newer updatedAt, and is merged like any edit: a newer deletion wins, a later edit brings the item back, an older deletion loses."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:5", "merge#example:6", "merge#example:7", "merge#test_a_deletion_is_never_forgotten_by_a_merge"]
+
+[[obligation]]
+id = "merge.order"
+statement = "The merged list keeps the local items in their order (a replaced item keeps its place), then appends the other copy's new items in their order; merging the same copy again changes nothing."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:1", "merge#example:2", "merge#test_order_is_local_first_then_new_items_of_incoming", "merge#test_merging_again_changes_nothing"]
+
+[[obligation]]
+id = "merge.collections"
+statement = "All 14 synced collections (children, episodes, entries, meds, measurements, growth, products, vaccines, checkups, dental, appts, emergency, docs, pages) merge this way; a collection the other copy lacks is left alone. Anything new that syncs must be added to this list."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:9"]
+
+[[obligation]]
+id = "merge.example-data"
+statement = "A log that only holds example data is replaced by an empty log (settings kept) before merging, so example items never mix with real ones."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:10"]
+
+[[obligation]]
+id = "merge.selected-child"
+statement = "After a merge the selected child stays; without one, the first child that is not deleted is selected, else none."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:11", "merge#example:12"]
+
+[[obligation]]
+id = "merge.accept"
+statement = "Only Aura logs are merged in (app 'aura' or the old 'sick-day-log'); a log of a newer format version is refused with a message to update, and an older one is first brought up to the current format."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:13", "merge#example:14", "merge#example:15", "merge#example:16", "merge#example:17"]
+
+[[obligation]]
+id = "merge.foreign-file"
+statement = "A Drive file counts as an Aura log only if app is 'aura' or 'sick-day-log' and entries is a list; the app never writes over anything else."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["merge#example:24", "merge#example:25", "merge#example:26", "merge#example:27", "merge#example:28"]
+
+[[obligation]]
+id = "merge.covered"
+statement = "After writing, the app checks that nothing of the phone's was lost to another phone's write: every item of the phone must be in the remote copy with at least its updatedAt."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:18", "merge#example:19", "merge#example:20", "merge#example:21", "merge#test_covered_means_every_item_is_there_and_as_new"]
+
+[[obligation]]
+id = "merge.unknown-parts"
+statement = "Top-level parts of the Drive file that this version does not know (added by a later version) are written back unchanged; known keys are app, v, savedAt, example, settings, child, drive, recalls, docTr and the 14 collections."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:22", "merge#example:23"]
+
+[[obligation]]
+id = "migrate.version"
+statement = "A log's format version is its v if that is a positive integer, else 1. The current version is 3. A log of a higher version, or anything that is not an object, is returned unchanged and reported as too new."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["migrate#example:6", "migrate#example:7", "migrate#example:8", "migrate#example:9", "migrate#example:10", "migrate#test_a_current_log_is_not_touched", "migrate#test_a_newer_log_is_left_alone_and_reported"]
+
+[[obligation]]
+id = "migrate.v1"
+statement = "Version 1 (the old sick-day log) becomes version 2 by building a fresh empty log that takes over only children, episodes, measurements, meds (or the two starting medicines) and settings (over the defaults); each entry gets the child of its illness; the selected child is the first child that is not deleted. Nothing else is carried over."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["migrate#example:1", "migrate#example:2", "migrate#test_old_entries_get_their_child_from_the_illness"]
+
+[[obligation]]
+id = "migrate.v2"
+statement = "Version 2 becomes 3 by moving the book photos kept in vaccines and checkups (kind 'page') into documents and pages, with deterministic ids, times and tombstones, so two phones that upgrade separately end up with the same log."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["migrate#example:3", "migrate#example:4", "migrate#example:5", "migrate#test_every_photo_becomes_one_page_and_a_tombstone", "migrate#test_upgrading_twice_gives_the_same_log"]
+
+[[obligation]]
+id = "migrate.keep-before"
+statement = "Adding a collection or fields needs no version change (older apps keep parts they do not know); changing what existing data means needs the next version, a migration step and a test. Before a migration step runs, the log as it was is kept: as 'before-vN' (N the new version) in the phone's database and as backups/aura-log-before-vN.json in Drive (once); these copies are never pruned. An older app never writes a newer log."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "A bad migration must always be undoable by the parent."
+checks = []
+unchecked = "An end-to-end test that upgrades a saved old log on the phone and in a Drive stand-in and finds both copies, then runs the previous version's build against the new log and sees nothing written."
+
+[[obligation]]
+id = "migrate.v-less-log"
+statement = "A log without a valid v is treated as version 1. The step from 1 to 2 converts the old collections and keeps every other collection and field of the log as it is, so a damaged or hand-edited log never loses data."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["migrate#example:7", "migrate#example:8", "migrate#example:11"]
+
+[[obligation]]
+id = "save.too-new"
+statement = "A log of a newer format version is never saved by this app."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["save-guard#example:8"]
+
+[[obligation]]
+id = "save.well-formed"
+statement = "A log is saved only if it is an object with settings, all 14 collections are lists, and every item is an object with an id that is not missing or null (0 and '' are fine)."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["save-guard#example:9", "save-guard#example:10", "save-guard#example:11", "save-guard#example:12"]
+
+[[obligation]]
+id = "save.no-shrink"
+statement = "A log with fewer items (over all collections) than the last saved one is not saved, and a refused save does not lower that bar; equal or larger logs are saved. Deletions are tombstones, so the count only falls when the parent removes everything."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["save-guard#example:1", "save-guard#example:2", "save-guard#example:3", "save-guard#example:4", "save-guard#example:13", "save-guard#test_without_permission_a_smaller_log_is_never_saved"]
+
+[[obligation]]
+id = "save.shrink-exceptions"
+statement = "A smaller log may be saved when the last saved log was example data, or when the parent chose something that removes items (allow_shrink, used up by the next save that passes the format checks)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["save-guard#example:5", "save-guard#example:6", "save-guard#test_the_guard_follows_its_rules_over_a_run_of_saves"]
+
+[[obligation]]
+id = "save.allow-shrink-once"
+statement = "allow_shrink is used up by the next save attempt, whatever its outcome: a save refused as too new or malformed clears it too, so a later save that did not ask for it is refused if it shrinks."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["save-guard#example:7"]
+
+[[obligation]]
+id = "growth.tables"
+statement = "Percentiles use the WHO tables as given in fixtures/who-lms.json (L, M, S per month by sex: 2006 standards to 5 years, 2007 reference after; weight to 10 y, height to 19 y, head to 5 y), interpolated linearly in L, M and S between whole months."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-who-tables"]
+checks = ["growth-percentile#example:1", "growth-percentile#example:2", "growth-percentile#example:3", "growth-percentile#example:4", "growth-percentile#example:6", "growth-percentile#example:7", "growth-percentile#example:13", "growth-percentile#example:14", "growth-percentile#example:15", "growth-percentile#example:36", "growth-percentile#example:37", "growth-percentile#example:38", "growth-percentile#test_the_curves_are_the_tables_interpolated", "growth-percentile#test_a_measurement_on_a_curve_is_at_that_percentile"]
+
+[[obligation]]
+id = "growth.age"
+statement = "Age in months is (measurement time - birth date at 00:00 UTC) / 30.4375 days, with fractions; at birth the first row is used."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["growth-percentile#example:5", "growth-percentile#example:6"]
+
+[[obligation]]
+id = "growth.z-and-cdf"
+statement = "z = ((value/M)^L - 1)/(L*S) and the percentile is 100 times the normal distribution function computed with the Abramowitz and Stegun 7.1.26 approximation given in the description, not an exact one."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["growth-percentile#example:1", "growth-percentile#example:2", "growth-percentile#example:11", "growth-percentile#example:12", "growth-percentile#test_a_higher_value_is_never_a_lower_percentile"]
+
+[[obligation]]
+id = "growth.weight-adjustment"
+statement = "For weight only, beyond 3 SD either way z is replaced by WHO's adjustment (3 SD plus the distance beyond, counted in steps of the 2-to-3 SD distance); height and head are not adjusted."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["growth-percentile#example:8", "growth-percentile#example:9", "growth-percentile#example:10", "growth-percentile#test_weight_beyond_three_sd_is_adjusted_and_other_measures_are_not"]
+
+[[obligation]]
+id = "growth.no-table"
+statement = "Without sex f or m, a birth date, a value, or a table row for that age (before birth, beyond 10 y for weight, 19 y for height, 5 y for head), there is no percentile: all outputs are null."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["growth-percentile#example:16", "growth-percentile#example:17", "growth-percentile#example:18", "growth-percentile#example:19", "growth-percentile#example:20", "growth-percentile#example:21", "growth-percentile#example:22", "growth-percentile#example:23", "growth-percentile#example:39", "growth-percentile#example:40", "growth-percentile#example:41", "growth-percentile#test_no_table_no_answer"]
+
+[[obligation]]
+id = "growth.wording"
+statement = "A percentile is described only as 'below 1st percentile', 'above 99th percentile' or the rounded (halves up) number with its English ordinal and 'percentile'; no wording judges it (no 'too small', 'normal', 'worrying')."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "A percentile only compares with other children; the pediatrician interprets it."
+checks = ["growth-percentile#example:11", "growth-percentile#example:12", "growth-percentile#example:24", "growth-percentile#example:25", "growth-percentile#example:26", "growth-percentile#example:27", "growth-percentile#example:28", "growth-percentile#example:29", "growth-percentile#example:30", "growth-percentile#example:31", "growth-percentile#example:32", "growth-percentile#example:33", "growth-percentile#example:34", "growth-percentile#example:35", "growth-percentile#test_the_wording_only_describes"]
+
+[[obligation]]
+id = "schedule.tables"
+statement = "The schedules are the German ones as of 2026: STIKO standard vaccinations (RSV antibody, rotavirus, 6-in-1, pneumococcus, meningococcus B, MMR, chickenpox, Tdap and Tdap-polio boosters, HPV, meningococcus ACWY; MenC at 12 months dropped, MenACWY at 12 to 14 years added), the U-Heft checkups U1 to U9, U10 (new, paid from 2027) and J1, and the dental checkups Z1 to Z6, with exactly the ages and periods in the description."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-stiko-gba-2026"]
+checks = ["schedule#example:1", "schedule#example:8", "schedule#example:19", "schedule#example:25", "schedule#example:31", "schedule#test_checkup_periods_follow_the_tables", "schedule#test_vaccine_status_follows_the_age_and_the_doses"]
+
+[[obligation]]
+id = "schedule.checkup-status"
+statement = "A checkup that is not recorded or booked is 'later' until 28 days before its window, 'soon' from then, 'due' while its window is open (the window's last day included), 'missed' after, and 'open' (usual age only) without a birth date."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["schedule#example:19", "schedule#example:21", "schedule#example:22", "schedule#example:23", "schedule#example:24", "schedule#example:28", "schedule#example:30", "schedule#example:31", "schedule#test_checkup_status_follows_the_window"]
+
+[[obligation]]
+id = "schedule.vaccine-status"
+statement = "A vaccine dose is 'due' from half a month before its usual age, 'late' after the plan's upto age (default usual age + 2 months), 'missed' after the plan's until age, 'later' before; doses recorded count per vaccine, a dose recorded against several vaccines counts for each, deleted doses do not; all doses recorded is 'done'."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["schedule#example:1", "schedule#example:2", "schedule#example:3", "schedule#example:4", "schedule#example:5", "schedule#example:6", "schedule#example:7", "schedule#example:8", "schedule#example:9", "schedule#example:10", "schedule#example:11", "schedule#test_vaccine_status_follows_the_age_and_the_doses"]
+
+[[obligation]]
+id = "schedule.skip-and-no-dob"
+statement = "A vaccine the parents do not plan is 'skip'; without a birth date nothing is due and only the usual ages are shown."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["schedule#example:11", "schedule#example:12", "schedule#example:28", "schedule#test_skipped_vaccines_are_skipped_and_nothing_is_due_without_a_birth_date"]
+
+[[obligation]]
+id = "schedule.recorded-wins"
+statement = "A recorded visit makes a checkup 'done' whatever else is known (an appointment never replaces a recorded checkup); deleted records do not count."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["schedule#example:20", "schedule#example:27", "schedule#example:32", "schedule#test_a_recorded_checkup_is_done_whatever_else_is_known"]
+
+[[obligation]]
+id = "schedule.appointments"
+statement = "A booked appointment for an item shows instead of the usual time: 'booked' until its day has passed (a later hour that day is still booked), then 'went' (the app asks to record the visit); for vaccines it must name the vaccine and the next dose number; the newest appointment wins; deleted ones are ignored."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["schedule#example:13", "schedule#example:14", "schedule#example:15", "schedule#example:16", "schedule#example:17", "schedule#example:26", "schedule#example:33", "schedule#test_an_appointment_replaces_the_usual_time_until_its_day_has_passed"]
+
+[[obligation]]
+id = "schedule.today-line"
+statement = "Today and the Documents tab point out: due or late vaccines, due or soon checkups and dental checkups, and appointments that went or fall in the next 15 days (start of today + 15 days)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["schedule#example:1", "schedule#example:13", "schedule#example:15", "schedule#example:19", "schedule#example:26", "schedule#example:31", "schedule#example:33", "schedule#test_checkup_status_follows_the_window"]
+
+[[obligation]]
+id = "schedule.plan-off"
+statement = "A schedule the parent turned off (vaccinations, checkups or dental) points nothing out and puts nothing in the calendar; statuses may still be shown."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["schedule#example:18", "schedule#example:29", "schedule#example:34", "schedule#example:37", "schedule#test_a_schedule_turned_off_points_nothing_out"]
+
+[[obligation]]
+id = "schedule.calendar-dates"
+statement = "Calendar dates cover the next 365 days: an all-day event on the later of today and the start of the usual period (checkups), the window start (dental) or the usual age of the next dose (vaccines); a booked appointment on its own day and time. Unique uids: '<child>-<key>', '<child>-vax-<key>-<dose>', '<child>-appt-<id>'. Sorted by date and time."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-one-timezone"]
+checks = ["schedule#example:35", "schedule#example:36", "schedule#example:37", "schedule#example:38", "schedule#test_calendar_dates_are_unique_sorted_and_within_a_year", "schedule#test_calendar_dates_match_the_statuses", "schedule#test_a_booked_appointment_goes_into_the_calendar_with_its_time"]
+
+[[obligation]]
+id = "schedule.month-end"
+statement = "Months are counted on the calendar from the birth date; when the target month is shorter than the birth day, the date is that month's last day (31 August + 3 months = 30 November, 29 February + 12 months = 28 February)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-one-timezone"]
+checks = ["schedule#example:39", "schedule#example:40", "schedule#example:41"]
+
+[[obligation]]
+id = "reminders.fever-days"
+statement = "A reminder that fever has come and gone for more than 3 days appears when the first and last temperature of 38.0 °C or more are 3 days or more apart."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:2", "reminders#example:3", "reminders#example:4"]
+
+[[obligation]]
+id = "reminders.young-baby"
+statement = "A baby under 3 months (30.44-day months; birth date needed) with a temperature of 38.0 °C or more gets the reminder to be seen by a doctor promptly."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:5", "reminders#example:6", "reminders#example:7"]
+
+[[obligation]]
+id = "reminders.high-temp"
+statement = "A temperature of 40 °C or more in the last 24 hours is pointed out."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:8", "reminders#example:9"]
+
+[[obligation]]
+id = "reminders.wet-diaper"
+statement = "In an illness that is not ended and has at least one diaper logged, more than 8 hours since the last wet diaper (wet or both; else since the illness start) is pointed out."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:10", "reminders#example:11", "reminders#example:12", "reminders#example:13", "reminders#example:14"]
+
+[[obligation]]
+id = "reminders.vomiting"
+statement = "Three or more vomits in the last 6 hours are pointed out."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:15", "reminders#example:16"]
+
+[[obligation]]
+id = "reminders.worrying-symptoms"
+statement = "Symptoms the parent noted in the last 24 hours among: fast breathing, very sleepy / floppy, not drinking, wheezing are repeated back as 'You noted: ...' (reminding, not judging)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:17"]
+
+[[obligation]]
+id = "reminders.order"
+statement = "The reminders appear in the fixed order of fever days, young baby, high temperature, wet diaper, vomiting, symptoms, each at most once, and test the rules above exactly."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:1", "reminders#example:18", "reminders#test_the_sick_mode_reminders_follow_the_rules"]
+
+[[obligation]]
+id = "reminders.medicine-gap"
+statement = "For each medicine in an illness the last dose is shown with 'gap passed' once its last dose plus the parent's minimum gap (hours) has passed, else 'gap at <time>'; no gap set means nothing is shown. The app never says what or how much to give."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "The gap is the parent's own setting; the app is not a dosing tool."
+checks = ["reminders#example:19", "reminders#example:20", "reminders#example:21", "reminders#example:22", "reminders#example:23", "reminders#test_a_medicine_gap_is_passed_when_the_last_dose_is_old_enough"]
+
+[[obligation]]
+id = "reminders.backup"
+statement = "Today asks for a backup until there is a copy off the phone: when nothing was ever backed up, or the log changed after the last backup and that is more than 2 days old; it can be snoozed to tomorrow, and is not shown for example data or without a child."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:24", "reminders#example:25", "reminders#example:26", "reminders#example:27", "reminders#example:28", "reminders#example:29", "reminders#example:30", "reminders#example:31", "reminders#example:32", "reminders#test_the_backup_reminder_follows_the_rules"]
+
+[[obligation]]
+id = "reminders.recall-match"
+statement = "A product on the family's list matches a recall when every word of its name (lower-cased, accents stripped, ß as ss, words of one character dropped) is a word of the recall's title or company. Matching happens on the phone; the product list is never sent anywhere."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["reminders#example:33", "reminders#example:34", "reminders#example:35", "reminders#example:36", "reminders#example:37", "reminders#example:38", "reminders#example:39", "reminders#test_a_product_matches_a_recall_when_all_its_words_are_in_it"]
+
+[[obligation]]
+id = "reminders.recall-lists"
+statement = "Only recalls of the countries the parent tracks (all when none chosen) count: 'new' ones are from the last 30 days and not yet seen in the list; alerts are matches with the family's products not dismissed."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["reminders#example:40", "reminders#example:41", "reminders#example:42", "reminders#example:43", "reminders#test_recall_lists_follow_the_rules"]
+
+[[obligation]]
+id = "reminders.recall-refresh"
+statement = "The recall list (one public JSON file, RECALL_URL) is fetched at most every 12 hours (every hour after a failure), kept on the phone and used offline, not synced; seen ids are kept only for ids still in the list."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+assumes = ["K-recall-feed"]
+checks = []
+unchecked = "A test with a stub list server and a controllable clock: fetch on open, no refetch within 12 h, refetch after 1 h following an error, offline use of the last list."
+
+[[obligation]]
+id = "retention.drive-prune"
+statement = "Hourly Drive copies are kept as: the 48 newest, then the newest of each calendar day for 60 days (days among the 48 newest are not counted); everything else is deleted, newest first in the answer."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["backup-retention#example:1", "backup-retention#example:2", "backup-retention#example:3", "backup-retention#example:4", "backup-retention#example:5", "backup-retention#example:6", "backup-retention#example:7", "backup-retention#test_the_newest_48_and_a_copy_a_day_are_kept", "backup-retention#test_pruning_never_removes_a_days_only_older_copy_within_60_days"]
+
+[[obligation]]
+id = "retention.hourly"
+statement = "Before overwriting the Drive file the app saves it as aura-backup-YYYY-MM-DD-HH.json in Aura/backups, at most once per local hour (not again if that name exists, not again after a snapshot this hour), then prunes."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["backup-retention#example:8", "backup-retention#example:9", "backup-retention#example:10", "backup-retention#example:12", "backup-retention#example:13", "backup-retention#test_one_copy_an_hour_and_only_hourly_copies_are_pruned"]
+
+[[obligation]]
+id = "retention.before-upgrade"
+statement = "aura-log-before-vN.json copies and any foreign files in the backups folder are never pruned."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["backup-retention#example:11", "backup-retention#example:16", "backup-retention#test_one_copy_an_hour_and_only_hourly_copies_are_pruned"]
+
+[[obligation]]
+id = "retention.phone-copies"
+statement = "The phone keeps one copy of the whole log per local day (snap-YYYY-MM-DD, newest 14) beside the log; example data is not copied; before-vN is never deleted."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["backup-retention#example:14", "backup-retention#example:15", "backup-retention#example:16", "backup-retention#example:17", "backup-retention#example:18", "backup-retention#test_the_phone_keeps_14_daily_copies"]
+
+[[obligation]]
+id = "retention.restore"
+statement = "Restoring from a Drive backup or a daily copy adds back anything missing (a merge); it never deletes and does not undo later edits or deletions."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["merge#example:1", "merge#example:5"]
+
+[[obligation]]
+id = "sync.safe-write"
+statement = "A Drive sync reads the file, merges, writes, and checks the file's version is still its own write's (else reads and merges again, up to 3 rounds, then retries after 20 s); an idle check is one small request for the version; it never writes over a file it cannot read as an Aura log; a log over 4.5 MB is written with a resumable upload; the partner's backups go to an Aura folder in their own Drive."
+status = "decided"
+source = "extract"
+kind = "constraint"
+reason = "Two phones may save at once; a clash may delay a sync but must never lose an entry."
+assumes = ["K-drive-version", "K-device-clocks", "K-small-log"]
+checks = []
+unchecked = "A test against a Drive stand-in that interleaves a second writer between the app's read and write (rounds), serves an unreadable file, and a 5 MB log (resumable upload)."
+
+[[obligation]]
+id = "media.pack"
+statement = "In a Drive backup, every direct field of an item in the synced collections that holds a base64 data URL is replaced by 'aura-media:<sha256 hex of the URL>.<ext>#<header>' and the bytes go once to backups/media under that name; names already there are not uploaded again."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["media-pack#example:1", "media-pack#example:2", "media-pack#example:5", "media-pack#test_each_distinct_picture_is_one_file_named_by_its_hash", "media-pack#test_a_name_already_in_the_folder_is_not_uploaded_again"]
+
+[[obligation]]
+id = "media.untouched"
+statement = "Everything else stays as it is: non-base64 data URLs, links, values nested deeper than a field, other parts of the log."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["media-pack#example:3", "media-pack#example:4"]
+
+[[obligation]]
+id = "media.restore"
+statement = "Restoring puts each reference back as header + ',' + base64 of the file, so pack then unpack gives the original log."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["media-pack#example:6", "media-pack#example:8", "media-pack#test_what_is_packed_unpacks_to_the_same_log"]
+
+[[obligation]]
+id = "media.missing"
+statement = "An item whose file cannot be found in backups/media (or whose reference has no header) is left out of the restored list and counted once, so a restore never blanks a picture on the phone."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["media-pack#example:7", "media-pack#example:9", "media-pack#example:10", "media-pack#test_a_missing_file_costs_the_item_and_nothing_else"]
+
+[[obligation]]
+id = "ai.names-out"
+statement = "Before any AI call, names of children (not deleted), the parent's own name and the names of people who logged entries are replaced by placeholders [CHILD], [CHILD 2]..., [PARENT 1]...; the child asked about is [CHILD]; names are put back into the answer on the phone."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["ai-redaction#example:1", "ai-redaction#example:2", "ai-redaction#example:3", "ai-redaction#example:6", "ai-redaction#example:10", "ai-redaction#example:16", "ai-redaction#test_no_name_is_sent_and_the_answer_gets_them_back", "ai-redaction#test_the_child_asked_about_is_child_and_the_others_follow_in_order"]
+
+[[obligation]]
+id = "ai.word-boundary"
+statement = "A name is replaced anywhere (any case) unless a letter of any alphabet touches it on either side; the longest name goes first; a name of one character is left (its number is still used)."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["ai-redaction#example:4", "ai-redaction#example:5", "ai-redaction#example:7", "ai-redaction#example:8", "ai-redaction#test_a_name_inside_a_longer_word_stays"]
+
+[[obligation]]
+id = "ai.deleted-children"
+statement = "Names of deleted children, and the names on deleted entries, are replaced like any other, because they can still be in notes; deleted children are numbered after the live ones."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["ai-redaction#example:9", "ai-redaction#example:19"]
+
+[[obligation]]
+id = "ai.restore"
+statement = "Placeholders are replaced by names in every string of the answer at any depth; keys and other values stay; placeholders the model invented stay as written."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ai-redaction#example:11", "ai-redaction#example:12"]
+
+[[obligation]]
+id = "ai.sent-text"
+statement = "The system text is sent with the sentence 'Names are replaced by placeholders such as [CHILD]; keep each placeholder exactly as written.' appended, and 'See exactly what was sent' shows the system text and the redacted user text exactly as sent."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["ai-redaction#example:1", "ai-redaction#example:13"]
+
+[[obligation]]
+id = "ai.images"
+statement = "Images (pages of the vaccination book or U-Heft, only when the parent switched reading on and was asked once) go only to the parent's own AI service (key needed); with another provider the call fails; with AI off the call fails first."
+status = "decided"
+source = "extract"
+kind = "security"
+checks = ["ai-redaction#example:13", "ai-redaction#example:14", "ai-redaction#example:15", "ai-redaction#example:17", "ai-redaction#example:18", "ai-redaction#test_images_need_the_own_service_and_are_counted"]
+
+[[obligation]]
+id = "ai.nothing-else"
+statement = "Photos, sounds, links, birth dates (age is sent instead), contacts and insurance data never go into a prompt; AI is off until the parent chooses a service and gives a key, which stays on the phone and is never synced; only https addresses (or http://localhost) are accepted."
+status = "decided"
+source = "extract"
+kind = "security"
+assumes = ["K-ai-service"]
+checks = []
+unchecked = "A review and a network trace of every AI feature (Say it, handover, page reading, translation) with an AI stub: prompts contain no photo, sound, link, birth date, contact or insurance data; the key never appears in the synced log."
+
+[[obligation]]
+id = "ics.shape"
+statement = "The calendar file is RFC 5545: CRLF lines (also at the end), VCALENDAR with VERSION 2.0, PRODID -//Aura//Baby log//EN, CALSCALE GREGORIAN, METHOD PUBLISH, one VEVENT per event with UID '<uid>@aura' and DTSTAMP in UTC."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:1", "ics#example:6", "ics#test_the_file_has_the_stated_shape", "ics#test_each_event_is_written_as_stated"]
+
+[[obligation]]
+id = "ics.all-day-and-timed"
+statement = "A date is an all-day event (DTSTART/DTEND;VALUE=DATE, end = next day) so it never shifts with the time zone; a booked appointment with a time is a one-hour event in local time (no zone letter)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:1", "ics#example:2", "ics#example:4", "ics#example:5"]
+
+[[obligation]]
+id = "ics.alarms"
+statement = "Reminders: a timed event gets one the day before (-P1D) and one an hour before (-PT1H); an all-day event one at 9:00 on the day (PT9H); each is a display alarm with the title."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:1", "ics#example:2", "ics#example:4"]
+
+[[obligation]]
+id = "ics.booked"
+statement = "A booked appointment carries URL (the app's address plus ?open=appts); a timed booked one is OPAQUE, everything else TRANSPARENT; LOCATION only when there is one."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:2", "ics#example:3"]
+
+[[obligation]]
+id = "ics.escape"
+statement = "In text values every backslash, ';' and ',' gets a backslash and a line break becomes \\n (RFC 5545)."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:7", "ics#test_each_event_is_written_as_stated"]
+
+[[obligation]]
+id = "ics.fold"
+statement = "Lines are folded at 75 octets of UTF-8 (RFC 5545): each physical line, including the space that starts a continuation, is at most 75 octets; pieces are filled greedily and a character is never split."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:8", "ics#example:9", "ics#example:10", "ics#test_the_file_has_the_stated_shape"]
+
+[[obligation]]
+id = "ics.filename"
+statement = "A single event is saved as aura-<title up to ' ·', lower-cased, runs of non a-z0-9 as '-'>.ics; several events as aura-dates.ics."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:11", "ics#example:12", "ics#example:6", "ics#example:15", "ics#test_the_file_name_and_the_google_link"]
+
+[[obligation]]
+id = "ics.google-link"
+statement = "For one event the Google Calendar link is calendar.google.com/calendar/render with action=TEMPLATE, text, dates (start/end as in the file), details and location (if any), form-urlencoded; for several events there is none."
+status = "decided"
+source = "extract"
+kind = "behaviour"
+checks = ["ics#example:1", "ics#example:13", "ics#example:14", "ics#example:15", "ics#test_several_events_have_a_general_name_and_no_link"]

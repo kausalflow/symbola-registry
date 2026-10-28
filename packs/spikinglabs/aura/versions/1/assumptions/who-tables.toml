@@ -1,0 +1,4 @@
+id = "K-who-tables"
+statement = "The WHO LMS tables in fixtures/who-lms.json are the published WHO Child Growth Standards (2006) and Growth Reference (2007) and are the right reference for the family's children."
+basis = "They are WHO's published values, embedded in the app. The percentile only describes; the pediatrician interprets it."
+monitor = "none"

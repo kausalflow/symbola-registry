@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "filename": {
+      "title": "Filename",
+      "type": "string"
+    },
+    "google_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Google Url"
+    },
+    "ics": {
+      "title": "Ics",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ics",
+    "filename",
+    "google_url"
+  ],
+  "title": "Output",
+  "type": "object"
+}

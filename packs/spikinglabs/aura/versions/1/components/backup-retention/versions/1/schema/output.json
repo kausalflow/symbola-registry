@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "delete": {
+      "description": "Names or keys to delete.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Delete",
+      "type": "array"
+    },
+    "put": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "daily-copy: the key to write.",
+      "title": "Put"
+    },
+    "upload": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "snapshot: the file to save.",
+      "title": "Upload"
+    }
+  },
+  "required": [
+    "delete"
+  ],
+  "title": "Output",
+  "type": "object"
+}

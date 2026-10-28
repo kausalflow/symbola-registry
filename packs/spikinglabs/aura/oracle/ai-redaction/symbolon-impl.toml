@@ -1,0 +1,6 @@
+[implementation]
+contract = "sha256:663c7093cb5828c70bf3c1445375bfadea65d76cfc096032ccb2e8767818ca6b"
+language = "command"
+command = ["node", "adapter.mjs"]
+license = "Apache-2.0"
+authors = ["spikinglabs/aura"]

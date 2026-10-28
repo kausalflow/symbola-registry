@@ -1,0 +1,50 @@
+{
+  "$defs": {
+    "Result": {
+      "additionalProperties": false,
+      "properties": {
+        "refused": {
+          "anyOf": [
+            {
+              "enum": [
+                "too-new",
+                "malformed",
+                "shrunk"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Refused"
+        },
+        "saved": {
+          "title": "Saved",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "saved",
+        "refused"
+      ],
+      "title": "Result",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "results": {
+      "items": {
+        "$ref": "#/$defs/Result"
+      },
+      "title": "Results",
+      "type": "array"
+    }
+  },
+  "required": [
+    "results"
+  ],
+  "title": "Output",
+  "type": "object"
+}

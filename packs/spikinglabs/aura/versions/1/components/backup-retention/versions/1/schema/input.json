@@ -1,0 +1,66 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "done_hour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "snapshot: hour of the last snapshot, YYYY-MM-DD-HH.",
+      "title": "Done Hour"
+    },
+    "example": {
+      "default": false,
+      "title": "Example",
+      "type": "boolean"
+    },
+    "files": {
+      "description": "prune, snapshot: names in the backups folder, newest name first.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Files",
+      "type": "array"
+    },
+    "keys": {
+      "description": "daily-copy: keys in the phone's database.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Keys",
+      "type": "array"
+    },
+    "now": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "snapshot, daily-copy: local time, ISO 8601 without zone, e.g. 2026-10-27T10:30:00.",
+      "title": "Now"
+    },
+    "op": {
+      "enum": [
+        "prune",
+        "snapshot",
+        "daily-copy"
+      ],
+      "title": "Op",
+      "type": "string"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "Input",
+  "type": "object"
+}

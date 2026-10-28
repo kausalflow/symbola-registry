@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "Child": {
+      "additionalProperties": false,
+      "properties": {
+        "dob": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Birth date, YYYY-MM-DD.",
+          "title": "Dob"
+        },
+        "name": {
+          "default": "Mia",
+          "title": "Name",
+          "type": "string"
+        },
+        "vax_skip": {
+          "description": "Vaccine keys the parents do not plan.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Vax Skip",
+          "type": "array"
+        }
+      },
+      "title": "Child",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "appts": {
+      "description": "Booked appointments (ids a0, a1, ... in this order).",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Appts",
+      "type": "array"
+    },
+    "child": {
+      "$ref": "#/$defs/Child"
+    },
+    "doses": {
+      "description": "Recorded vaccinations: {against, date, deleted?}.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Doses",
+      "type": "array"
+    },
+    "exams": {
+      "description": "U-Heft checkups: {u, date, deleted?}.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Exams",
+      "type": "array"
+    },
+    "now": {
+      "description": "ISO 8601 UTC time.",
+      "title": "Now",
+      "type": "string"
+    },
+    "op": {
+      "enum": [
+        "status",
+        "events"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "plan": {
+      "anyOf": [
+        {
+          "enum": [
+            "vax",
+            "u",
+            "z"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "status: which schedule.",
+      "title": "Plan"
+    },
+    "u_plan": {
+      "default": "de",
+      "enum": [
+        "de",
+        "none"
+      ],
+      "title": "U Plan",
+      "type": "string"
+    },
+    "vax_plan": {
+      "default": "de",
+      "enum": [
+        "de",
+        "none"
+      ],
+      "title": "Vax Plan",
+      "type": "string"
+    },
+    "visits": {
+      "description": "Dentist visits: {z, date, deleted?}.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Visits",
+      "type": "array"
+    },
+    "z_plan": {
+      "default": "de",
+      "enum": [
+        "de",
+        "none"
+      ],
+      "title": "Z Plan",
+      "type": "string"
+    }
+  },
+  "required": [
+    "op",
+    "now",
+    "child"
+  ],
+  "title": "Input",
+  "type": "object"
+}

@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "log": {
+      "description": "A saved log of any version, or null.",
+      "title": "Log"
+    }
+  },
+  "required": [
+    "log"
+  ],
+  "title": "Input",
+  "type": "object"
+}

@@ -1,0 +1,4 @@
+id = "K-google-client"
+statement = "Aura's Google client ID and Picker key are public by design and Google accepts them only from the app's own web address; the drive.file scope lets the app see only files it created or that the parent picked."
+basis = "Both are built into the page by the build from repository variables; users can enter their own under More. The scope is non-sensitive, so no security assessment is needed."
+monitor = "The sign-in or the picker fails with a Google error page if the origin or the key is wrong."

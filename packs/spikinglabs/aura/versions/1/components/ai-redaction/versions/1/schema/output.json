@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "result": {
+      "description": "The answer with names put back.",
+      "title": "Result"
+    },
+    "system": {
+      "description": "The system text as sent.",
+      "title": "System",
+      "type": "string"
+    },
+    "user": {
+      "description": "The redacted user text, plus the image note.",
+      "title": "User",
+      "type": "string"
+    },
+    "via": {
+      "enum": [
+        "own-key",
+        "device"
+      ],
+      "title": "Via",
+      "type": "string"
+    }
+  },
+  "required": [
+    "system",
+    "user",
+    "via",
+    "result"
+  ],
+  "title": "Output",
+  "type": "object"
+}

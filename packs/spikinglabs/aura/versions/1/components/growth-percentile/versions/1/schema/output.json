@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "percentile": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "percentile: 0 to 100, or null.",
+      "title": "Percentile"
+    },
+    "text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Text"
+    },
+    "values": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "curve: the 3rd, 15th, 50th, 85th, 97th percentile values, or null.",
+      "title": "Values"
+    },
+    "z": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Z"
+    }
+  },
+  "title": "Output",
+  "type": "object"
+}

@@ -1,0 +1,4 @@
+id = "K-device-clocks"
+statement = "The clocks of the phones that share a log agree to within a few minutes, so the newest updatedAt is the latest edit."
+basis = "Every edit stamps updatedAt with its own phone's Date.now(); the merge trusts those stamps and has no server clock. Family phones sync their time from the network."
+monitor = "none"

@@ -1,0 +1,148 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "child": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "alerts: {dob}.",
+      "title": "Child"
+    },
+    "countries": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Countries"
+    },
+    "entries": {
+      "description": "alerts, medicine: logged entries.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "episode": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "alerts: {start, end?}.",
+      "title": "Episode"
+    },
+    "feed_seen": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Feed Seen",
+      "type": "array"
+    },
+    "meds": {
+      "description": "medicine: the medicine list.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Meds",
+      "type": "array"
+    },
+    "now": {
+      "description": "ISO 8601 UTC.",
+      "title": "Now",
+      "type": "string"
+    },
+    "op": {
+      "enum": [
+        "alerts",
+        "medicine",
+        "backup",
+        "recall-match",
+        "recall-lists"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "products": {
+      "description": "recall-*: the family's product list.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Products",
+      "type": "array"
+    },
+    "recall": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "recall-match: {title, company}.",
+      "title": "Recall"
+    },
+    "recalls": {
+      "description": "recall-lists: the recall list.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Recalls",
+      "type": "array"
+    },
+    "seen": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Seen",
+      "type": "array"
+    },
+    "state": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "backup: example, children, snooze, backed_up_at, changed_at.",
+      "title": "State"
+    }
+  },
+  "required": [
+    "op",
+    "now"
+  ],
+  "title": "Input",
+  "type": "object"
+}

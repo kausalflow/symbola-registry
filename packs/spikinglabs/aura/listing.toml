@@ -1,0 +1,5 @@
+# How symbola.sh lists this pack in the shop. Lives outside versions/, so editing it never
+# changes the pack's digest.
+name = "Aura"
+category = "family"
+summary = "A calm, serverless baby and child log for the phone: feeds, sleep, diapers, sick mode with a fever chart and doctor summary, paper documents kept page by page, and German vaccination and checkup reminders. The merge and backup rules, migrations, growth percentiles, schedules, reminders, AI redaction and calendar files specified exactly."

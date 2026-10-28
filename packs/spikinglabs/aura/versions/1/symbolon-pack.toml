@@ -1,0 +1,19 @@
+[pack]
+id = "spikinglabs/aura"
+version = 1
+title = "Aura: a calm, serverless baby and child log (PWA) with German checkup and vaccination reminders"
+license = "Apache-2.0"
+authors = ["spikinglabs"]
+
+# Recomputed by `symbola extract` from components/; no need to edit by hand.
+[components]
+"spikinglabs/ai-redaction@1" = "sha256:663c7093cb5828c70bf3c1445375bfadea65d76cfc096032ccb2e8767818ca6b"
+"spikinglabs/backup-retention@1" = "sha256:d5b5f67bf8344c1d9dc76651c09b3c3f0e5d09a5607c95b3794d70a544b8c34a"
+"spikinglabs/growth-percentile@1" = "sha256:9f595b7a8cafe6fe4af3c3a9a7fcee727b86a15ff41dd0999fd593df79e561f5"
+"spikinglabs/ics@1" = "sha256:0cdaf85cdf259901701d77a4f77174a96e7bfac4e4bea5671e9adcf4dab98b9c"
+"spikinglabs/media-pack@1" = "sha256:2ee4d07f77fac447b547d83d0c0adf50bf8b8c775d0208d48bbe89804df2f2f0"
+"spikinglabs/merge@1" = "sha256:1f79d34b0256705012fe6f9aa806394020ffadbf5310476ba8a2b52e20e8ac8a"
+"spikinglabs/migrate@1" = "sha256:585fadc8e13ee4391d707ff07eab0100b12fa845c03c6fa1f0320cf0ee424350"
+"spikinglabs/reminders@1" = "sha256:8c7c9083f1d6523c67709b09d4405335661e741aea1eb53e01c051284f5d94e0"
+"spikinglabs/save-guard@1" = "sha256:9db6f72f6da6905a7c0aa1b0650ac604287369b59b507b2f6861b10627163e71"
+"spikinglabs/schedule@1" = "sha256:085892653f33a0504c48343a9aee2f05b9fac32a7fb126834ac85dacea4aa703"

@@ -1,0 +1,70 @@
+{
+  "$defs": {
+    "Upload": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes_b64": {
+          "title": "Bytes B64",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "bytes_b64"
+      ],
+      "title": "Upload",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "additionalProperties": true,
+      "title": "Data",
+      "type": "object"
+    },
+    "missing": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "unpack: items left out because a file is missing.",
+      "title": "Missing"
+    },
+    "uploads": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Upload"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "pack: the files to add to the media folder.",
+      "title": "Uploads"
+    }
+  },
+  "required": [
+    "data"
+  ],
+  "title": "Output",
+  "type": "object"
+}

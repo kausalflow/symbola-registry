@@ -1,0 +1,34 @@
+What leaves the phone when the parent uses an AI helper ("Say it" sorting, the doctor handover, reading pages of
+the vaccination book). Every AI call goes through one place that swaps names for placeholders before anything
+is sent and puts the names back into the answer on the phone. Photos, sounds, links and birth dates are never
+part of a prompt (the caller leaves them out; the one exception is the pages of the vaccination book or U-Heft
+the parent chose to have read, which go as images). The answer of this component is what the app would send
+and show, and what it would return.
+
+Input: children [{id, name, deleted?}] (the log's children), me (the parent's own name from settings, may be
+""), entries [{by, deleted?}] (the log's entries; `by` is who logged one, may be missing), child (id of the child
+the call is about), system, user (the prompt text), images (number of images attached, default 0), provider
+("own-key": the parent's own service; "device": a model on the phone; "off"), reply (what the service answers:
+any JSON value, which may contain placeholders).
+
+Errors, all ValueError, checked in this order: provider "off" (AI is off); images above 0 with a provider other
+than "own-key" (reading photos needs the parent's own service).
+
+Placeholders. Children that are not deleted, the called-about child first (if `child` matches none, the list
+order stands) and the others in list order, then the deleted children in list order (their names can still be in
+notes), are named "[CHILD]", "[CHILD 2]", "[CHILD 3]"... by that position. A child without a name is left out.
+People: the distinct non-empty names among `me` and then the `by` of each entry (deleted ones too), in that
+order, are "[PARENT 1]", "[PARENT 2]"... by that position. Names are trimmed. A name of one character or less is
+not replaced (its number is still used).
+
+Redaction of `user`: all names are replaced, longest name first (a longer name wins over a shorter one it
+contains; equal lengths keep the order above). A name is replaced wherever it occurs, ignoring upper and lower
+case, unless the character just before or just after it is a letter (any alphabet): "Jonasberg" and "Mias" do not
+contain "Jonas" or "Mia", "Mia's" and "Mia-Lou" do. `system` is sent with this sentence appended after one
+space: "Names are replaced by placeholders such as [CHILD]; keep each placeholder exactly as written." The
+answer's `system` and `user` are what "See exactly what was sent" shows: the system text as sent, and the
+redacted user text followed, when images are attached, by a blank line and "[1 photo]" or "[N photos]". `via` is
+the provider as given.
+
+result: `reply` with every placeholder in every string, at any depth of lists and objects, replaced by the name
+(placeholders tried in the order longest name first); other values are unchanged.

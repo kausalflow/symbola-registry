@@ -1,0 +1,28 @@
+The log's format version and the steps that bring an older saved log up to the current one. The current
+version (`schema` in the answer) is 3. Input `log` is any saved log (the phone's, a Drive file, a backup file);
+the answer is {schema, too_new, log}.
+
+Version of a log: its `v` when that is a positive integer, otherwise 1. A log is too new when its version is
+above the current one; `too_new` says so. A log that is too new, and anything that is not an object (null), is
+returned unchanged. Otherwise the steps run in order, once each, from the log's version up to the current one,
+and each sets `v` to the next number; the input is not changed.
+
+Step 1 -> 2 (the old sick-day log, where entries belonged to an illness): the result is a new empty log (app
+"aura", example false, all collections empty, child null, drive {}, recalls {}, docTr {}, the two starting
+medicines Paracetamol (acetaminophen) 4 h and Ibuprofen 6 h as items m1 and m2 with updatedAt 0, and the default
+settings: unit "C", clientId "", pickerKey "", apiKey "", aiKind "anthropic", aiBase "", aiModel "", theme "auto",
+me "", recallCountries null, docLang "en", vaxPlan "de", uPlan "de", zPlan "de") that takes over only: children,
+episodes and measurements (each empty if missing), meds (the starting two if the old log has none), settings
+(the defaults overlaid by the old ones). Every entry gets `child`: its own `child` if it has one, else the
+`childId` of the episode named by its `ep`. `child` (the selected child) becomes the id of the first child that
+is not deleted, else null. Nothing else of the old log is carried over.
+
+Step 2 -> 3 (book photos become documents): in `vaccines` and in `checkups`, every item with kind "page" was a
+photo of the vaccination book or the U-Heft. For such an item x (type "vax" for vaccines, "u" for checkups) the
+document id is "<type>-<x.childId>". If `docs` has no item with that id, one is added:
+{id, childId, type, title "", note "", updatedAt 1}. Unless x is deleted or `pages` already has an item with
+x's id, a page is added: {id: x.id, docId, childId, t, img, note: x.note or "", order only if x has one,
+updatedAt: x.updatedAt or 0}. The item itself stays in its list as a tombstone {id, childId, kind "page",
+deleted true, updatedAt: x.updatedAt + 1 (0 + 1 if missing)}. Other items and all other parts of the log stay;
+`docs` and `pages` start as empty lists if missing. The step is deterministic (the same on every phone), so two
+phones that upgrade separately end with the same log.

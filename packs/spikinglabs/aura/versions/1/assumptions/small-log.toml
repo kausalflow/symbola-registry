@@ -1,0 +1,4 @@
+id = "K-small-log"
+statement = "The whole log (text, plus photos, pages and sound clips of about 100 KB each) fits in one file that a phone can download and upload in full."
+basis = "README: text is a few hundred KB; clips and photos make each sync slower; over 4.5 MB a resumable upload is used. A later version should store media as separate Drive files."
+monitor = "Sync time grows with the number of photos; the size shows under More, Your data."

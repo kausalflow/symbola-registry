@@ -1,0 +1,4 @@
+id = "K-drive-version"
+statement = "Google Drive increases a file's integer 'version' with every change to its content, and returns the version produced by an upload."
+basis = "The sync compares versions to skip downloads and to see that no other phone wrote between its read and its write (Drive API v3 files.get fields=version)."
+monitor = "A sync that finds the version unchanged while the content differs would be caught by the read-back round; no monitor otherwise."

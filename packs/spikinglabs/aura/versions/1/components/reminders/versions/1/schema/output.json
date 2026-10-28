@@ -1,0 +1,83 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "alerts": {
+      "anyOf": [
+        {
+          "items": {},
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "alerts: [{kind, symptoms?}]; recall-lists: ids.",
+      "title": "Alerts"
+    },
+    "due": {
+      "anyOf": [
+        {
+          "enum": [
+            "never",
+            "stale"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "backup",
+      "title": "Due"
+    },
+    "matched": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "recall-match",
+      "title": "Matched"
+    },
+    "medicines": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Medicines"
+    },
+    "new": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "recall-lists",
+      "title": "New"
+    }
+  },
+  "title": "Output",
+  "type": "object"
+}

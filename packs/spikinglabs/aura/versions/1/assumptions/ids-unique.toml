@@ -1,0 +1,4 @@
+id = "K-ids-unique"
+statement = "Item ids are unique across all phones that share a log."
+basis = "Ids are random (base 36, 7 characters) plus the creation time in base 36; two phones colliding would merge two different items as one."
+monitor = "none"

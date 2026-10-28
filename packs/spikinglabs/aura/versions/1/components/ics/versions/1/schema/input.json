@@ -1,0 +1,84 @@
+{
+  "$defs": {
+    "Event": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "description": "Start as a local clock time without zone, e.g. 2026-11-04T09:30.",
+          "title": "At",
+          "type": "string"
+        },
+        "booked": {
+          "default": false,
+          "title": "Booked",
+          "type": "boolean"
+        },
+        "details": {
+          "default": "",
+          "title": "Details",
+          "type": "string"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "time": {
+          "default": "",
+          "description": "'' for an all-day event, else 'HH:MM'.",
+          "title": "Time",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "uid": {
+          "title": "Uid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uid",
+        "at",
+        "title"
+      ],
+      "title": "Event",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "events": {
+      "items": {
+        "$ref": "#/$defs/Event"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "href": {
+      "description": "The address the app is open at.",
+      "title": "Href",
+      "type": "string"
+    },
+    "now": {
+      "description": "ISO 8601 UTC.",
+      "title": "Now",
+      "type": "string"
+    }
+  },
+  "required": [
+    "now",
+    "href",
+    "events"
+  ],
+  "title": "Input",
+  "type": "object"
+}

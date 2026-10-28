@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "log": {
+      "description": "The log in the current format, or unchanged when too new or not an object.",
+      "title": "Log"
+    },
+    "schema": {
+      "description": "The current format version (3).",
+      "title": "Schema",
+      "type": "integer"
+    },
+    "too_new": {
+      "description": "The log's version is above the current one.",
+      "title": "Too New",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema",
+    "too_new",
+    "log"
+  ],
+  "title": "Output",
+  "type": "object"
+}

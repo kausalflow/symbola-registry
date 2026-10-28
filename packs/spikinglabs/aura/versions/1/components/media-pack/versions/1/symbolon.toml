@@ -1,0 +1,49 @@
+[contract]
+id = "spikinglabs/media-pack"
+version = 1
+title = "Media in Drive backups"
+description = '''
+How photos, pages of paper documents and sound clips travel in the log and in Drive backups. In the log they
+are `data:` URLs inside items (an entry's `img` or `audio`, a page's `img`), so they sync to a partner with
+everything else. A Drive backup of the log keeps each of them only once, as a file in the backups' `media`
+folder named by its SHA-256, and the backup's JSON points to it; a restore puts it back. `op` picks the
+direction. Drive itself is outside this contract: `existing` and `media` stand for what the `media` folder holds.
+
+pack (data, existing): `data` is a saved log. For each of the 14 synced collections (children, episodes,
+entries, meds, measurements, growth, products, vaccines, checkups, dental, appts, emergency, docs, pages) that
+is a list, in each item that is an object, every direct field whose value is a string that starts with "data:"
+and contains ";base64," is replaced by a reference "aura-media:<name>#<header>". header is the data URL up to
+(not including) its first comma, e.g. "data:image/jpeg;base64". name is "<hash>.<ext>": hash is the lower-case
+hex SHA-256 of the whole data URL string (UTF-8); ext is the part of the MIME type after "/" (the MIME type is
+the header between "data:" and the first ";"), with every character other than letters, digits, "_", "." "+"
+and "-" removed, or "bin" when the type has no "/" part. Everything else is left as it is: other fields, other
+parts of the log, data URLs nested deeper than a direct field, and strings that are not base64 data URLs. The
+answer is {data, uploads}: uploads lists, in order of first appearance, one {name, type, bytes_b64} for each
+distinct name not in `existing`: type is the MIME type and bytes_b64 the part of the data URL after the first
+comma (the file's bytes, base64). The same picture twice is one file; a name already in `existing` is not
+uploaded again.
+
+unpack (data, media): the way back. `media` maps file names in the media folder to their bytes (base64). In the
+same collections, every direct field that is a string starting with "aura-media:" is looked up: name is the text
+up to "#", header the text after it. If the file exists in `media` and header is not empty, the field becomes
+header + "," + the file's bytes in base64 (standard alphabet, with padding). Otherwise the whole item is left
+out of the restored list (a restore must never blank a photo on the phone) and counts once in `missing`.
+Data without any reference comes back unchanged with missing 0. The answer is {data, missing}.
+'''
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["spikinglabs/aura"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 60
+

@@ -1,0 +1,72 @@
+# The flows of PRODUCT.md, in its order: the components each one uses, and the decisions
+# it keeps itself (product-level ones no component's checks cover). `symbola blueprint flows`
+# keeps this file in step with the titles there; `uses` and `keeps` are yours to maintain.
+
+[[flow]]
+id = "open"
+title = "Open"
+uses = ["library-file"]
+
+[[flow]]
+id = "choose-storage"
+title = "Choose storage"
+uses = ["bibtex-import"]
+keeps = ["app.files-are-the-library", "app.credentials-stay-local"]
+
+[[flow]]
+id = "add-by-identifier-or-text"
+title = "Add by identifier or text"
+uses = ["bibtex-import", "citation-key", "pdf-filing", "tidy"]
+keeps = ["app.add-skips-duplicates"]
+
+[[flow]]
+id = "import-a-bib-file"
+title = "Import a .bib file"
+uses = ["bibtex-import", "citation-key", "library-file"]
+
+[[flow]]
+id = "add-pdfs"
+title = "Add PDFs"
+uses = ["pdf-filing"]
+
+[[flow]]
+id = "find"
+title = "Find"
+uses = ["search-query"]
+
+[[flow]]
+id = "organize"
+title = "Organize"
+uses = []
+keeps = ["app.trash-keeps-files"]
+
+[[flow]]
+id = "read-and-highlight"
+title = "Read and highlight"
+uses = []
+
+[[flow]]
+id = "tidy-up"
+title = "Tidy up"
+uses = ["tidy"]
+
+[[flow]]
+id = "cite-and-export"
+title = "Cite and export"
+uses = ["bibtex-export"]
+
+[[flow]]
+id = "sync-a-folder-s-bib-to-github"
+title = "Sync a folder's .bib to GitHub"
+uses = ["bibtex-export"]
+
+[[flow]]
+id = "use-several-devices"
+title = "Use several devices"
+uses = ["library-merge"]
+keeps = ["app.save-merges"]
+
+[[flow]]
+id = "connect-an-ai-app"
+title = "Connect an AI app"
+uses = []

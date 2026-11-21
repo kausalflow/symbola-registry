@@ -1,0 +1,4 @@
+id = "K-small-meetings"
+statement = "A meeting is small: a few dozen people, at most 100 open connections per room, and far less than 25 million characters of stored updates, because clients compact the stored log long before the limit."
+basis = "The server enforces the 100-connection and 25,000,000-character limits as hard errors; the client compacts after 150 stored entries. Typical meetings are text of a few kilobytes."
+monitor = "none"

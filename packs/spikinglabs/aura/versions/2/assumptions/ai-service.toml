@@ -1,0 +1,4 @@
+id = "K-ai-service"
+statement = "The AI service the parent chooses is trusted by them with the redacted text: how long it keeps text and whether it trains on it is that service's own policy."
+basis = "Requests go straight from the phone to the service with the parent's own key; Aura has no server in between. A local model (Ollama, LM Studio) keeps everything on the computer."
+monitor = "The AI card says which service is in use and every answer has 'See exactly what was sent'."

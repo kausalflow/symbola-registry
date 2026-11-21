@@ -1,0 +1,66 @@
+# The flows of PRODUCT.md, in its order: the components each one uses, and the decisions
+# it keeps itself (product-level ones no component's checks cover). `symbola blueprint flows`
+# keeps this file in step with the titles there; `uses` and `keeps` are yours to maintain.
+
+[[flow]]
+id = "find-out-what-exists"
+title = "Find out what exists"
+uses = []
+keeps = ["product.vocabulary-from-metadata"]
+
+[[flow]]
+id = "write-and-validate"
+title = "Write and validate"
+uses = ["scenario-issues"]
+
+[[flow]]
+id = "say-what-plant-it-is"
+title = "Say what plant it is"
+uses = []
+
+[[flow]]
+id = "run-and-read"
+title = "Run and read"
+uses = ["cli-contract", "run-series", "scenario-truth"]
+keeps = ["product.python-api"]
+
+[[flow]]
+id = "check-what-the-run-shows"
+title = "Check what the run shows"
+uses = []
+
+[[flow]]
+id = "changes-and-faults"
+title = "Changes and faults"
+uses = []
+keeps = ["product.faults-and-tasks-are-labelled-events"]
+
+[[flow]]
+id = "a-history-from-a-plan"
+title = "A history from a plan"
+uses = []
+
+[[flow]]
+id = "a-plan-that-runs-itself"
+title = "A plan that runs itself"
+uses = []
+
+[[flow]]
+id = "a-family-of-plants"
+title = "A family of plants"
+uses = []
+
+[[flow]]
+id = "twin-runs"
+title = "Twin runs"
+uses = []
+
+[[flow]]
+id = "labels"
+title = "Labels"
+uses = []
+
+[[flow]]
+id = "measure-an-assistant"
+title = "Measure an assistant"
+uses = []

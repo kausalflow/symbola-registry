@@ -1,0 +1,4 @@
+id = "K-stiko-gba-2026"
+statement = "The German schedules in the schedule component (STIKO childhood vaccinations, G-BA U-Heft checkups U1 to U10 and J1, G-BA dental checkups Z1 to Z6) are the rules as of 2026."
+basis = "STIKO recommendations (MenC at 12 months dropped, MenACWY at 12 to 14 years added in 2026), the G-BA Kinder-Richtlinie (U10 added August 2026, paid from 2027) and the G-BA zahnärztliche Früherkennung. The code has no way to notice a change."
+monitor = "Re-read the STIKO calendar and the Kinder-Richtlinie each year and when either is amended; update the tables and the version of this pack."

@@ -1,0 +1,29 @@
+[contract]
+id = "emptymalei/workspace-entries"
+version = 1
+title = "Workspace entries of a scan batch config"
+description = '''
+How the `workspace_ids` list of a `pbi workspaces scan batch` config file is read, and what each entry's messages and result file are called.
+
+`workspace_ids` must be a list, otherwise the input is invalid (ValueError). Each entry is either a string (the workspace id, no name) or a mapping with a non-empty `id` and an optional `name`; a mapping without a usable `id`, or any other kind of entry (a number, a list, null), makes the input invalid. Entries keep their order; an empty list is valid and gives no entries. An entry with only extra mapping keys keeps just `id` and `name`.
+
+- `label` is `<name> (<id>)` when the entry has a non-empty name, else the id.
+- `file_stem` is `<slug>-<id>` when the name has a non-empty slug, else the id. The slug is: after folding accents to ASCII (`Müller` -> `muller`), lowercase letters and digits only, every run of any other characters (spaces, `_`, `/`, `&`, `'`, `.` ...) becoming a single `-`, no leading or trailing `-`. A name with no letters or digits (`!!!`) therefore has an empty slug. The result file is `<target_folder>/<file_stem>.json`.
+- `name` is reported as given (null when absent).
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200

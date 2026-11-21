@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "workspace_ids": {
+      "description": "The `workspace_ids` value of a scan batch config file, as parsed from YAML.",
+      "title": "Workspace Ids"
+    }
+  },
+  "required": [
+    "workspace_ids"
+  ],
+  "title": "Input",
+  "type": "object"
+}

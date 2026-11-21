@@ -1,0 +1,50 @@
+[contract]
+id = "spikinglabs/link-crypto"
+version = 1
+title = "Meeting links, end-to-end encryption and the server proof"
+description = """
+Everything a meeting holds is encrypted in the browser with a key that is only in the meeting link, so the
+exact scheme must match what real Rondel clients and saved room-server data use. `op` picks the function;
+the answer is `result`.
+
+Keys. The link key is base64url (no padding) text; its decoded bytes are the input keying material for
+HKDF-SHA-256 with salt = UTF-8 "rondel:<room_id>". Content key = HKDF output (info "content-v1") as a 256-bit
+AES-GCM key. The server proof `auth` = HKDF output (info "auth-v1", 32 bytes) as standard base64 with padding;
+it proves the client has the link key without revealing it.
+auth (link_key, room_id): result is that auth text.
+open (link_key, room_id, sealed): sealed is standard base64 of nonce (12 bytes) followed by the AES-GCM
+ciphertext with its 16-byte tag (no additional data). result {length, sha256}: the byte length and lower-case
+hex SHA-256 of the plaintext. Wrong key, wrong room, damaged text or a short input fail with ValueError.
+seal (link_key, room_id, plaintext (base64), iv (base64, 12 bytes)): result is the sealed text for open. The
+nonce is random in real use, so iv is given only by tests; without iv the nonce is random.
+The thing sealed is a Yjs v1 update of the meeting (or series) document, for storage on the server and for
+relaying; see the meeting component.
+link (kind, id, key, origin, pathname, share_url): the text people share. Normally origin + pathname +
+"#/m/<id>/<key>" (meeting) or "#/s/<id>/<key>" (series). When share_url is given (hosts such as claude.ai pass
+only plain anchors on): share_url cut at its first "#", then "#m.<id>.<key>" or "#s.<id>.<key>".
+route (hash): what the app shows for a page address's fragment, after turning the dotted form
+"#m.<id>.<key>" / "#s.<id>.<key>" (id 8 to 64 characters of letters, digits, - and _; key one or more of those)
+into "#/m/<id>/<key>" / "#/s/<id>/<key>". result {route, id, key}: route "data" if it starts with "#/data";
+"crash-test" if it is exactly "#/crash-test"; "meeting" if it starts with "#/m/<id>/<key>" (id and key made of
+letters, digits, - and _); "series-overview" if it starts with "#/s/<id>/<key>/overview"; "series" if it starts
+with "#/s/<id>/<key>"; else "home". id and key are null where they do not apply.
+new_ids: result {room_id, key}: a new meeting's random room id (12 random bytes) and link key (18 random
+bytes), both base64url without padding, so 16 and 24 characters.
+"""
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 100
+timeout_seconds = 300

@@ -1,0 +1,18 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "keys": {
+      "description": "One key per draft, in order.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Keys",
+      "type": "array"
+    }
+  },
+  "required": [
+    "keys"
+  ],
+  "title": "Output",
+  "type": "object"
+}

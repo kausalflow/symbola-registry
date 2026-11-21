@@ -1,0 +1,47 @@
+[contract]
+id = "emptymalei/auth-profiles"
+version = 1
+title = "pbi auth and profiles: tokens, groups, and which token a command uses"
+description = '''
+How `pbi` stores bearer tokens and picks one for a command. One call is one run of `pbi` in a scratch directory that holds the given `files`; the scratch directory is also the user's home, so `~/.pbi_cli/` is `.pbi_cli/` there. No OS keyring exists, so tokens are in the credentials file. The output is a reduction of what happened (exit code, standard output, `Error:` lines of standard error, files created or changed).
+
+## State files
+
+`.pbi_cli/config.yaml` is a block-style YAML mapping with the keys `active_profile` (the ungrouped active profile or null), `profiles` (name -> `{name: <name>}`), `groups` (`user` and `admin`, each with `active_profile` and `profiles` in the same shape), `default_output_folder`, `cache_folder` (both null by default) `cache_enabled` (true by default) and `verify_certificates` (true by default, see `config-cache`). A missing, unparsable or non-mapping file reads as these defaults. Every change rewrites the whole file, keeping keys it does not know. Profiles are kept in the order they were added; "first remaining" below means in that order.
+
+`.pbi_cli/credentials.json` is a JSON object, profile name -> token, written with indent 2 and readable only by its owner. There is one token per profile name, shared by ungrouped and grouped profiles of that name: saving replaces it, deleting a profile deletes it.
+
+## pbi auth -t TOKEN [-p PROFILE] [-g user|admin]
+
+PROFILE defaults to `default`. A token that starts with `Bearer` has every `Bearer ` removed. The token is saved under the profile name. Without `-g` the profile is added to the ungrouped `profiles` and becomes the ungrouped active profile when none is active or when its name is `default`. With `-g` it is added to that group's profiles and becomes the group's active profile when the group has none; the ungrouped profiles are untouched. Either way an existing profile of that name is replaced. Output: `✓ Credentials saved securely for profile 'P'` (` in group 'G'` with `-g`), then `✓ Profile 'P' is now active` (` in group 'G'`) when it is the active one.
+
+## pbi profile list | switch [NAME] [-g G] | delete NAME [-g G]
+
+`list` prints the ungrouped profiles (`✓` if a token is stored under the name, else `✗`; `(active)` on the active one) and then each group, as in the examples; empty parts print a hint. `switch NAME` makes NAME active (in the group with `-g`, else ungrouped) and prints `✓ Switched to profile 'NAME'` (` in group 'G'`). An unknown NAME is reported and nothing changes; this and every other message in this section exits 0. Without NAME the profiles are listed numbered from 1 and the number is read from standard input (an empty answer is 1); a number outside the list prints `Invalid selection` and changes nothing. `delete` first asks `Are you sure you want to delete this profile? [y/N]:` and aborts (exit 1, `Aborted!`) unless answered yes or given `--yes`; it removes the profile and its token; if it was the active profile, the first remaining profile of that list becomes active (none if there is none left), and a new active profile is announced.
+
+## Which token a command uses
+
+Commands that call the API look for a token in a group: `user` for most, `admin` for the admin-only ones (`workspaces list`, `users user-access`, `workspaces scan ...`, `apps list --role admin`). The group's active profile is used if it is one of the group's profiles. Otherwise the ungrouped active profile is used (so ungrouped profiles serve both groups), but a group profile without a token is an error and does not fall back. Failures exit 1 with `Error:` lines: no active profile (`No active profile set for group 'G'. Use 'pbi auth -g G' to create a profile or 'pbi profile switch -g G' to switch profiles.`), an ungrouped active name that is not an ungrouped profile, and a profile without a token (`No credentials found for profile 'P'. Please re-authenticate.`). To observe this without a network, `apps augment -s FILE -t OUT` on a source with no apps succeeds (writes `[]`) exactly when a token is found.
+
+## Legacy files
+
+Whenever the ungrouped profiles are read or changed (`auth` without `-g`, `profile list`, `profile switch` and `profile delete` without `-g`, API commands falling back to the ungrouped profile): if `config.yaml` does not exist and `.pbi_cli/profiles.json` does, its `active_profile` and `profiles` are imported into a new `config.yaml`; then if `.pbi_cli/auth.json` (`{"Authorization": "Bearer <token>"}`) exists and there are no ungrouped profiles, its token is saved as profile `default`, which becomes the active ungrouped profile.
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+driver = "cli"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 30
+timeout_seconds = 300

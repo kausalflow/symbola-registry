@@ -1,0 +1,33 @@
+[contract]
+id = "emptymalei/file-converters"
+version = 1
+title = "pbi commands that turn one saved file into another: workspaces format-convert, apps augment, reports users"
+description = '''
+Commands that read a file written by an earlier `pbi` command and write another file. One call is one run of `pbi` in a scratch directory that holds the given `files` (also the home and current directory). The output says only whether the command succeeded (exit code 0) and which files it created or changed (JSON parsed, a workbook as `<xlsx>`); what is printed is not part of this contract.
+
+## pbi workspaces format-convert -s SOURCE -t TARGET [--format excel]
+
+SOURCE is the JSON file `pbi workspaces list` saved: an object whose `value` is the list of workspaces (at least one). TARGET is written as an Excel workbook (`.xlsx` format) whatever its name, with one worksheet per sheet of the `flatten` contract (kind workspaces), so a workbook is the `<xlsx>` file. It needs no token. A missing or non-JSON SOURCE, or a TARGET in a folder that does not exist, fails. `excel` is the only format.
+
+## pbi apps augment -s SOURCE -t TARGET [-ft json|excel], pbi reports users -s SOURCE -t TARGET [-ft json|excel]
+
+SOURCE is the JSON file `pbi apps list` saved (an object with a `value` list of apps). Both commands fetch every listed app in full from the API with the user group's token (`reports users` also each report's users); a token is resolved first (see `auth-profiles`), so without one the command fails before reading anything else and writes nothing. With json (the default) TARGET is a file holding the list of the fetched apps. With excel TARGET is a folder without a file extension (created if missing) and each app gets its own workbook there (sheets as in `flatten` kind app); a TARGET with an extension is refused (the command fails, nothing is written). A SOURCE that is not a JSON object fails; an object without apps (no `value`, or an empty list) needs no request: json TARGET is then `[]`, excel TARGET is an empty folder.
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+driver = "cli"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 30
+timeout_seconds = 300

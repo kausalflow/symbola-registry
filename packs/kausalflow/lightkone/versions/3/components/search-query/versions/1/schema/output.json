@@ -1,0 +1,18 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ids": {
+      "description": "Ids of the matching papers, in display order.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "ids"
+  ],
+  "title": "Output",
+  "type": "object"
+}

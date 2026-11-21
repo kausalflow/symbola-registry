@@ -1,0 +1,439 @@
+{
+  "$defs": {
+    "CausalGraph": {
+      "additionalProperties": false,
+      "properties": {
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/Edge"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "nodes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Nodes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "title": "CausalGraph",
+      "type": "object"
+    },
+    "Edge": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "title": "From",
+          "type": "string"
+        },
+        "instantaneous": {
+          "title": "Instantaneous",
+          "type": "boolean"
+        },
+        "operator": {
+          "title": "Operator",
+          "type": "string"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "operator",
+        "instantaneous"
+      ],
+      "title": "Edge",
+      "type": "object"
+    },
+    "Event": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "applied_at": {
+          "title": "Applied At",
+          "type": "number"
+        },
+        "at": {
+          "title": "At",
+          "type": "number"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "lane": {
+          "title": "Lane",
+          "type": "integer"
+        },
+        "origin": {
+          "title": "Origin",
+          "type": "string"
+        },
+        "over": {
+          "title": "Over",
+          "type": "number"
+        },
+        "profile": {
+          "title": "Profile",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "value_after": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value After"
+        },
+        "value_before": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value Before"
+        }
+      },
+      "required": [
+        "id",
+        "lane",
+        "at",
+        "applied_at",
+        "target",
+        "action",
+        "value",
+        "profile",
+        "over",
+        "label",
+        "origin",
+        "value_before",
+        "value_after"
+      ],
+      "title": "Event",
+      "type": "object"
+    },
+    "Loop": {
+      "additionalProperties": false,
+      "properties": {
+        "controller": {
+          "title": "Controller",
+          "type": "string"
+        },
+        "manual": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Manual"
+        },
+        "measured": {
+          "title": "Measured",
+          "type": "string"
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mode"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "output": {
+          "title": "Output",
+          "type": "string"
+        },
+        "output_hi": {
+          "title": "Output Hi",
+          "type": "number"
+        },
+        "output_lo": {
+          "title": "Output Lo",
+          "type": "number"
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reference"
+        },
+        "regulated": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Regulated"
+        },
+        "remote_reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Remote Reference"
+        }
+      },
+      "required": [
+        "name",
+        "controller",
+        "regulated",
+        "measured",
+        "reference",
+        "remote_reference",
+        "mode",
+        "manual",
+        "output",
+        "output_lo",
+        "output_hi"
+      ],
+      "title": "Loop",
+      "type": "object"
+    },
+    "Promoted": {
+      "additionalProperties": false,
+      "properties": {
+        "operator": {
+          "title": "Operator",
+          "type": "string"
+        },
+        "parameter": {
+          "title": "Parameter",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operator",
+        "parameter"
+      ],
+      "title": "Promoted",
+      "type": "object"
+    },
+    "Role": {
+      "additionalProperties": false,
+      "properties": {
+        "loop": {
+          "description": "The loop the role is relative to; empty for the global roles.",
+          "title": "Loop",
+          "type": "string"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "loop"
+      ],
+      "title": "Role",
+      "type": "object"
+    },
+    "Signal": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "description": "source, dynamic, feedback or observation.",
+          "title": "Kind",
+          "type": "string"
+        },
+        "level": {
+          "description": "true, measured or internal.",
+          "title": "Level",
+          "type": "string"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "boolean"
+        },
+        "roles": {
+          "description": "Sorted by (role, loop).",
+          "items": {
+            "$ref": "#/$defs/Role"
+          },
+          "title": "Roles",
+          "type": "array"
+        },
+        "signal": {
+          "title": "Signal",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The declared unit, '' when none; null for a promoted parameter.",
+          "title": "Unit"
+        },
+        "writer": {
+          "title": "Writer",
+          "type": "string"
+        },
+        "writer_op": {
+          "title": "Writer Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "signal",
+        "level",
+        "observed",
+        "unit",
+        "writer",
+        "writer_op",
+        "kind",
+        "roles"
+      ],
+      "title": "Signal",
+      "type": "object"
+    },
+    "TimelineRow": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "title": "End",
+          "type": "number"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "start": {
+          "title": "Start",
+          "type": "number"
+        },
+        "targets": {
+          "title": "Targets",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "kind",
+        "name",
+        "targets"
+      ],
+      "title": "TimelineRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "causal_graph": {
+      "$ref": "#/$defs/CausalGraph"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/Event"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "loops": {
+      "items": {
+        "$ref": "#/$defs/Loop"
+      },
+      "title": "Loops",
+      "type": "array"
+    },
+    "promoted": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Promoted"
+      },
+      "title": "Promoted",
+      "type": "object"
+    },
+    "signals": {
+      "items": {
+        "$ref": "#/$defs/Signal"
+      },
+      "title": "Signals",
+      "type": "array"
+    },
+    "timeline": {
+      "items": {
+        "$ref": "#/$defs/TimelineRow"
+      },
+      "title": "Timeline",
+      "type": "array"
+    }
+  },
+  "required": [
+    "signals",
+    "loops",
+    "causal_graph",
+    "events",
+    "promoted",
+    "timeline"
+  ],
+  "title": "Output",
+  "type": "object"
+}

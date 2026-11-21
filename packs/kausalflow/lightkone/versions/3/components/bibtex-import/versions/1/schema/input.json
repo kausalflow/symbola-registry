@@ -1,0 +1,15 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "description": "BibTeX, for example the contents of a .bib file.",
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "Input",
+  "type": "object"
+}

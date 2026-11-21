@@ -1,0 +1,50 @@
+[contract]
+id = "kausalflow/cli-contract"
+version = 1
+title = "The homeostat command: exit codes and JSON shapes"
+description = '''
+How the `homeostat` command line reports on a scenario file: its exit codes, where problems are printed, and the shape of what `--json` prints. One call is one invocation in an empty scratch directory holding the given `files` (and `stdin`); the output is a reduction of what happened. The scenario language and its issue codes are the `scenario-issues` contract; the ground truth is `scenario-truth`. Values that change from run to run (timing, versions, platform, the compiled or Python step) are never part of the output; commands that print guidance (`guide`, `describe`, `schema`, `examples`, `skill`, `eval`) are outside this contract.
+
+## Commands
+
+`validate S`, `explain S`, `run S [--out DIR] [--all-signals]`, `diagnose S`, `diff A B`, `convert S --to json|yaml`, each taking a scenario file S (a path, or `-` for standard input; for `diff` two paths); every command except `convert` takes `--json`. Read the scenario as in `scenario-issues` (text, then YAML/JSON); a path that does not exist is E_FILE located at the path. `convert` only reads and rewrites the file: it does not validate the scenario (a missing file, or text that is not a mapping, is still exit 1).
+
+## Exit codes
+
+0 success; 1 the scenario or the request is invalid (the problems are printed); 2 a usage error (an unknown command, a missing argument or option, an invalid choice for `--to`); 3 only `diagnose`: it ran and an expectation did not hold (an invalid scenario is still 1). No command at all prints the help and exits 0. A scenario with warnings is valid: exit 0.
+
+## Where problems go
+
+- `validate` always prints on standard output. Text mode: the first line is `OK <name>` for a valid scenario and `INVALID <name>: <n> problem(s)` ("1 problem", "2 problems") for an invalid one, then, for an invalid scenario, one `[CODE] location: reason Fix: fix` line per error; for a valid one, a plain summary and one such line per warning. The name is the path as given, or `<stdin>`. JSON mode: one object `{ok, file, errors, warnings, summary}`; `errors` and `warnings` are lists of issue objects with code, location, reason, fix, severity; `summary` is null when invalid, else an object describing the scenario: `duration` and `dt` written as durations ("10min", "1d3h46min40s": the largest of d, h, min, then seconds, zero parts left out), `steps` (duration / dt: the steps of one lane, whatever `lanes` is), `lanes`, `seed`, `library`, `units` (id, template), `loops` (name, measured, regulated, reference, output, controller), `signals` and `operators` (counts), `events` ({total: entries written, changes: signal changes, then a count per label kind such as planned}), `promoted_parameters`, `expectations` (a count).
+- Every other command, text mode, on an invalid scenario or a missing file: nothing on standard output; the issue lines on standard error; exit 1. With `--json`: standard output is `{ok: false, errors: [...]}`, standard error is empty; exit 1. (`diff` instead reports a scenario that cannot be loaded inside its result, `problems`, and exits 1.)
+
+## JSON shapes (top-level keys)
+
+- `run --json`: ok, rows, span, recorded_every, lanes, start, observed, unreported_signals, all_signals, n_events, events, warnings, reproducibility, elapsed_s; plus `files` when `--out` is given.
+- `explain --json`: time, library, units, inputs, loops, custom, degradations, events, promoted_parameters, expectations, signals, warnings.
+- `diagnose --json`: ok, checked, passed, failed, errors (a count), checks (id, kind, status pass/fail/error, summary, evidence, note), warnings, reproducibility. `ok` is true iff no check failed or errored; exit 0 iff `ok`.
+- `diff --json`: same, config, plant, problems.
+- `convert S --to json` prints the scenario mapping as a JSON object; `--to yaml` prints YAML text. Comments are not kept.
+
+## Files
+
+`run --out DIR` creates DIR and writes `truth.csv`, `measured.csv`, `observed.csv` and `meta.json` in it; with several lanes the three CSV files are `<view>.lane<k>.csv` for each lane k, and `meta.json` stays one file.
+'''
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["kausalflow"]
+
+[entrypoint]
+function = "run"
+driver = "cli"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 40
+timeout_seconds = 300

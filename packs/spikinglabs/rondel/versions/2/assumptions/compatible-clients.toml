@@ -1,0 +1,4 @@
+id = "K-compatible-clients"
+statement = "Every client of a room speaks the same protocol version, and uses a Yjs implementation that reads and writes the same v1 update encoding as Yjs 13."
+basis = "The server refuses other protocol versions (hello v must equal 1). Saved meeting files, backups and server entries all hold Yjs v1 updates, written by earlier Rondel versions."
+monitor = "The server answers a hello with another protocol version with the error code version; saved files carry a format and version."

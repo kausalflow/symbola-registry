@@ -1,0 +1,41 @@
+[contract]
+id = "emptymalei/cached-reads"
+version = 1
+title = "Reading list results from the cache: workspaces list, apps list, users user-access"
+description = '''
+`workspaces list`, `apps list [--role user|admin]` and `users user-access -u ID` can read their last result from the cache folder instead of calling the API, and show it as a table or save it as files. One call is one run of `pbi` in a scratch directory that holds the given `files` (and is the home and current directory). Settings are in `.pbi_cli/config.yaml` (`cache_folder`, `cache_enabled`, `default_output_folder`; see `config-cache`); the layout, the keys and the versions of the cache are `cache-keys`. The output reduces what was printed: the non-blank lines outside the table block, the table (title, header cells, first cell of each row), `Error:` lines of standard error, and the files written.
+
+## When the cache is used
+
+Only with `--use-cache` or `--cache-only`, and only when `cache_folder` is set and `cache_enabled` is not false. The key is `workspaces`, `apps_<role>` or `user_access_<slug of ID>`; the latest version of the key is read. A latest version whose file cannot be read as JSON is unavailable; an older version is not used instead.
+
+- Hit: first line `Using cached data from <cached_at> (version: <version>)`, the two fields taken from inside the file (not from the folder name). The data is then shown or saved exactly as if it had just been fetched.
+- Miss with `--cache-only` (also when both flags are given): standard output `Error: Cache not available and --cache-only was specified`; or, when the cache is not set up or disabled, `Error: Cache not configured and --cache-only was specified` and `Use 'pbi config set-cache-folder' to configure caching.`; exit 1 and `Aborted!` on standard error.
+- Miss with only `--use-cache`: `Cache not available, fetching from API...` (only when the cache is set up), then the command continues as if fetching (`apps list` first prints `Listing Apps as <role>`), which needs a token (see `auth-profiles`; `workspaces list`, `users user-access` and `apps list --role admin` use the admin group, `apps list` the user group).
+
+## Showing
+
+Without `--target-folder` the result is printed. If it has no `value` list or the list is empty: `No workspaces found.` / `No apps (<role>) found.`. Otherwise a blank line, a line of 80 `=`, the title, a line of 80 `=`, the table, a line of 80 `=`. The title is `Workspaces: <n> record(s)` or `Apps (<role>): <n> record(s)`. The table is the records of `value` as a table with one column per field (nested objects flattened into `a.b` columns), restricted to these columns in this order when at least one of them exists, else all columns: workspaces `id, name, type, state, isReadOnly, isOnDedicatedCapacity`; apps `id, name, description, publishedBy, lastUpdate`. The header line holds the column names, then one line per record. `users user-access` prints `User Access Information for: <ID>` as its title and the whole result as a one-row table instead (one column per top-level field).
+
+## Saving
+
+With `--target-folder FOLDER` (`-tf`) nothing is printed apart from the hit line and the files are saved. A relative FOLDER is under `default_output_folder` when that is set, else under the current directory; a missing folder is created and announced as `creating folder <path>` (the path as joined, absolute only when the current directory was used). `--file-type` (`-ft`, repeatable, default json) chooses `<name>.json` (the data of the cache entry as JSON on one line) and `<name>.xlsx` (a workbook); the name is `--file-name` (`-n`), default `workspaces` or `apps`. `users user-access` does not save (see the open obligation).
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+driver = "cli"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 30
+timeout_seconds = 300

@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "Entry": {
+      "additionalProperties": false,
+      "properties": {
+        "file_stem": {
+          "description": "The result file's name without `.json`.",
+          "title": "File Stem",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "description": "How the workspace is named in progress and failure messages.",
+          "title": "Label",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Name"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "label",
+        "file_stem"
+      ],
+      "title": "Entry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/Entry"
+      },
+      "title": "Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "entries"
+  ],
+  "title": "Output",
+  "type": "object"
+}

@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "child": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Id of the child the call is about.",
+      "title": "Child"
+    },
+    "children": {
+      "description": "[{id, name, deleted?}]",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Children",
+      "type": "array"
+    },
+    "entries": {
+      "description": "[{by?, deleted?}]",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "images": {
+      "default": 0,
+      "title": "Images",
+      "type": "integer"
+    },
+    "me": {
+      "default": "",
+      "title": "Me",
+      "type": "string"
+    },
+    "provider": {
+      "default": "own-key",
+      "enum": [
+        "own-key",
+        "device",
+        "off"
+      ],
+      "title": "Provider",
+      "type": "string"
+    },
+    "reply": {
+      "default": null,
+      "description": "What the AI service answers.",
+      "title": "Reply"
+    },
+    "system": {
+      "title": "System",
+      "type": "string"
+    },
+    "user": {
+      "title": "User",
+      "type": "string"
+    }
+  },
+  "required": [
+    "children",
+    "system",
+    "user"
+  ],
+  "title": "Input",
+  "type": "object"
+}

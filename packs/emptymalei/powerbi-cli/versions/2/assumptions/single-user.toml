@@ -1,0 +1,4 @@
+id = "K-single-user"
+statement = "One `pbi` process at a time uses a home directory and a cache folder, and the machine's clock does not go backwards between runs."
+basis = "`config.yaml`, `credentials.json` and cache files are rewritten without locking. Cache versions are local timestamps to the second, so two saves of one key within a second overwrite each other and a clock change can reorder versions."
+monitor = "none"

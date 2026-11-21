@@ -1,0 +1,27 @@
+[contract]
+id = "lightkone/citation-key"
+version = 1
+title = "Give new papers lightkone's citation keys"
+description = """
+Gives each new paper a BibTeX citation key the way lightkone does when papers
+are added, in Paperpile's style: Hinton2012-ip. Keys are unique within the
+library, and a key, once given, never changes, so LaTeX documents keep
+working.
+"""
+regenerability = "disposable"
+license = "Proprietary (kausalflow)"
+authors = ["kausalflow/lightkone"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200
+timeout_seconds = 300

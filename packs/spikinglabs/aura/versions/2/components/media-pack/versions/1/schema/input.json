@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "additionalProperties": true,
+      "description": "A saved log (or one with references, for unpack).",
+      "title": "Data",
+      "type": "object"
+    },
+    "existing": {
+      "description": "pack: file names already in the media folder.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Existing",
+      "type": "array"
+    },
+    "media": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "unpack: file name -> bytes (base64).",
+      "title": "Media",
+      "type": "object"
+    },
+    "op": {
+      "enum": [
+        "pack",
+        "unpack"
+      ],
+      "title": "Op",
+      "type": "string"
+    }
+  },
+  "required": [
+    "op",
+    "data"
+  ],
+  "title": "Input",
+  "type": "object"
+}

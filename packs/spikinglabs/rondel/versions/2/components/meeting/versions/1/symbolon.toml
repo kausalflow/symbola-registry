@@ -1,0 +1,136 @@
+[contract]
+id = "spikinglabs/meeting"
+version = 1
+title = "A Rondel meeting: its saved document and the operations on it"
+description = """
+A meeting is one shared Yjs document (CRDT; saved and relayed as a Yjs v1 update). Every Rondel client,
+every saved meeting file and every copy on a room server holds this layout, so a rebuild must read and
+write it exactly. Top-level shared types, all Y.Map unless noted; values are whole JSON objects replaced
+on each change, never edited in place:
+  meta        title, type, templateId, template, createdAt, createdBy, facilitators, phase, settings, timer,
+              currentAgendaId, status, closedAt, readyEpoch, seriesName, previousTitle, removed, series
+  columns, cards, agenda, decisions, actions, people, ideas: id -> object (shapes: see the view in examples)
+  votes, ideaVotes: "<itemId>|<voterId>" -> positive integer (a missing key is zero)
+  notes       agenda item id -> Y.Text (the shared notes)
+  brainstorms agenda item id (or "_" for none) -> {step: collect|vote|pick, hidden: bool}
+
+View (what a client reads): null when meta.title is missing or empty. Otherwise meta with defaults for
+absent keys (type general, templateId "", createdAt "", createdBy "", facilitators [], phase null, settings =
+the type's defaults overlaid with stored settings, timer idle, currentAgendaId null, status live,
+closedAt null, readyEpoch 0, seriesName/previousTitle/template/series null, removed []). Lists are sorted:
+columns and agenda by position; cards, decisions, actions and ideas by createdAt (string order; equal
+times have no defined order, so inputs avoid them); people by firstSeen. votes[card] is the sum of the
+counts stored for that card, votesByVoter[voter][card] each count; zero or negative counts are skipped.
+ideaVotes/ideaVotesByVoter likewise, skipping ideas that no longer exist.
+Default settings: showAuthors = type is not retro; votesPerUser 5 for retro else 3; votesPerCard 3 for
+retro else 1; secretVoting = retro; votesRevealed false; openBoard false. Idle timer: running false,
+endsAt null, remainingMs 0, durationMs 0, label null.
+
+Starting a meeting (init): title is trimmed; if empty it becomes the template's title with {date} (the
+clock's UTC date, YYYY-MM-DD) and {month} (English month name and year, "October 2026") filled in, or
+"<template name> – <date>" (en dash) when the template has no title. meta gets type, templateId = template
+id, a copy of the template, createdAt = clock, createdBy = creator, facilitators = the given list when it is
+non-empty, else [creator], series when given, status live, readyEpoch 0, idle timer, seriesName (given, else
+the previous meeting's, else null), previousTitle (previous meeting's title, else null). phase = the activity
+of the first agenda item whose activity is write, group, vote, discuss or actions; else "write" for a retro;
+else null. settings = without a previous meeting: type defaults, overlaid by `defaults`, overlaid by the
+template's settings; with one: its settings with votesRevealed false. Columns get position 1.. in order with
+the template's title, description and color; agenda items get position 1.., done false, owner (template's or
+""), their durationMin, and activity only when it is not topic, screen only when non-empty; each gets a notes
+text holding the template's notes (or empty). With a previous meeting, after the template's items: each
+previous agenda item that is not done, whose title is not a template agenda title and whose activity is
+absent or topic is copied (new id, done false, next positions, empty notes), and each previous action with
+status open is copied (new id, cardId null, carriedFrom = its own carriedFrom, else the previous title).
+The previous meeting is handed over as its view after its steps, with the ids its steps created replaced
+by their names (so ids derived from them are reproducible). Ids are base64url (no padding) strings of 9 bytes derived from the seed, so two clients starting the same
+meeting write the same entries: id(seed, parts...) hashes the text seed|part|part... as written in the
+examples (columns: "column", index from 0; agenda items: "agenda", position from 1; carried topic:
+"carried-topic", previous id; carried action: "carried-action", previous id). The hash is not secret; it
+must match the examples exactly. Ids created by steps are random; the run names them (see below).
+
+Names: every item created gets a name: the step's `ref`, else "<kind>:<n>", n counting creations of that kind
+in the run from 1 (kinds col, card, agenda, idea, action, decision; items made by init count first, in
+position order, but keep their real ids in the output). Steps refer to items by name in args; names not
+found are taken as real ids. Output shows step-created ids by their names.
+
+Steps (people are named by `by`; a person's id is "id-" + lower-case name, their anonymous voter id for the
+meeting is "voter-" + lower-case name; every operation changes the document only; patch operations on items that do not exist change nothing):
+  rename title: trim; ignored if empty; at most 200 characters.
+  settings settings: merge into the current settings. phase phase: set phase, readyEpoch +1, and when phase is
+    discuss or actions and votes are not yet revealed, set votesRevealed. clear_ready: readyEpoch +1.
+  close: status closed, closedAt = clock, timer idle. reopen: status live, closedAt null.
+  join: unless the person is in `removed`, set their people entry {id, name, firstSeen, lastSeen} (firstSeen
+    kept from before) - except when it exists with the same name and lastSeen is less than 5 minutes ago.
+  remove_person person: ignored for the creator; otherwise delete their people entry and facilitator
+    entry and add {id, name} (name as in people, else "") to removed. allow_back person: drop from removed.
+    add_facilitator person: add (no duplicates).
+  timer_start ms[, label]: running, endsAt = clock+ms, remainingMs = durationMs = ms. timer_pause: if running,
+    stop, endsAt null, remainingMs = max(0, endsAt-clock). timer_resume: if stopped with remainingMs > 0, run,
+    endsAt = clock+remainingMs. timer_add ms: running: endsAt and durationMs grow by ms; else remainingMs
+    = max(0, remainingMs+ms) and durationMs grows. timer_reset: idle.
+  add_column title[, description, color]: title trimmed to 80, description to 300, color default from
+    ["#3b7dd8","#2f9e6b","#d4504a","#d99a1e","#8a5cd1","#1f9aa5","#c2557f","#6b7280"] by number of columns
+    modulo 8, position = highest + 1. update_column column, patch. move_column column, to: see positions.
+    delete_column: also deletes its cards.
+  share_card column, text[, color]: text trimmed to 2000; authorName = the person's name when showAuthors or
+    openBoard, else null; groupId/groupTitle null; createdAt = clock. update_card card, patch: merge; when the
+    patch sets columnId the card's group moves with it. delete_card: also its votes; if it was grouped,
+    groups left with fewer than two cards dissolve (groupId and groupTitle null).
+  group card, into: both must exist and differ. The target's group id is its groupId, else the target's own
+    id (set on the target). The card, and every card of the card's old group (if different), get that
+    groupId, groupTitle null and the target's columnId; then groups of fewer than two dissolve.
+    ungroup card: the card leaves its group. If it was the group's id-holder (groupId = its own id) the
+    group passes to another member (which one is not defined; groupId = that member's id) with the group title;
+    then groups of fewer than two dissolve. group_title card, title: store (trimmed to 120, empty = null) on
+    the group's id-holder (the card named by the card's groupId, else the card itself).
+  vote card, delta (1 or -1): the person's count for the card, never below 0, removed at 0. Adding is refused
+    (result "limit", nothing changes) when votesPerUser is not 0 and the person already has that many votes in
+    all, or votesPerCard is not 0 and they already have that many on this card.
+  add_agenda title[, minutes 5, activity]: title trimmed to 200, position highest+1, owner "", done false,
+    activity only if not topic; with a board activity and no phase yet, phase = that activity; empty notes.
+    update_agenda item, patch. move_agenda item, to: see positions. delete_agenda: also its notes, and
+    currentAgendaId becomes null if it was current.
+  set_current item[, start_timer true]: the previous current item (if different) becomes done; currentAgendaId
+    = item; for a board activity different from the phase: phase = it, readyEpoch +1, and votesRevealed
+    for discuss/actions; if start_timer and the item has durationMin > 0: timer as timer_start with
+    durationMin minutes and the item's title as label.
+  notes_insert item, text[, at]: insert into the shared notes (default: at the end).
+  add_idea text, item: trimmed to 500, ignored if empty; {id, text, itemId, by = voter id, createdAt}.
+    edit_idea idea, text: ignored if empty after trim. delete_idea: also its dots.
+    brainstorm item, patch: brainstorms[item or "_"] = {step: collect, hidden: false} overlaid with the
+    stored value, then patch. vote_idea idea, delta: like vote, but the limit is 3 dots in all on the ideas
+    of that idea's agenda item (itemId), any number on one idea. idea_to_action idea: a new open action with
+    the idea's text, owner "", due null, cardId null, carriedFrom null; the idea gets picked "action".
+    idea_to_agenda idea: a new agenda item (title = first line of the text up to 200 characters, 10
+    minutes, position highest+1, empty notes); the idea gets picked "agenda".
+  add_decision text, item: text trimmed to 2000. delete_decision.
+  add_action text[, owner, due, card]: text trimmed to 2000, owner trimmed, due null if empty, status open,
+    carriedFrom null. update_action action, patch. delete_action.
+
+Positions: moving an item to index `to` (0-based, clamped to the list) among the others, ordered by position:
+the new position is 1 if it is alone; (first position) - 1 if it goes first; (last) + 1 if last; else the
+mean of its new neighbours.
+
+Opening an existing meeting: `file` is a meeting file {format: "rondel-meeting", version: 1, roomId, key,
+title, exportedAt, update: base64 Yjs update}; it must be JSON with that format and string update and roomId,
+and its document must hold a meeting, else the call fails with ValueError. `update` is a bare base64 update.
+Anything older Rondel versions saved must keep opening. The output `update` (export) must open again as an
+`update` to the same view.
+"""
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["spikinglabs/rondel"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 100
+timeout_seconds = 300

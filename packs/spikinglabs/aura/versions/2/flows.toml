@@ -1,0 +1,59 @@
+# The flows of PRODUCT.md, in its order: the components each one uses, and the decisions
+# it keeps itself (product-level ones no component's checks cover). `symbola blueprint flows`
+# keeps this file in step with the titles there; `uses` and `keeps` are yours to maintain.
+
+[[flow]]
+id = "first-use"
+title = "First use"
+uses = ["save-guard"]
+
+[[flow]]
+id = "log-a-day"
+title = "Log a day"
+uses = ["save-guard"]
+
+[[flow]]
+id = "sick-mode"
+title = "Sick mode"
+uses = ["reminders", "ai-redaction"]
+
+[[flow]]
+id = "connect-drive"
+title = "Connect Drive"
+uses = ["merge", "backup-retention", "media-pack", "migrate"]
+keeps = ["sync.safe-write"]
+
+[[flow]]
+id = "share-with-a-partner"
+title = "Share with a partner"
+uses = ["merge"]
+
+[[flow]]
+id = "restore"
+title = "Restore"
+uses = ["media-pack", "merge"]
+
+[[flow]]
+id = "vaccinations-checkups-dental"
+title = "Vaccinations, checkups, dental"
+uses = ["schedule", "ics"]
+
+[[flow]]
+id = "documents"
+title = "Documents"
+uses = ["ai-redaction"]
+
+[[flow]]
+id = "growth"
+title = "Growth"
+uses = ["growth-percentile"]
+
+[[flow]]
+id = "recalls"
+title = "Recalls"
+uses = ["reminders"]
+
+[[flow]]
+id = "upgrade"
+title = "Upgrade"
+uses = ["migrate"]

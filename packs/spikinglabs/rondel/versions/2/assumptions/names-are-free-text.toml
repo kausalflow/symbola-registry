@@ -1,0 +1,4 @@
+id = "K-names-are-free-text"
+statement = "People's names are free text, not unique and not verified; a person is identified by a random id kept in their browser."
+basis = "No accounts. The identity is {id, name} in localStorage; the creator is the person whose id is in meta.createdBy."
+monitor = "none"

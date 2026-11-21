@@ -1,0 +1,4 @@
+id = "K-api-shape"
+statement = "The Power BI REST API answers with the shapes the tool reads: lists under `value`, failures under an `error` key, user access under `ArtifactAccessEntities`, scan ids under `id`, scan states `NotStarted`, `Running`, `Succeeded` or `Failed`, and HTTP 202 while a scan result is not ready."
+basis = "These are the documented responses of the endpoints used (admin groups, apps, reports, report users, user artifact access, workspace info scans). The code reads them without checking."
+monitor = "none"

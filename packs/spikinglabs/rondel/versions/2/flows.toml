@@ -1,0 +1,60 @@
+# The flows of PRODUCT.md, in its order: the components each one uses, and the decisions
+# it keeps itself (product-level ones no component's checks cover). `symbola blueprint flows`
+# keeps this file in step with the titles there; `uses` and `keeps` are yours to maintain.
+
+[[flow]]
+id = "start-a-meeting"
+title = "Start a meeting"
+uses = ["link-crypto", "meeting"]
+
+[[flow]]
+id = "join-and-sync"
+title = "Join and sync"
+uses = ["link-crypto", "room"]
+keeps = ["app.sync-client", "app.offline-and-p2p"]
+
+[[flow]]
+id = "run-a-retro"
+title = "Run a retro"
+uses = ["meeting"]
+
+[[flow]]
+id = "run-an-agenda"
+title = "Run an agenda"
+uses = ["meeting"]
+
+[[flow]]
+id = "next-meeting"
+title = "Next meeting"
+uses = ["meeting"]
+
+[[flow]]
+id = "recurring-series"
+title = "Recurring series"
+uses = ["series", "room"]
+
+[[flow]]
+id = "delete-from-server"
+title = "Delete from server"
+uses = ["series", "room"]
+
+[[flow]]
+id = "keep-a-record"
+title = "Keep a record"
+uses = []
+
+[[flow]]
+id = "move-browsers"
+title = "Move browsers"
+uses = ["backup"]
+
+[[flow]]
+id = "templates"
+title = "Templates"
+uses = ["template"]
+
+[[flow]]
+id = "run-your-own-copy"
+title = "Run your own copy"
+uses = ["room"]
+keeps = ["app.health-and-static"]

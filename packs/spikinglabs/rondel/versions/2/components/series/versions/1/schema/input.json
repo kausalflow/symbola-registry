@@ -1,0 +1,184 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "cadence": {
+      "anyOf": [
+        {
+          "enum": [
+            "daily",
+            "weekly",
+            "biweekly",
+            "monthly",
+            "none"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cadence"
+    },
+    "date": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A calendar date, as the person sees it on their calendar.",
+      "title": "Date"
+    },
+    "id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Id"
+    },
+    "info": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Info"
+    },
+    "link": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Link"
+    },
+    "now": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A UTC moment, ISO 8601 with milliseconds.",
+      "title": "Now"
+    },
+    "occ": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Occ"
+    },
+    "occurrences": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Meetings of the series by name.",
+      "title": "Occurrences"
+    },
+    "op": {
+      "enum": [
+        "period",
+        "base_period",
+        "next_period",
+        "next_after",
+        "decide",
+        "latest",
+        "label",
+        "room",
+        "ics",
+        "document"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "period": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Period"
+    },
+    "series_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Series Key"
+    },
+    "steps": {
+      "description": "document: changes to make, each {op, args}.",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Steps",
+      "type": "array"
+    },
+    "update": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "document: a base64 Yjs update of a series document.",
+      "title": "Update"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "Input",
+  "type": "object"
+}

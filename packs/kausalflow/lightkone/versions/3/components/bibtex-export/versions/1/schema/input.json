@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "Paper": {
+      "additionalProperties": false,
+      "description": "The fields of a lightkone paper that the BibTeX writer reads.",
+      "properties": {
+        "abstract": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstract"
+        },
+        "arxiv": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arxiv"
+        },
+        "authors": {
+          "description": "'Last, First' strings or whole names, in order.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Authors",
+          "type": "array"
+        },
+        "doi": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doi"
+        },
+        "fields": {
+          "description": "Other BibTeX fields, in order.",
+          "patternProperties": {
+            "^[a-z][a-z0-9_.:+-]*$": {
+              "type": "string"
+            }
+          },
+          "title": "Fields",
+          "type": "object"
+        },
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File"
+        },
+        "key": {
+          "description": "Citation key.",
+          "title": "Key",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "type": {
+          "description": "Entry type in lower case; empty means misc.",
+          "title": "Type",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "venue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Venue"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "title",
+        "authors"
+      ],
+      "title": "Paper",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "paper": {
+      "$ref": "#/$defs/Paper"
+    }
+  },
+  "required": [
+    "paper"
+  ],
+  "title": "Input",
+  "type": "object"
+}

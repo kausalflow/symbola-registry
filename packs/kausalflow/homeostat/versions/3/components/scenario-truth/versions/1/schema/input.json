@@ -1,0 +1,16 @@
+{
+  "additionalProperties": false,
+  "description": "A valid, library-free scenario (see the description for the vocabulary).",
+  "properties": {
+    "scenario": {
+      "additionalProperties": true,
+      "title": "Scenario",
+      "type": "object"
+    }
+  },
+  "required": [
+    "scenario"
+  ],
+  "title": "Input",
+  "type": "object"
+}

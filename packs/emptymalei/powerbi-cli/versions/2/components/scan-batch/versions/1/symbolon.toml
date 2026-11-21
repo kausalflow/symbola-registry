@@ -1,0 +1,45 @@
+[contract]
+id = "emptymalei/scan-batch"
+version = 1
+title = "pbi workspaces scan batch: the config file and the per-workspace loop"
+description = '''
+`pbi workspaces scan batch -c CONFIG` scans every workspace listed in a YAML file, one scan per workspace, saving each result. The scans themselves call the admin API and cannot be checked; this contract is everything that happens before any request, and what the loop reports when a workspace fails before its scan starts (no admin token: see `auth-profiles`). One call is one run of `pbi` in a scratch directory that holds the given `files` (also the home and current directory). The output reduces it (exit code, standard output with the scratch path as `<scratch>`, `Error:` lines of standard error, files written).
+
+## The config file
+
+A YAML (version 1.1, so `yes`/`no`/`on`/`off` are booleans) mapping with: `workspace_ids` (a list; each entry as in `workspace-entries`), `target_folder`, the booleans `lineage`, `datasource_details`, `dataset_schema`, `dataset_expressions`, `get_artifact_users` (default false), and `interval` (default 5) and `timeout` (default 300), seconds between status checks and the longest wait per workspace.
+
+Problems end the run with exit 1 and an `Error:` line, checked in this order, the first one wins:
+
+1. The file is not a mapping (an empty file is an empty mapping): `Config file CONFIG must contain a YAML mapping.` (CONFIG as given on the command line.)
+2. `workspace_ids` is present and not a list: `'workspace_ids' must be a YAML list.`; an entry without an `id`: `Workspace entry missing 'id'`; any other bad entry: `Invalid workspace entry`. For the last two the offending entry follows the message; how it is written is not specified.
+3. No entries (missing, null or empty): `Config file CONFIG must list at least one workspace ID under 'workspace_ids'.`
+4. `target_folder` missing or empty: `Config file CONFIG must set 'target_folder'.`
+
+Then `target_folder` is resolved (a relative one is under `default_output_folder` of `config.yaml` when that is set, else the current directory), created when missing and announced as `creating folder <path>`. Then:
+
+5. Each of the five flags, in the order above, that is present and not a YAML boolean (`1`, `'true'` and null are refused): `'<flag>' must be a boolean value.`
+6. `interval` and `timeout`: absent or null is the default; otherwise a number or a string holding one (booleans count as 0 and 1). If either is not a number: `'interval' and 'timeout' must be numeric values.`; if either is not above 0: `'interval' and 'timeout' must be greater than 0.`
+
+## The loop
+
+For each entry in order, standard output gets a blank line and `=== Workspace <label> ===` (the label from `workspace-entries`). A workspace that fails prints `✗ <label>: <message>` and the loop goes on; a workspace without an admin token fails with the message of `auth-profiles` (for example `No active profile set for group 'admin'. Use 'pbi auth -g admin' to create a profile or 'pbi profile switch -g admin' to switch profiles.`), and then the scan is not started and no file is written. A workspace that succeeds is saved as `<target folder>/<file_stem>.json` and announced `✓ Saved <path>`. After the loop, if any failed: a blank line, `Failed workspaces: ` with their labels joined by `, `, and exit code 1; else `✓ Scanned <n> workspace(s) into <path>` and exit 0.
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+driver = "cli"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 30
+timeout_seconds = 300

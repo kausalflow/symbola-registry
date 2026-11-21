@@ -1,0 +1,4 @@
+id = "K-recall-feed"
+statement = "The Recall Tracker keeps publishing one public JSON list of baby and children's product recalls at the same address and with the same fields (id, title, company, country_sold_in, publish_datetime, scraped_datetime, url, reason, source)."
+basis = "It is the publisher's own service (spikinglabs/recall-tracker, tracker.babybaras.com) on a public R2 bucket. The app validates that the answer is a list and skips items without id or title."
+monitor = "The app shows the error text of a failed fetch under More; a feed that stops updating shows an old 'scraped' date."

@@ -1,0 +1,4 @@
+id = "K-device-clocks"
+statement = "The devices in a meeting have clocks that agree to within a few seconds, and show the same calendar date at the same moment."
+basis = "The timer stores an absolute end time taken from the starting device's clock, and a series computes its current period (day, ISO week, month) from each person's local date, so people in time zones far apart can compute different periods around midnight."
+monitor = "none"

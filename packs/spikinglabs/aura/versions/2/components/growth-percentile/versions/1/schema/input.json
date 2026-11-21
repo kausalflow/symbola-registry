@@ -1,0 +1,93 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "percentile: when it was measured (ISO 8601, UTC).",
+      "title": "At"
+    },
+    "dob": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "percentile: birth date, YYYY-MM-DD.",
+      "title": "Dob"
+    },
+    "measure": {
+      "enum": [
+        "weightKg",
+        "heightCm",
+        "headCm"
+      ],
+      "title": "Measure",
+      "type": "string"
+    },
+    "months": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "curve: age in months.",
+      "title": "Months"
+    },
+    "op": {
+      "enum": [
+        "percentile",
+        "curve"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "sex": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "'f' or 'm'; anything else has no table.",
+      "title": "Sex"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "percentile: the measurement (kg or cm).",
+      "title": "Value"
+    }
+  },
+  "required": [
+    "op",
+    "measure"
+  ],
+  "title": "Input",
+  "type": "object"
+}

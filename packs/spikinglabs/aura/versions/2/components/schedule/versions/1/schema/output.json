@@ -1,0 +1,57 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "events": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "events: {uid, date, time, booked}.",
+      "title": "Events"
+    },
+    "items": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "status: one entry per item of the plan.",
+      "title": "Items"
+    },
+    "open": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "status: keys the Today screen points out.",
+      "title": "Open"
+    }
+  },
+  "title": "Output",
+  "type": "object"
+}

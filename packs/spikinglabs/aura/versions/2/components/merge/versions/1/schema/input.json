@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "incoming": {
+      "default": null,
+      "description": "merge: the other copy.",
+      "title": "Incoming"
+    },
+    "local": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "merge: this phone's log (collections, example, child).",
+      "title": "Local"
+    },
+    "log": {
+      "default": null,
+      "description": "unknown, is-aura: a saved log.",
+      "title": "Log"
+    },
+    "mine": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "covered: this phone's collections.",
+      "title": "Mine"
+    },
+    "op": {
+      "enum": [
+        "merge",
+        "covered",
+        "unknown",
+        "is-aura"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "theirs": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "covered: the remote copy's collections.",
+      "title": "Theirs"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "Input",
+  "type": "object"
+}

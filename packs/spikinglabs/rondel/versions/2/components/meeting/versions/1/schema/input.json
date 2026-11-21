@@ -1,0 +1,316 @@
+{
+  "$defs": {
+    "Init": {
+      "additionalProperties": false,
+      "properties": {
+        "creator": {
+          "description": "The creator's person id.",
+          "minLength": 1,
+          "title": "Creator",
+          "type": "string"
+        },
+        "defaults": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Defaults"
+        },
+        "facilitators": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Facilitators"
+        },
+        "previous": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Previous"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The meeting this one follows, as it stands after its steps."
+        },
+        "seed": {
+          "description": "Ids of everything the start creates derive from this.",
+          "minLength": 1,
+          "title": "Seed",
+          "type": "string"
+        },
+        "series": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Series"
+        },
+        "series_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Series Name"
+        },
+        "template": {
+          "additionalProperties": true,
+          "description": "A template as the app holds it (camelCase: durationMin).",
+          "title": "Template",
+          "type": "object"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "template",
+        "creator",
+        "seed"
+      ],
+      "title": "Init",
+      "type": "object"
+    },
+    "Previous": {
+      "additionalProperties": false,
+      "properties": {
+        "init": {
+          "$ref": "#/$defs/Init"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/Step"
+          },
+          "title": "Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "init"
+      ],
+      "title": "Previous",
+      "type": "object"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": true,
+          "title": "Args",
+          "type": "object"
+        },
+        "by": {
+          "default": "Ana",
+          "description": "Who does it, by name.",
+          "minLength": 1,
+          "title": "By",
+          "type": "string"
+        },
+        "now": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Move the clock to this moment first.",
+          "title": "Now"
+        },
+        "op": {
+          "enum": [
+            "rename",
+            "settings",
+            "phase",
+            "close",
+            "reopen",
+            "join",
+            "remove_person",
+            "allow_back",
+            "add_facilitator",
+            "clear_ready",
+            "timer_start",
+            "timer_pause",
+            "timer_resume",
+            "timer_add",
+            "timer_reset",
+            "add_column",
+            "update_column",
+            "move_column",
+            "delete_column",
+            "share_card",
+            "update_card",
+            "delete_card",
+            "group",
+            "ungroup",
+            "group_title",
+            "vote",
+            "add_agenda",
+            "update_agenda",
+            "move_agenda",
+            "delete_agenda",
+            "set_current",
+            "notes_insert",
+            "add_idea",
+            "edit_idea",
+            "delete_idea",
+            "brainstorm",
+            "vote_idea",
+            "idea_to_action",
+            "idea_to_agenda",
+            "add_decision",
+            "delete_decision",
+            "add_action",
+            "update_action",
+            "delete_action"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name for the one item this step creates.",
+          "title": "Ref"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "title": "Step",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "export": {
+      "default": false,
+      "description": "Also return the document as a base64 Yjs update.",
+      "title": "Export",
+      "type": "boolean"
+    },
+    "file": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Open a meeting file (its JSON, or its text).",
+      "title": "File"
+    },
+    "init": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Init"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Start a new meeting."
+    },
+    "now": {
+      "description": "The clock when the run starts.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "title": "Now",
+      "type": "string"
+    },
+    "room_id": {
+      "default": "room1",
+      "minLength": 1,
+      "title": "Room Id",
+      "type": "string"
+    },
+    "show": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Limit the output view to these parts: top-level view keys (cards, votes, ...) or meta.<key>; notes only if 'notes' is listed. Default: everything.",
+      "title": "Show"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "title": "Steps",
+      "type": "array"
+    },
+    "update": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Open a document: a base64 Yjs update.",
+      "title": "Update"
+    }
+  },
+  "required": [
+    "now"
+  ],
+  "title": "Input",
+  "type": "object"
+}

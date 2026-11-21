@@ -1,0 +1,41 @@
+[contract]
+id = "emptymalei/flatten"
+version = 1
+title = "Flatten nested Power BI listings into one table per kind of child"
+description = '''
+The shapes `pbi` writes to Excel. A listing has parent objects, each with child lists (users, reports, ...). The Excel files hold one sheet per kind of child, with one row per child that repeats its parent's own fields. The workbook writer is not part of this contract (it turns each sheet into a worksheet; nested objects inside a cell become dotted columns); this contract is the rows.
+
+## kind = "workspaces"
+
+`data` is a non-empty list of workspace objects (the `value` of `pbi workspaces list`). The sheets are, in this order, `users`, `reports`, `dashboards`, `datasets`, `dataflows`, `workbooks`, `workspace`. They are always all present, empty when there are no rows.
+
+A workspace's own fields are the fields whose value is not a list (nested objects and null count as own fields). Fields whose value is a list but whose name is not one of the six child kinds are dropped.
+
+- Sheet `<child>` holds, for each workspace in input order and each element of its `<child>` list in order, one row: the workspace's own fields in their original order, then each field `f` of the child as `<child>_<f>` in the child's order. If an own field has the same name as a prefixed child field, the child's value replaces it in place.
+- Sheet `workspace` holds one row per workspace: just its own fields.
+- Rows from all workspaces are concatenated in input order.
+
+## kind = "app"
+
+`data` is one app object. The same rules with one parent and the children `users`, `reports`, `dashboards`; sheets `users`, `reports`, `dashboards`, `app` in this order (`app` is one row with the app's own fields).
+
+## kind = "report_users"
+
+`data` maps a workspace name to a list of report records; each record has a list under `key` (default `reports_users_value`), the users of that report. The result has the same workspace names in the same order as sheets. A workspace's rows are, for each report in order and each user in the report's list in order, one row: the report's fields other than `key` in their original order, then each user field `f` as `<key>_<f>`. A report whose user list is empty produces no row.
+'''
+regenerability = "disposable"
+license = "MIT"
+authors = ["emptymalei"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 200

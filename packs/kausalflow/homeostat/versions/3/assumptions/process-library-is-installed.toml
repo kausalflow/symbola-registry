@@ -1,0 +1,4 @@
+id = "K-process-library-is-installed"
+statement = "The domain library `process` (version 1) is installed next to the core whenever a scenario names it, so `library: process@1` loads without a network or an install step."
+basis = "pyproject registers it under the 'homeostat.libraries' entry point group, and the package ships with it; the loader reports E_UNKNOWN_LIBRARY if the entry point is missing."
+monitor = "`homeostat validate` of any scenario with `library: process` reports E_UNKNOWN_LIBRARY if it is not."

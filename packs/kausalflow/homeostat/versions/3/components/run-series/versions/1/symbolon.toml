@@ -1,0 +1,59 @@
+[contract]
+id = "kausalflow/run-series"
+version = 1
+title = "Recorded series of a run: timing, exact discretization and random streams"
+description = '''
+The recorded values of chosen signals for a valid library-free scenario (the keys and operators of `scenario-issues`, with `init` left at its default `steady`), and the rules that make them reproducible. Only what holds for every seed is specified; no random number is pinned. An invalid scenario or an unknown signal name raises ValueError.
+
+## Output
+
+`seconds`: the time of each recorded row, 0, e, 2e, ... below `duration`, where e = `output.every` (default dt). `values[signal][lane]`: the series of that signal on that lane, one value per row (null for NaN). The run advances in steps of dt; a row is recorded every e/dt steps.
+
+## One step
+
+At step k (time t = k dt): (1) events due at t are applied; (2) every operator's output is computed from the inputs of this step (operators with direct feedthrough from an input see its current value: schedules, sum; first_order, lag and integrator outputs are their state and do not depend on this step's input); (3) the row is recorded; (4) states are updated from this step's inputs and parameters. So a schedule shows an event in the row of the step that applies it, and first_order, lag or integrator react one row later. An event is applied at the first step at or after its time. A parameter changed by an event acts from the step that applies it, on the state reached.
+
+## Runs start settled
+
+With the default `init: steady` the run starts at the steady state of the initial values with noise off: first_order y = K u, lag y = u, an integrator holds its `initial` (an integrator whose input is not zero cannot settle, so no valid example has one). An event at time 0 changes the inputs, not the starting state.
+
+## Schedules and events
+
+A schedule holds its `value` until an event. `set` moves it to the value, `shift` adds, `scale` multiplies (all relative to the value it holds when applied). A ramp reaches the target linearly over `over` seconds starting at the step that applies the event: value(t) = v0 + (v1 - v0) * min(1, (t - t_applied) / over), where v0 is the value held when applied (an unfinished earlier ramp counts at its current value). Events with the same `at` apply in the written order. `lanes` limits an event to those lanes.
+
+## Exact discretization
+
+Parameters are physical, and the response does not depend on dt. With input u held constant over a step (zero-order hold) and a = exp(-dt / tau): first_order: state' = a state + K (1 - a) u; lag: the same with K = 1; the output is the state. For an input that is a step at time t0 on the grid, y(t) = y_inf + (y_0 - y_inf) exp(-(t - t0) / tau) for every t >= t0, for any dt dividing t0 (y_0 the old value, y_inf = K u_new). Integrator: x' = clip(x + k dt u, lo, hi), starting from `initial`. Sum: bias + sum of weights times inputs, same step.
+
+## Random streams
+
+`ou` is an Ornstein-Uhlenbeck process parametrized by its stationary standard deviation `std` (not by a diffusion constant): exact discretization with a = exp(-dt / tau), stationary mean `mean`, standard deviation `std` and autocorrelation exp(-lag / tau) at any dt. `ar` with coefficients phi (per base step) has stationary standard deviation `std` and mean `mean`; for one coefficient the lag-1 autocorrelation is phi. Both start from their stationary distribution.
+
+Reproducibility: the same scenario (including `seed`) gives the same series every time. A different `seed` gives different noise. Each lane has a noise key (`noise_keys`, default lane k -> key k): the noise of a lane depends only on the seed, its key and the operator, so lanes with the same key share noise, whatever else differs between them (an event on one of them), and a lane's noise does not depend on how many lanes there are. Streams are keyed by the operator's id: adding, removing or reordering other operators, or changing what else happens in the plant, never changes an operator's noise; two operators have unrelated noise.
+'''
+regenerability = "disposable"
+license = "Apache-2.0"
+authors = ["kausalflow"]
+
+[entrypoint]
+function = "run"
+
+[requires]
+network = []
+credentials = []
+state = []
+permissions = []
+
+[spec]
+seed = 0
+max_examples = 30
+timeout_seconds = 600
+
+[spec.statistical.test_noise_sources_start_from_their_stationary_distribution]
+at_least = 0.7
+at_most = 0.9
+samples = 200
+
+[spec.statistical.test_ou_spread_is_the_stated_std_at_any_dt]
+at_least = 0.97
+at_most = 1.03

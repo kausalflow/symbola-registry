@@ -1,0 +1,141 @@
+{
+  "$defs": {
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "status"
+      ],
+      "title": "Check",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Check"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The JSON object's `checks` reduced to id and status.",
+      "title": "Checks"
+    },
+    "codes": {
+      "description": "Issue codes reported: the codes of the JSON object's `errors` then its `warnings`, in order (so a valid scenario's warnings appear here), or the [CODE] tags found in the text of standard error then standard output.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Codes",
+      "type": "array"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The JSON object's `file`.",
+      "title": "File"
+    },
+    "files_written": {
+      "description": "Sorted paths of the files the command left in the directory besides the inputs.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Files Written",
+      "type": "array"
+    },
+    "headline": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "For `validate` in text mode, the first line of standard output; null otherwise.",
+      "title": "Headline"
+    },
+    "json_keys": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Sorted top-level keys of the JSON object on standard output.",
+      "title": "Json Keys"
+    },
+    "ok": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The JSON object's `ok`, when it has one.",
+      "title": "Ok"
+    },
+    "stderr_has_issues": {
+      "description": "Standard error contains a [CODE] issue line.",
+      "title": "Stderr Has Issues",
+      "type": "boolean"
+    },
+    "stdout_kind": {
+      "description": "json when standard output is one JSON object, text when it has other text, empty otherwise.",
+      "title": "Stdout Kind",
+      "type": "string"
+    },
+    "summary": {
+      "description": "The JSON object's `summary`.",
+      "title": "Summary"
+    }
+  },
+  "required": [
+    "exit_code",
+    "stdout_kind",
+    "json_keys",
+    "ok",
+    "codes",
+    "file",
+    "summary",
+    "checks",
+    "files_written",
+    "headline",
+    "stderr_has_issues"
+  ],
+  "title": "Output",
+  "type": "object"
+}

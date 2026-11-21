@@ -1,0 +1,37 @@
+# The flows of PRODUCT.md, in its order: the components each one uses, and the decisions
+# it keeps itself (product-level ones no component's checks cover). `symbola blueprint flows`
+# keeps this file in step with the titles there; `uses` and `keeps` are yours to maintain.
+
+[[flow]]
+id = "first-setup"
+title = "First setup"
+uses = ["auth-profiles"]
+
+[[flow]]
+id = "back-up-all-workspaces"
+title = "Back up all workspaces"
+uses = ["cache-keys", "flatten", "config-cache", "file-converters"]
+keeps = ["app.endpoint-workspaces-list"]
+
+[[flow]]
+id = "work-offline-from-the-cache"
+title = "Work offline from the cache"
+uses = ["cached-reads", "config-cache", "cache-keys"]
+
+[[flow]]
+id = "who-can-open-which-report"
+title = "Who can open which report"
+uses = ["file-converters", "flatten"]
+keeps = ["app.endpoint-report-users"]
+
+[[flow]]
+id = "scan-many-workspaces"
+title = "Scan many workspaces"
+uses = ["scan-batch", "workspace-entries"]
+keeps = ["app.endpoint-scan", "app.scan-polling"]
+
+[[flow]]
+id = "look-at-one-thing"
+title = "Look at one thing"
+uses = []
+keeps = ["app.endpoint-apps-list", "app.endpoint-app", "app.endpoint-user-access", "app.endpoint-reports", "app.scan-get-options"]

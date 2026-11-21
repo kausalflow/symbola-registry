@@ -1,0 +1,138 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "current": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "merge: what this browser's storage holds.",
+      "title": "Current"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "make: {local, docs} to save.",
+      "title": "Data"
+    },
+    "file": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "read: the backup file (JSON, or its text).",
+      "title": "File"
+    },
+    "incoming": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "merge: the backup's local entries.",
+      "title": "Incoming"
+    },
+    "iv": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "make: base64 of 12 bytes for the nonce; random if absent (tests only).",
+      "title": "Iv"
+    },
+    "now": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "make: the moment written as exportedAt (ISO 8601 UTC with milliseconds).",
+      "title": "Now"
+    },
+    "op": {
+      "enum": [
+        "make",
+        "read",
+        "merge"
+      ],
+      "title": "Op",
+      "type": "string"
+    },
+    "passphrase": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Passphrase"
+    },
+    "salt": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "make: base64 of 16 bytes for the key derivation; random if absent (tests only).",
+      "title": "Salt"
+    },
+    "take_identity": {
+      "default": false,
+      "title": "Take Identity",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "Input",
+  "type": "object"
+}

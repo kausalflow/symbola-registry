@@ -1,0 +1,4 @@
+id = "K-yaml-reads-the-scenario-as-written"
+statement = "Scenario authors know YAML's reading of plain scalars: unquoted on/off/yes/no/y/n are booleans and 1e3 without a dot may be a string. The loader does not warn about it (this is why the expectation field is called `signal` and not `on`), and an id such as NO is read as a boolean."
+basis = "load_raw() is yaml.safe_load (YAML 1.1); JSON input goes through the same parser. CLAUDE.md names the `on` pitfall and avoids it in the schema rather than in the loader."
+monitor = "none"

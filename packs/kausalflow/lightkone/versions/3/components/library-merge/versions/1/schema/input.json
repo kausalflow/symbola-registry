@@ -1,0 +1,80 @@
+{
+  "$defs": {
+    "Library": {
+      "additionalProperties": false,
+      "description": "A lightkone library.json. Papers are kept as plain JSON objects: merging must keep every field.",
+      "properties": {
+        "bibSync": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": ".bib files kept in sync with GitHub.",
+          "title": "Bibsync"
+        },
+        "format": {
+          "const": "lightkone-library",
+          "default": "lightkone-library",
+          "title": "Format",
+          "type": "string"
+        },
+        "papers": {
+          "description": "Each paper has a unique string id and any other fields.",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Papers",
+          "type": "array"
+        },
+        "version": {
+          "const": 1,
+          "default": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "papers"
+      ],
+      "title": "Library",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "base": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Library"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The version this device last read or wrote."
+    },
+    "ours": {
+      "$ref": "#/$defs/Library"
+    },
+    "theirs": {
+      "$ref": "#/$defs/Library"
+    }
+  },
+  "required": [
+    "ours",
+    "theirs"
+  ],
+  "title": "Input",
+  "type": "object"
+}

@@ -1,0 +1,85 @@
+{
+  "format": "lightkone-library",
+  "version": 1,
+  "papers": [
+    {
+      "id": "s1",
+      "key": "Noether1918-in",
+      "type": "article",
+      "title": "Invariante Variationsprobleme",
+      "authors": [
+        "Noether, Emmy"
+      ],
+      "year": 1918,
+      "venue": "Göttinger Nachrichten",
+      "tags": [
+        "physics"
+      ],
+      "added": "2024-03-01T09:00:00.000Z",
+      "fields": {
+        "lightkone-read": "yes"
+      },
+      "folders": [
+        "Physics/Classics"
+      ],
+      "starred": true,
+      "notes": "Theorem I: symmetries ↔ conserved currents.\nTheorem II: gauge.",
+      "by": "Ana"
+    },
+    {
+      "id": "s2",
+      "key": "Dirac1928-qu",
+      "type": "article",
+      "title": "The Quantum Theory of the Electron",
+      "authors": [
+        "Dirac, P. A. M."
+      ],
+      "year": 1928,
+      "venue": "Proc. R. Soc. Lond. A",
+      "doi": "https://doi.org/10.1098/rspa.1928.0023",
+      "file": "All Papers/DIRAC/Dirac 1928.pdf",
+      "tags": [],
+      "added": "2024-03-01T09:00:00.000Z",
+      "fields": {},
+      "trashed": "2024-05-02T10:00:00.000Z"
+    },
+    {
+      "id": "s3",
+      "key": "Shannon1948-am",
+      "type": "article",
+      "title": "A Mathematical Theory of Communication",
+      "authors": [
+        "Shannon, C. E."
+      ],
+      "year": 1948,
+      "venue": "Bell System Technical Journal",
+      "tags": [
+        "information theory",
+        "ml"
+      ],
+      "added": "2024-03-01T09:00:00.000Z",
+      "fields": {
+        "volume": "27",
+        "pages": "379--423"
+      },
+      "folders": [],
+      "opened": "2024-06-01T08:00:00.000Z",
+      "rating": 4.5,
+      "pdf": "papers/SHANNON/Shannon 1948 - A Mathematical Theory of Communication.pdf"
+    }
+  ],
+  "bibSync": [
+    {
+      "folder": "Physics",
+      "repo": "ana/thesis",
+      "path": "refs.bib",
+      "tex": "",
+      "aliases": {
+        "shannon": "s3",
+        "1928": "s2",
+        "2": "s1"
+      }
+    }
+  ],
+  "exportedBy": "a sync script"
+}

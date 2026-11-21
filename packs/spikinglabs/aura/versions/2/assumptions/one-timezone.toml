@@ -1,0 +1,4 @@
+id = "K-one-timezone"
+statement = "All dates of the schedules and the calendar are calendar days in the phone's own time zone, and a day is 24 hours."
+basis = "The app computes with local midnight and fixed 24-hour days; on the two days a year when the clocks change, a day or week boundary can fall an hour off. The contracts are stated in a zone without daylight saving."
+monitor = "none"

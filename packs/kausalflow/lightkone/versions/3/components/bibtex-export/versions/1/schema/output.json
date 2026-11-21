@@ -1,0 +1,15 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "description": "The BibTeX entry, ending with a newline.",
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "Output",
+  "type": "object"
+}
